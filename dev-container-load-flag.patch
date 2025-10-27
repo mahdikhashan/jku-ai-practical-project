@@ -1,0 +1,18 @@
+Subject: [PATCH] dev-container-load-flag
+---
+Index: .devcontainer/triton-cpu/devcontainer.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.devcontainer/triton-cpu/devcontainer.json b/.devcontainer/triton-cpu/devcontainer.json
+--- a/.devcontainer/triton-cpu/devcontainer.json	(revision 299b0d454ba650b2d27eba85f2875fd94bf2b412)
++++ b/.devcontainer/triton-cpu/devcontainer.json	(date 1761579888378)
+@@ -1,6 +1,7 @@
+ {
+   "build": {
+     "dockerfile": "Dockerfile",
++    "options": ["--load"],
+     "args": {
+       "USERNAME": "mahdikhashan",
+       "USER_UID": "501",
