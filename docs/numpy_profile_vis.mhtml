@@ -1,0 +1,741 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: http://127.0.0.1:8080/snakeviz/%2Fvar%2Ffolders%2F_z%2F49hgcx6x4db7pjpfzjcphlcm0000gn%2FT%2Ftmpkss8nft2
+Subject: tmpkss8nft2
+Date: Sun, 2 Nov 2025 13:40:04 +0100
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur----"
+
+
+------MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur----
+Content-Type: text/html
+Content-ID: <frame-DC32E7A71FAE0DF1EB98AD6A3B584304@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://127.0.0.1:8080/snakeviz/%2Fvar%2Ffolders%2F_z%2F49hgcx6x4db7pjpfzjcphlcm0000gn%2FT%2Ftmpkss8nft2
+
+<!DOCTYPE html><html key_login_counter=3D"86"><head><meta http-equiv=3D"Con=
+tent-Type" content=3D"text/html; charset=3DUTF-8">
+
+<title>tmpkss8nft2</title>
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">
+<link href=3D"http://127.0.0.1:8080/static/snakeviz.css" rel=3D"stylesheet"=
+>
+<!-- DataTables CSS -->
+<link href=3D"http://127.0.0.1:8080/static/vendor/jquery.dataTables.min.css=
+" rel=3D"stylesheet">
+</head>
+<body>
+<h1 id=3D"snakeviz-text">
+<a href=3D"https://jiffyclub.github.io/snakeviz/">SnakeViz</a>
+</h1>
+<!-- reset button -->
+<span id=3D"resetbuttons">
+<div class=3D"button-div">
+<button id=3D"resetbutton-root" disabled=3D"True">Reset Root</button>
+</div>
+<div class=3D"button-div">
+<button id=3D"resetbutton-zoom" disabled=3D"True">Reset Zoom</button>
+</div>
+</span>
+<!-- style select -->
+<label id=3D"sv-style-label">Style:&nbsp;
+<select name=3D"sv-style" id=3D"sv-style-select">
+<option value=3D"icicle" selected=3D"">Icicle</option>
+<option value=3D"sunburst">Sunburst</option>
+</select>
+</label>
+<!-- depth select -->
+<label id=3D"sv-depth-label">Depth:&nbsp;
+<select name=3D"sv-depth" id=3D"sv-depth-select">
+
+<option value=3D"3">3</option>
+
+<option value=3D"5">5</option>
+
+<option value=3D"10" selected=3D"">10</option>
+
+<option value=3D"15">15</option>
+
+<option value=3D"20">20</option>
+
+</select>
+</label>
+<!-- cutoff select -->
+<label id=3D"sv-cutoff-label">Cutoff:
+<select name=3D"sv-cutoff" id=3D"sv-cutoff-select">
+<option value=3D"0.001" selected=3D"">1 =E2=81=84 1000</option>
+<option value=3D"0.01">1 =E2=81=84 100</option>
+<option value=3D"0">None</option>
+</select>
+</label>
+<!-- information div -->
+<div id=3D"sv-info-div" class=3D"sunburst" style=3D"height: 500.4px; width:=
+ 321.333px; display: none;"><div class=3D"sv-info-label">Name:</div>
+<div class=3D"sv-info-item">matmul</div>
+<div class=3D"sv-info-label">Cumulative Time:</div>
+<div class=3D"sv-info-item">2.65 s (99.86 %)</div>
+<div class=3D"sv-info-label">File:</div>
+<div class=3D"sv-info-item">1409129159.py</div>
+<div class=3D"sv-info-label">Line:</div>
+<div class=3D"sv-info-item">1</div>
+<div class=3D"sv-info-label">Directory:</div>
+<div class=3D"sv-info-item">/var/folders/_z/49hgcx6x4db7pjpfzjcphlcm0000gn/=
+T/ipykernel_92810/</div></div>
+<!-- call stack -->
+<div id=3D"sv-call-stack">
+<div id=3D"working-spinner" class=3D"spinner" style=3D"display: none;">
+<div class=3D"bounce1"></div>
+<div class=3D"bounce2"></div>
+<div class=3D"bounce3"></div>
+</div>
+<div style=3D"display: inline-block;">
+<button id=3D"sv-call-stack-btn">Call Stack</button>
+</div>
+<div id=3D"sv-call-stack-list"><div><span>0.&nbsp;</span><span>~:0(&lt;buil=
+t-in method builtins.exec&gt;)</span></div></div>
+</div>
+<!-- Error message -->
+<div id=3D"sv-error-div" class=3D"sv-error-msg" style=3D"display: none;">
+<p>
+An error occurred processing your profile.
+You can try a lower depth, a larger cutoff,
+or try profiling a smaller portion of your code.
+If you continue to have problems you can
+<a href=3D"https://github.com/jiffyclub/snakeviz/issues">
+contact us on GitHub</a>.
+</p>
+<div id=3D"sv-error-close-div" class=3D"sv-error-close">Close</div>
+</div>
+<!-- vis -->
+<div style=3D"text-align: center;">
+<div id=3D"chart" style=3D"margin-left: auto; margin-right: auto;"><svg wid=
+th=3D"1048.5" height=3D"667.2"><g id=3D"container" transform=3D"translate(9=
+0,60)"><rect id=3D"path-0" x=3D"0" y=3D"0" width=3D"958.5" height=3D"60.720=
+000000000006" fill-rule=3D"evenodd" fill=3D"#3182bd"></rect><rect id=3D"pat=
+h-1" x=3D"0" y=3D"60.720000000000006" width=3D"958.4107492519207" height=3D=
+"60.720000000000006" fill-rule=3D"evenodd" fill=3D"#6baed6"></rect><rect id=
+=3D"path-2" x=3D"0" y=3D"121.44000000000001" width=3D"957.1719676310717" he=
+ight=3D"60.720000000000006" fill-rule=3D"evenodd" fill=3D"#9ecae1"></rect><=
+rect id=3D"path-3" x=3D"957.1719676310717" y=3D"121.44000000000001" width=
+=3D"1.2387816208490763" height=3D"60.720000000000006" fill-rule=3D"evenodd"=
+ fill=3D"#6baed6"></rect><text x=3D"479.25" y=3D"30.360000000000003" width=
+=3D"958.5" height=3D"60.720000000000006" font-family=3D"sans-serif" font-si=
+ze=3D"15px" fill=3D"black" text-anchor=3D"middle" pointer-events=3D"none"><=
+tspan text-anchor=3D"middle" x=3D"479.25">~:0(&lt;built-in method builtins.=
+exec&gt;)</tspan><tspan text-anchor=3D"middle" x=3D"479.25" dy=3D"1.2em">2.=
+65 s</tspan></text><text x=3D"479.20537462596036" y=3D"91.08000000000003" w=
+idth=3D"958.4107492519207" height=3D"60.720000000000006" font-family=3D"san=
+s-serif" font-size=3D"15px" fill=3D"black" text-anchor=3D"middle" pointer-e=
+vents=3D"none"><tspan text-anchor=3D"middle" x=3D"479.20537462596036">&lt;s=
+tring&gt;:1(&lt;module&gt;)</tspan><tspan text-anchor=3D"middle" x=3D"479.2=
+0537462596036" dy=3D"1.2em">2.65 s</tspan></text><text x=3D"478.58598381553=
+58" y=3D"151.8" width=3D"957.1719676310717" height=3D"60.720000000000006" f=
+ont-family=3D"sans-serif" font-size=3D"15px" fill=3D"black" text-anchor=3D"=
+middle" pointer-events=3D"none"><tspan text-anchor=3D"middle" x=3D"478.5859=
+838155358">1409129159.py:1(matmul)</tspan><tspan text-anchor=3D"middle" x=
+=3D"478.5859838155358" dy=3D"1.2em">2.65 s</tspan></text></g></svg></div>
+</div>
+<br>
+<!-- stats table -->
+<div id=3D"table_div">
+<div id=3D"pstats-table_wrapper" class=3D"dataTables_wrapper no-footer"><di=
+v id=3D"pstats-table_filter" class=3D"dataTables_filter"><label>Search:<inp=
+ut type=3D"search" class=3D"" placeholder=3D"" aria-controls=3D"pstats-tabl=
+e"></label></div><table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" cl=
+ass=3D"display dataTable no-footer" id=3D"pstats-table" role=3D"grid" aria-=
+describedby=3D"pstats-table_info" style=3D"width: 1344px;">
+<thead>
+<tr role=3D"row"><th title=3D"Total number of calls to the function. If the=
+re are two numbers, that means the function recursed and the first is the t=
+otal number of calls and the second is the number of primitive (non-recursi=
+ve) calls." class=3D"sorting" tabindex=3D"0" aria-controls=3D"pstats-table"=
+ rowspan=3D"1" colspan=3D"1" aria-label=3D"ncalls: activate to sort column =
+ascending" style=3D"width: 94px;">ncalls</th><th title=3D"Total time spent =
+in the function, not including time spent in calls to sub-functions." class=
+=3D"sorting_desc" tabindex=3D"0" aria-controls=3D"pstats-table" rowspan=3D"=
+1" colspan=3D"1" aria-sort=3D"descending" aria-label=3D"tottime: activate t=
+o sort column ascending" style=3D"width: 116px;">tottime</th><th title=3D"`=
+tottime` divided by `ncalls`" class=3D"sorting" tabindex=3D"0" aria-control=
+s=3D"pstats-table" rowspan=3D"1" colspan=3D"1" aria-label=3D"percall: activ=
+ate to sort column ascending" style=3D"width: 116px;">percall</th><th title=
+=3D"Cumulative time spent in this function and all sub-functions." class=3D=
+"sorting" tabindex=3D"0" aria-controls=3D"pstats-table" rowspan=3D"1" colsp=
+an=3D"1" aria-label=3D"cumtime: activate to sort column ascending" style=3D=
+"width: 129px;">cumtime</th><th title=3D"`cumtime` divided by `ncalls`" cla=
+ss=3D"sorting" tabindex=3D"0" aria-controls=3D"pstats-table" rowspan=3D"1" =
+colspan=3D"1" aria-label=3D"percall: activate to sort column ascending" sty=
+le=3D"width: 110px;">percall</th><th title=3D"File name and line number wer=
+e the function is defined, and the function=E2=80=99s name." class=3D"sorti=
+ng" tabindex=3D"0" aria-controls=3D"pstats-table" rowspan=3D"1" colspan=3D"=
+1" aria-label=3D"filename:lineno(function): activate to sort column ascendi=
+ng" style=3D"width: 563px;">filename:lineno(function)</th></tr>
+</thead>
+<tbody><tr role=3D"row" class=3D"odd"><td class=3D"">1</td><td class=3D"sor=
+ting_1">2.651</td><td class=3D"">2.651</td><td class=3D"">2.651</td><td cla=
+ss=3D"">2.651</td><td class=3D"">1409129159.py:1(matmul)</td></tr><tr role=
+=3D"row" class=3D"even"><td class=3D"">1</td><td class=3D"sorting_1">0.0034=
+31</td><td class=3D"">0.003431</td><td class=3D"">2.654</td><td class=3D"">=
+2.654</td><td class=3D"">&lt;string&gt;:1(&lt;module&gt;)</td></tr><tr role=
+=3D"row" class=3D"odd"><td>1</td><td class=3D"sorting_1">0.0002472</td><td>=
+0.0002472</td><td>2.654</td><td>2.654</td><td>~:0(&lt;built-in method built=
+ins.exec&gt;)</td></tr><tr role=3D"row" class=3D"even"><td>1</td><td class=
+=3D"sorting_1">1.125e-06</td><td>1.125e-06</td><td>1.125e-06</td><td>1.125e=
+-06</td><td>~:0(&lt;method 'disable' of '_lsprof.Profiler' objects&gt;)</td=
+></tr></tbody></table><div class=3D"dataTables_info" id=3D"pstats-table_inf=
+o" role=3D"status" aria-live=3D"polite">Showing 1 to 4 of 4 entries</div></=
+div>
+</div>
+<!-- footer -->
+<footer class=3D"sv-footer">
+<a class=3D"footer-link" href=3D"https://jiffyclub.github.io/snakeviz/">Sna=
+keViz Docs</a>
+</footer>
+<!-- Le javascript
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+ -->
+<!-- Placed at the end of the document so the pages load faster -->
+<!-- Vendor JS -->
+
+
+
+
+
+<!-- SnakeViz JS -->
+
+<!-- Web worker code for generating D3 JSON in a separate thread -->
+
+<!-- Load SnakeViz JS Files -->
+
+
+<!-- Do initial setup stuff -->
+
+
+
+<div id=3D"highlighter--hover-tools" style=3D"display: none;">
+    <div id=3D"highlighter--hover-tools--container">
+        <div class=3D"highlighter--icon highlighter--icon-copy" title=3D"Co=
+py"></div>
+        <!--<div class=3D"highlighter&#45;&#45;separator"></div>
+        <div class=3D"highlighter&#45;&#45;icon highlighter&#45;&#45;icon-c=
+hange-color" title=3D'Change Color'></div>-->
+        <div class=3D"highlighter--separator"></div>
+        <div class=3D"highlighter--icon highlighter--icon-delete" title=3D"=
+Delete"></div>
+    </div>
+</div></body></html>
+------MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur----
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://127.0.0.1:8080/static/images/sort_desc.png
+
+iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAAAByUDbMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
+bWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp
+bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6
+eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEz
+NDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo
+dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw
+dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEu
+MC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVz
+b3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1N
+Ok9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDowMTgwMTE3NDA3MjA2ODExQjM4MkY2QzVGRUYw
+RTJDNCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4MkFEQzYxQTIyQzExMUUxQTFGMUFEQUQ1
+QjJBNTM4QyIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo4MkFEQzYxOTIyQzExMUUxQTFGMUFE
+QUQ1QjJBNTM4QyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9z
+aCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjAyODAxMTc0
+MDcyMDY4MTFCMzgyRjZDNUZFRjBFMkM0IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjAxODAx
+MTc0MDcyMDY4MTFCMzgyRjZDNUZFRjBFMkM0Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpS
+REY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+1fsfwAAAAJdJREFUeNpi/P//PwO1
+ABMDFcGoYaOG0cMwFmyC1Y33IoHUAiD+h8MBGa31SvOJddk6IN4PxBxY8FEgXkO0N4G2/gRSLUD8
+GU3qPRA3A+U/kxpmIBege2U9EB/ApYERX6kBDDtlILUDiFWA+AkQuwNddY2s2ARqvAukJgDxbyCe
+hM8gnLGJBmYDsSoQTyWkkHHQFo4AAQYAAA0piq4hbqwAAAAASUVORK5CYII=
+
+------MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur----
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://127.0.0.1:8080/static/images/sort_both.png
+
+iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAAAByUDbMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
+bWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp
+bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6
+eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEz
+NDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo
+dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw
+dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv
+IiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RS
+ZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpD
+cmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNl
+SUQ9InhtcC5paWQ6MTRDMDM5NjkyMkMxMTFFMUExRjFBREFENUIyQTUzOEMiIHhtcE1NOkRvY3Vt
+ZW50SUQ9InhtcC5kaWQ6MTRDMDM5NkEyMkMxMTFFMUExRjFBREFENUIyQTUzOEMiPiA8eG1wTU06
+RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDoxNEMwMzk2NzIyQzExMUUxQTFG
+MUFEQUQ1QjJBNTM4QyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDoxNEMwMzk2ODIyQzExMUUx
+QTFGMUFEQUQ1QjJBNTM4QyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1w
+bWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pm8NGvcAAADkSURBVHjaYvz//z8DtQATAxUBCzbBu3fv
+InO5gLgNiMuA+BdMUFlZmSyXZQNxFhCnUupNLSDOA2JWIC4AOYhcwxiBuBiIZaB8FajBjOQY5gDE
+gWhiiUBsTaphvEBcC8SCWMRrgJidFMNCoC74gQU7AnEQ1nChZqLFlc4igdQCIP6HwzcZwHQ2n1hv
+rgPi/UDMgQUfBeI1pITZTyBuAeLPaOLvgbgZizjBpAFyAbpX1gPxAXLSGShmJgHxHSj/CRD3QsXJ
+yk6gHD8BiH9DDb5GcmyigdlArArEUwkpZBy0hSNAgAEA5Ho0sMdEmU8AAAAASUVORK5CYII=
+
+------MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://127.0.0.1:8080/static/vendor/jquery.dataTables.min.css
+
+@charset "utf-8";
+
+table.dataTable { width: 100%; margin: 0px auto; clear: both; border-collap=
+se: separate; border-spacing: 0px; }
+
+table.dataTable thead th, table.dataTable tfoot th { font-weight: bold; }
+
+table.dataTable thead th, table.dataTable thead td { padding: 10px 18px; bo=
+rder-bottom: 1px solid rgb(17, 17, 17); }
+
+table.dataTable thead th:active, table.dataTable thead td:active { outline:=
+ none; }
+
+table.dataTable tfoot th, table.dataTable tfoot td { padding: 10px 18px 6px=
+; border-top: 1px solid rgb(17, 17, 17); }
+
+table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.d=
+ataTable thead .sorting_desc, table.dataTable thead .sorting_asc_disabled, =
+table.dataTable thead .sorting_desc_disabled { cursor: pointer; }
+
+table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.d=
+ataTable thead .sorting_desc, table.dataTable thead .sorting_asc_disabled, =
+table.dataTable thead .sorting_desc_disabled { background-repeat: no-repeat=
+; background-position: right center; }
+
+table.dataTable thead .sorting { background-image: url("../images/sort_both=
+.png"); }
+
+table.dataTable thead .sorting_asc { background-image: url("../images/sort_=
+asc.png"); }
+
+table.dataTable thead .sorting_desc { background-image: url("../images/sort=
+_desc.png"); }
+
+table.dataTable thead .sorting_asc_disabled { background-image: url("../ima=
+ges/sort_asc_disabled.png"); }
+
+table.dataTable thead .sorting_desc_disabled { background-image: url("../im=
+ages/sort_desc_disabled.png"); }
+
+table.dataTable tbody tr { background-color: rgb(255, 255, 255); }
+
+table.dataTable tbody tr.selected { background-color: rgb(176, 190, 217); }
+
+table.dataTable tbody th, table.dataTable tbody td { padding: 8px 10px; }
+
+table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, t=
+able.dataTable.display tbody th, table.dataTable.display tbody td { border-=
+top: 1px solid rgb(221, 221, 221); }
+
+table.dataTable.row-border tbody tr:first-child th, table.dataTable.row-bor=
+der tbody tr:first-child td, table.dataTable.display tbody tr:first-child t=
+h, table.dataTable.display tbody tr:first-child td { border-top: none; }
+
+table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td =
+{ border-top: 1px solid rgb(221, 221, 221); border-right: 1px solid rgb(221=
+, 221, 221); }
+
+table.dataTable.cell-border tbody tr th:first-child, table.dataTable.cell-b=
+order tbody tr td:first-child { border-left: 1px solid rgb(221, 221, 221); =
+}
+
+table.dataTable.cell-border tbody tr:first-child th, table.dataTable.cell-b=
+order tbody tr:first-child td { border-top: none; }
+
+table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd {=
+ background-color: rgb(249, 249, 249); }
+
+table.dataTable.stripe tbody tr.odd.selected, table.dataTable.display tbody=
+ tr.odd.selected { background-color: rgb(172, 186, 212); }
+
+table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hove=
+r { background-color: rgb(246, 246, 246); }
+
+table.dataTable.hover tbody tr:hover.selected, table.dataTable.display tbod=
+y tr:hover.selected { background-color: rgb(170, 183, 209); }
+
+table.dataTable.order-column tbody tr > .sorting_1, table.dataTable.order-c=
+olumn tbody tr > .sorting_2, table.dataTable.order-column tbody tr > .sorti=
+ng_3, table.dataTable.display tbody tr > .sorting_1, table.dataTable.displa=
+y tbody tr > .sorting_2, table.dataTable.display tbody tr > .sorting_3 { ba=
+ckground-color: rgb(250, 250, 250); }
+
+table.dataTable.order-column tbody tr.selected > .sorting_1, table.dataTabl=
+e.order-column tbody tr.selected > .sorting_2, table.dataTable.order-column=
+ tbody tr.selected > .sorting_3, table.dataTable.display tbody tr.selected =
+> .sorting_1, table.dataTable.display tbody tr.selected > .sorting_2, table=
+.dataTable.display tbody tr.selected > .sorting_3 { background-color: rgb(1=
+72, 186, 213); }
+
+table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-co=
+lumn.stripe tbody tr.odd > .sorting_1 { background-color: rgb(241, 241, 241=
+); }
+
+table.dataTable.display tbody tr.odd > .sorting_2, table.dataTable.order-co=
+lumn.stripe tbody tr.odd > .sorting_2 { background-color: rgb(243, 243, 243=
+); }
+
+table.dataTable.display tbody tr.odd > .sorting_3, table.dataTable.order-co=
+lumn.stripe tbody tr.odd > .sorting_3 { background-color: whitesmoke; }
+
+table.dataTable.display tbody tr.odd.selected > .sorting_1, table.dataTable=
+.order-column.stripe tbody tr.odd.selected > .sorting_1 { background-color:=
+ rgb(166, 180, 205); }
+
+table.dataTable.display tbody tr.odd.selected > .sorting_2, table.dataTable=
+.order-column.stripe tbody tr.odd.selected > .sorting_2 { background-color:=
+ rgb(168, 181, 207); }
+
+table.dataTable.display tbody tr.odd.selected > .sorting_3, table.dataTable=
+.order-column.stripe tbody tr.odd.selected > .sorting_3 { background-color:=
+ rgb(169, 183, 209); }
+
+table.dataTable.display tbody tr.even > .sorting_1, table.dataTable.order-c=
+olumn.stripe tbody tr.even > .sorting_1 { background-color: rgb(250, 250, 2=
+50); }
+
+table.dataTable.display tbody tr.even > .sorting_2, table.dataTable.order-c=
+olumn.stripe tbody tr.even > .sorting_2 { background-color: rgb(252, 252, 2=
+52); }
+
+table.dataTable.display tbody tr.even > .sorting_3, table.dataTable.order-c=
+olumn.stripe tbody tr.even > .sorting_3 { background-color: rgb(254, 254, 2=
+54); }
+
+table.dataTable.display tbody tr.even.selected > .sorting_1, table.dataTabl=
+e.order-column.stripe tbody tr.even.selected > .sorting_1 { background-colo=
+r: rgb(172, 186, 213); }
+
+table.dataTable.display tbody tr.even.selected > .sorting_2, table.dataTabl=
+e.order-column.stripe tbody tr.even.selected > .sorting_2 { background-colo=
+r: rgb(174, 188, 214); }
+
+table.dataTable.display tbody tr.even.selected > .sorting_3, table.dataTabl=
+e.order-column.stripe tbody tr.even.selected > .sorting_3 { background-colo=
+r: rgb(175, 189, 216); }
+
+table.dataTable.display tbody tr:hover > .sorting_1, table.dataTable.order-=
+column.hover tbody tr:hover > .sorting_1 { background-color: rgb(234, 234, =
+234); }
+
+table.dataTable.display tbody tr:hover > .sorting_2, table.dataTable.order-=
+column.hover tbody tr:hover > .sorting_2 { background-color: rgb(236, 236, =
+236); }
+
+table.dataTable.display tbody tr:hover > .sorting_3, table.dataTable.order-=
+column.hover tbody tr:hover > .sorting_3 { background-color: rgb(239, 239, =
+239); }
+
+table.dataTable.display tbody tr:hover.selected > .sorting_1, table.dataTab=
+le.order-column.hover tbody tr:hover.selected > .sorting_1 { background-col=
+or: rgb(162, 174, 199); }
+
+table.dataTable.display tbody tr:hover.selected > .sorting_2, table.dataTab=
+le.order-column.hover tbody tr:hover.selected > .sorting_2 { background-col=
+or: rgb(163, 176, 201); }
+
+table.dataTable.display tbody tr:hover.selected > .sorting_3, table.dataTab=
+le.order-column.hover tbody tr:hover.selected > .sorting_3 { background-col=
+or: rgb(165, 178, 203); }
+
+table.dataTable.no-footer { border-bottom: 1px solid rgb(17, 17, 17); }
+
+table.dataTable.nowrap th, table.dataTable.nowrap td { white-space: nowrap;=
+ }
+
+table.dataTable.compact thead th, table.dataTable.compact thead td { paddin=
+g: 4px 17px 4px 4px; }
+
+table.dataTable.compact tfoot th, table.dataTable.compact tfoot td { paddin=
+g: 4px; }
+
+table.dataTable.compact tbody th, table.dataTable.compact tbody td { paddin=
+g: 4px; }
+
+table.dataTable th.dt-left, table.dataTable td.dt-left { text-align: left; =
+}
+
+table.dataTable th.dt-center, table.dataTable td.dt-center, table.dataTable=
+ td.dataTables_empty { text-align: center; }
+
+table.dataTable th.dt-right, table.dataTable td.dt-right { text-align: righ=
+t; }
+
+table.dataTable th.dt-justify, table.dataTable td.dt-justify { text-align: =
+justify; }
+
+table.dataTable th.dt-nowrap, table.dataTable td.dt-nowrap { white-space: n=
+owrap; }
+
+table.dataTable thead th.dt-head-left, table.dataTable thead td.dt-head-lef=
+t, table.dataTable tfoot th.dt-head-left, table.dataTable tfoot td.dt-head-=
+left { text-align: left; }
+
+table.dataTable thead th.dt-head-center, table.dataTable thead td.dt-head-c=
+enter, table.dataTable tfoot th.dt-head-center, table.dataTable tfoot td.dt=
+-head-center { text-align: center; }
+
+table.dataTable thead th.dt-head-right, table.dataTable thead td.dt-head-ri=
+ght, table.dataTable tfoot th.dt-head-right, table.dataTable tfoot td.dt-he=
+ad-right { text-align: right; }
+
+table.dataTable thead th.dt-head-justify, table.dataTable thead td.dt-head-=
+justify, table.dataTable tfoot th.dt-head-justify, table.dataTable tfoot td=
+.dt-head-justify { text-align: justify; }
+
+table.dataTable thead th.dt-head-nowrap, table.dataTable thead td.dt-head-n=
+owrap, table.dataTable tfoot th.dt-head-nowrap, table.dataTable tfoot td.dt=
+-head-nowrap { white-space: nowrap; }
+
+table.dataTable tbody th.dt-body-left, table.dataTable tbody td.dt-body-lef=
+t { text-align: left; }
+
+table.dataTable tbody th.dt-body-center, table.dataTable tbody td.dt-body-c=
+enter { text-align: center; }
+
+table.dataTable tbody th.dt-body-right, table.dataTable tbody td.dt-body-ri=
+ght { text-align: right; }
+
+table.dataTable tbody th.dt-body-justify, table.dataTable tbody td.dt-body-=
+justify { text-align: justify; }
+
+table.dataTable tbody th.dt-body-nowrap, table.dataTable tbody td.dt-body-n=
+owrap { white-space: nowrap; }
+
+table.dataTable, table.dataTable th, table.dataTable td { box-sizing: conte=
+nt-box; }
+
+.dataTables_wrapper { position: relative; clear: both; zoom: 1; }
+
+.dataTables_wrapper .dataTables_length { float: left; }
+
+.dataTables_wrapper .dataTables_filter { float: right; text-align: right; }
+
+.dataTables_wrapper .dataTables_filter input { margin-left: 0.5em; }
+
+.dataTables_wrapper .dataTables_info { clear: both; float: left; padding-to=
+p: 0.755em; }
+
+.dataTables_wrapper .dataTables_paginate { float: right; text-align: right;=
+ padding-top: 0.25em; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button { box-sizing: bor=
+der-box; display: inline-block; min-width: 1.5em; padding: 0.5em 1em; margi=
+n-left: 2px; text-align: center; cursor: pointer; border: 1px solid transpa=
+rent; border-radius: 2px; text-decoration: none !important; color: rgb(51, =
+51, 51) !important; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTab=
+les_wrapper .dataTables_paginate .paginate_button.current:hover { border: 1=
+px solid rgb(151, 151, 151); background: linear-gradient(rgb(255, 255, 255)=
+ 0%, rgb(220, 220, 220) 100%); color: rgb(51, 51, 51) !important; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTa=
+bles_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTab=
+les_wrapper .dataTables_paginate .paginate_button.disabled:active { cursor:=
+ default; border: 1px solid transparent; background: transparent; box-shado=
+w: none; color: rgb(102, 102, 102) !important; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover { border: 1=
+px solid rgb(17, 17, 17); background: linear-gradient(rgb(88, 88, 88) 0%, r=
+gb(17, 17, 17) 100%); color: white !important; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:active { outline:=
+ none; background: linear-gradient(rgb(43, 43, 43) 0%, rgb(12, 12, 12) 100%=
+); box-shadow: rgb(17, 17, 17) 0px 0px 3px inset; }
+
+.dataTables_wrapper .dataTables_paginate .ellipsis { padding: 0px 1em; }
+
+.dataTables_wrapper .dataTables_processing { position: absolute; top: 50%; =
+left: 50%; width: 100%; height: 40px; margin-left: -50%; margin-top: -25px;=
+ padding-top: 20px; text-align: center; font-size: 1.2em; background: linea=
+r-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25=
+%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%); }
+
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_fil=
+ter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_=
+processing, .dataTables_wrapper .dataTables_paginate { color: rgb(51, 51, 5=
+1); }
+
+.dataTables_wrapper .dataTables_scroll { clear: both; }
+
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody { }
+
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > =
+thead > tr > th, .dataTables_wrapper .dataTables_scroll div.dataTables_scro=
+llBody > table > thead > tr > td, .dataTables_wrapper .dataTables_scroll di=
+v.dataTables_scrollBody > table > tbody > tr > th, .dataTables_wrapper .dat=
+aTables_scroll div.dataTables_scrollBody > table > tbody > tr > td { vertic=
+al-align: middle; }
+
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > =
+thead > tr > th > div.dataTables_sizing, .dataTables_wrapper .dataTables_sc=
+roll div.dataTables_scrollBody > table > thead > tr > td > div.dataTables_s=
+izing, .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > t=
+able > tbody > tr > th > div.dataTables_sizing, .dataTables_wrapper .dataTa=
+bles_scroll div.dataTables_scrollBody > table > tbody > tr > td > div.dataT=
+ables_sizing { height: 0px; overflow: hidden; margin: 0px !important; paddi=
+ng: 0px !important; }
+
+.dataTables_wrapper.no-footer .dataTables_scrollBody { border-bottom: 1px s=
+olid rgb(17, 17, 17); }
+
+.dataTables_wrapper.no-footer div.dataTables_scrollHead > table, .dataTable=
+s_wrapper.no-footer div.dataTables_scrollBody > table { border-bottom: none=
+; }
+
+.dataTables_wrapper::after { visibility: hidden; display: block; content: "=
+"; clear: both; height: 0px; }
+
+@media screen and (max-width: 767px) {
+  .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_pag=
+inate { float: none; text-align: center; }
+  .dataTables_wrapper .dataTables_paginate { margin-top: 0.5em; }
+}
+
+@media screen and (max-width: 640px) {
+  .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_f=
+ilter { float: none; text-align: center; }
+  .dataTables_wrapper .dataTables_filter { margin-top: 0.5em; }
+}
+------MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://127.0.0.1:8080/static/snakeviz.css
+
+@charset "utf-8";
+
+:root { --dark-theme-white: rgb(200, 200, 200); --dark-theme-gray: #444; --=
+dark-theme-black: #1c1c1c; }
+
+body { padding: 20px; }
+
+button { font-family: monospace; font-size: 20px; background: white; paddin=
+g: 10px 20px; border: 2px solid rgb(68, 68, 68); border-radius: 28px; color=
+: rgb(68, 68, 68); }
+
+button:hover { background: rgb(201, 240, 242); }
+
+button:disabled { color: rgb(204, 204, 204); border-color: rgb(204, 204, 20=
+4); }
+
+button:disabled:hover { background: white; }
+
+.btn-active { background: rgb(92, 189, 237); }
+
+#resetbuttons { position: absolute; top: 60px; }
+
+.button-div { margin-bottom: 10px; }
+
+#snakeviz-text { position: absolute; top: -20px; }
+
+#snakeviz-text > a { color: rgb(204, 204, 204); font-family: monospace; tex=
+t-decoration: none; }
+
+.sv-footer { text-align: right; }
+
+.footer-link { color: rgb(204, 204, 204); font-family: monospace; }
+
+select { font-family: monospace; font-size: 20px; background: white; paddin=
+g: 5px 10px; }
+
+#sv-style-label { font-family: monospace; position: absolute; top: 180px; }
+
+#sv-depth-label { font-family: monospace; position: absolute; top: 220px; }
+
+#sv-cutoff-label { font-family: monospace; position: absolute; top: 260px; =
+}
+
+#sv-info-div { position: absolute; top: 300px; display: none; overflow: hid=
+den; }
+
+.sv-info-label { font-weight: bold; }
+
+.sv-info-item { font-family: monospace; overflow-wrap: break-word; }
+
+#sv-call-stack { position: absolute; right: 0px; padding-right: 10px; font-=
+family: monospace; text-align: right; }
+
+#sv-call-stack-list { text-align: left; overflow-y: scroll; border: 2px sol=
+id gray; background-color: white; margin-top: 5px; display: none; }
+
+#sv-call-stack-list div { cursor: pointer; padding: 0px 10px; }
+
+#sv-call-stack-list div:hover { background-color: rgb(201, 240, 242); }
+
+#sv-call-stack-list div span { display: table-cell; }
+
+#sv-error-div { position: absolute; display: none; }
+
+.sv-error-msg { color: rgb(236, 240, 241); background: rgb(231, 76, 60); bo=
+rder: 3px solid rgb(149, 165, 166); border-radius: 28px; padding: 10px; }
+
+.sv-error-msg a { text-decoration: none; color: rgb(201, 240, 242); }
+
+.sv-error-msg a:hover { text-decoration: underline; color: rgb(92, 189, 237=
+); }
+
+.sv-error-msg p { padding: 0px 20px; }
+
+.sv-error-close { background: rgb(192, 57, 43); text-align: center; padding=
+: 4px; margin: 0px 20px 20px; border-radius: 10px; }
+
+.sv-error-close:hover { background: rgb(165, 33, 18); }
+
+.data-table-hover { background: rgb(201, 240, 242); }
+
+.spinner { display: inline-block; width: 100px; text-align: center; }
+
+.spinner > div { width: 18px; height: 18px; background-color: rgb(51, 51, 5=
+1); border-radius: 100%; display: inline-block; animation: 1.4s ease-in-out=
+ 0s infinite normal both running bouncedelay; }
+
+.spinner .bounce1 { animation-delay: -0.32s; }
+
+.spinner .bounce2 { animation-delay: -0.16s; }
+
+@-webkit-keyframes bouncedelay {=20
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+@keyframes bouncedelay {=20
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.dir-listing { margin-top: 20px; }
+
+g#container rect, g#container path { stroke: rgb(255, 255, 255); }
+
+@media (prefers-color-scheme: dark) {
+  body { background-color: var(--dark-theme-black); color: var(--dark-theme=
+-white); }
+  g#container rect, g#container path { stroke: var(--dark-theme-black); }
+  #sv-call-stack-list { background: var(--dark-theme-gray); }
+  #sv-style-select, #sv-depth-select, #sv-cutoff-select { background: var(-=
+-dark-theme-gray); color: var(--dark-theme-white); }
+  #sv-style-label { color: var(--dark-theme-white); }
+  button { background: var(--dark-theme-gray); border-color: var(--dark-the=
+me-white); color: var(--dark-theme-white); }
+  button:hover { background: rgb(85, 85, 85); cursor: pointer; }
+  button:disabled { color: rgb(110, 110, 110); border-color: rgb(110, 110, =
+110); }
+  button:disabled:hover { background: rgb(85, 85, 85); cursor: default; }
+  #table_div label { color: var(--dark-theme-white); }
+  #table_div input { background-color: rgb(102, 102, 102); color: var(--dar=
+k-theme-white); }
+  #table_div tr { background-color: var(--dark-theme-black); }
+  #table_div td.data-table-hover { background-color: rgb(34, 34, 34); }
+  #table_div td.sorting_1 { background-color: rgb(40, 40, 40); }
+  #table_div th.sorting { background-color: rgb(51, 51, 51); }
+  #table_div th.sorting_desc, #table_div th.sorting_asc { background-color:=
+ var(--dark-theme-gray); }
+}
+------MultipartBoundary--uKc5HSvzpWrEduXwJbzMWwwb962ptiMBrPtMYxPsur------
