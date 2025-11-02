@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="Black">
-    <option name="sdkName" value="Python 3.9" />
-  </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.12.9 Docker (vsc-triton-dev-containers-50d55bf3ee87b0b78d4e26645c71a01b17a153c1c18a403a3e804cd5e580e092:latest)" project-jdk-type="Python SDK" />
-</project>
