@@ -1,0 +1,359 @@
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+Cell In[3], line 1
+----> 1 from fla import *
+
+File ~/PycharmProjects/jku-ai-practical-project/flash-linear-attention/fla/__init__.py:3
+      1 # -*- coding: utf-8 -*-
+----> 3 from fla.layers import (
+      4     ABCAttention,
+      5     Attention,
+      6     BasedLinearAttention,
+      7     BitAttention,
+      8     Comba,
+      9     DeltaFormerAttention,
+     10     DeltaNet,
+     11     GatedDeltaNet,
+     12     GatedDeltaProduct,
+     13     GatedLinearAttention,
+     14     GatedSlotAttention,
+     15     HGRN2Attention,
+     16     HGRNAttention,
+     17     LightNetAttention,
+     18     LinearAttention,
+     19     LogLinearMamba2,
+     20     MesaNet,
+...
+---> 11 import triton
+     12 import triton.language as tl
+     13 from einops import rearrange
+
+ModuleNotFoundError: No module named 'triton'
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+3
+3
+
+array([[4.]], dtype=float32)
+2.9918631967157125
+28.23522245278582
+Mon Nov  3 14:57:35 2025    profiler
+
+         4 function calls in 2.589 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    2.588    2.588    2.588    2.588 1857896467.py:1(matmul)
+        1    0.001    0.001    2.589    2.589 <string>:1(<module>)
+        1    0.000    0.000    2.589    2.589 {built-in method builtins.exec}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+<pstats.Stats at 0x7f08ec2ff8b0>
+         2 function calls in 2.651 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    2.651    2.651    2.651    2.651 /tmp/ipykernel_797732/1857896467.py:1(matmul)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+Defaulting to user installation because normal site-packages is not writeable
+Collecting snakeviz
+  Downloading snakeviz-2.2.2-py3-none-any.whl.metadata (3.6 kB)
+Requirement already satisfied: tornado>=2.0 in /system/user/khashan/.local/lib/python3.9/site-packages (from snakeviz) (6.5.2)
+Downloading snakeviz-2.2.2-py3-none-any.whl (183 kB)
+WARNING: Error parsing dependencies of pyodbc: Invalid version: '4.0.0-unsupported'
+Installing collected packages: snakeviz
+Successfully installed snakeviz-2.2.2
+
+[notice] A new release of pip is available: 25.0.1 -> 25.3
+[notice] To update, run: pip install --upgrade pip
+ 
+*** Profile stats marshalled to file '/tmp/tmpdoimyzvw'.
+Embedding SnakeViz in this document...
+<function display at 0x7f09006c2940>
+
+Defaulting to user installation because normal site-packages is not writeable
+Collecting torch
+  Downloading torch-2.8.0-cp39-cp39-manylinux_2_28_x86_64.whl.metadata (30 kB)
+Collecting filelock (from torch)
+  Downloading filelock-3.19.1-py3-none-any.whl.metadata (2.1 kB)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/lib/python3.9/site-packages (from torch) (4.12.2)
+Collecting sympy>=1.13.3 (from torch)
+  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch)
+  Downloading networkx-3.2.1-py3-none-any.whl.metadata (5.2 kB)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.9/site-packages (from torch) (3.1.6)
+Collecting fsspec (from torch)
+  Downloading fsspec-2025.10.0-py3-none-any.whl.metadata (10 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.8.93 (from torch)
+  Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-runtime-cu12==12.8.90 (from torch)
+  Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-cupti-cu12==12.8.90 (from torch)
+  Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cudnn-cu12==9.10.2.21 (from torch)
+  Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cublas-cu12==12.8.4.1 (from torch)
+  Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufft-cu12==11.3.3.83 (from torch)
+  Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-curand-cu12==10.3.9.90 (from torch)
+  Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cusolver-cu12==11.7.3.90 (from torch)
+  Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparse-cu12==12.5.8.93 (from torch)
+  Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparselt-cu12==0.7.1 (from torch)
+  Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl.metadata (7.0 kB)
+Collecting nvidia-nccl-cu12==2.27.3 (from torch)
+  Downloading nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+Collecting nvidia-nvtx-cu12==12.8.90 (from torch)
+  Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvjitlink-cu12==12.8.93 (from torch)
+  Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufile-cu12==1.13.1.3 (from torch)
+  Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting triton==3.4.0 (from torch)
+  Downloading triton-3.4.0-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+Requirement already satisfied: setuptools>=40.8.0 in /usr/local/lib/python3.9/site-packages (from triton==3.4.0->torch) (78.1.0)
+Requirement already satisfied: importlib-metadata in /usr/local/lib/python3.9/site-packages (from triton==3.4.0->torch) (8.6.1)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib64/python3.9/site-packages (from jinja2->torch) (3.0.2)
+Requirement already satisfied: zipp>=3.20 in /usr/local/lib/python3.9/site-packages (from importlib-metadata->triton==3.4.0->torch) (3.21.0)
+Downloading torch-2.8.0-cp39-cp39-manylinux_2_28_x86_64.whl (888.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 888.0/888.0 MB 22.8 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl (594.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 594.3/594.3 MB 26.2 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (10.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.2/10.2 MB 41.2 MB/s eta 0:00:0000:01
+Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (88.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.0/88.0 MB 37.9 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (954 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 954.8/954.8 kB 17.7 MB/s eta 0:00:00
+Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl (706.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 706.8/706.8 MB 26.0 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (193.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 193.1/193.1 MB 43.8 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 22.6 MB/s eta 0:00:00
+Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl (63.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.6/63.6 MB 45.7 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl (267.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 267.5/267.5 MB 50.3 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (288.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 288.2/288.2 MB 45.0 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl (287.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 287.2/287.2 MB 37.4 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (322.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 322.4/322.4 MB 28.0 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.3/39.3 MB 39.5 MB/s eta 0:00:0000:0100:01
+Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+Downloading triton-3.4.0-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 155.4/155.4 MB 34.9 MB/s eta 0:00:0000:0100:01
+Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 34.5 MB/s eta 0:00:00
+Downloading filelock-3.19.1-py3-none-any.whl (15 kB)
+Downloading fsspec-2025.10.0-py3-none-any.whl (200 kB)
+Downloading networkx-3.2.1-py3-none-any.whl (1.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 25.9 MB/s eta 0:00:00
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 9.6 MB/s eta 0:00:00
+WARNING: Error parsing dependencies of pyodbc: Invalid version: '4.0.0-unsupported'
+Installing collected packages: nvidia-cusparselt-cu12, mpmath, sympy, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, fsspec, filelock, triton, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, nvidia-cusolver-cu12, torch
+Successfully installed filelock-3.19.1 fsspec-2025.10.0 mpmath-1.3.0 networkx-3.2.1 nvidia-cublas-cu12-12.8.4.1 nvidia-cuda-cupti-cu12-12.8.90 nvidia-cuda-nvrtc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-cudnn-cu12-9.10.2.21 nvidia-cufft-cu12-11.3.3.83 nvidia-cufile-cu12-1.13.1.3 nvidia-curand-cu12-10.3.9.90 nvidia-cusolver-cu12-11.7.3.90 nvidia-cusparse-cu12-12.5.8.93 nvidia-cusparselt-cu12-0.7.1 nvidia-nccl-cu12-2.27.3 nvidia-nvjitlink-cu12-12.8.93 nvidia-nvtx-cu12-12.8.90 sympy-1.14.0 torch-2.8.0 triton-3.4.0
+
+[notice] A new release of pip is available: 25.0.1 -> 25.3
+[notice] To update, run: pip install --upgrade pip
+'2.8.0+cu128'
+Mon Nov  3 15:05:23 2025    profiler
+
+         5 function calls in 2.412 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    2.412    2.412    2.412    2.412 {built-in method torch.matmul}
+        1    0.001    0.001    2.412    2.412 <string>:1(<module>)
+        1    0.000    0.000    2.412    2.412 {built-in method builtins.exec}
+        1    0.000    0.000    2.412    2.412 2296730478.py:1(matmul_pytorch)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+<pstats.Stats at 0x7f08ec2cf0d0>
+The snakeviz extension is already loaded. To reload it, use:
+  %reload_ext snakeviz
+ 
+*** Profile stats marshalled to file '/tmp/tmpsxlut9d7'.
+Embedding SnakeViz in this document...
+<function display at 0x7f09006c2940>
+
+Collecting triton==2.3 (from -r ../requirements.colab (line 1))
+  Using cached triton-2.3.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.4 kB)
+Requirement already satisfied: torch in /usr/local/lib/python3.12/dist-packages (from -r ../requirements.colab (line 2)) (2.8.0+cu126)
+Requirement already satisfied: numpy in /usr/local/lib/python3.12/dist-packages (from -r ../requirements.colab (line 3)) (2.0.2)
+Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from triton==2.3->-r ../requirements.colab (line 1)) (3.20.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (4.15.0)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (75.2.0)
+Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (1.13.3)
+Requirement already satisfied: networkx in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (3.5)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (3.1.6)
+Requirement already satisfied: fsspec in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (2025.3.0)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.6.77 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.6.77)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.6.77 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.6.77)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.6.80 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.6.80)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.6.4.1 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.6.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.0.4 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (11.3.0.4)
+Requirement already satisfied: nvidia-curand-cu12==10.3.7.77 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (10.3.7.77)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.1.2 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (11.7.1.2)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.4.2 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.5.4.2)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.3 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (2.27.3)
+Requirement already satisfied: nvidia-nvtx-cu12==12.6.77 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.6.77)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.6.85 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (12.6.85)
+Requirement already satisfied: nvidia-cufile-cu12==1.11.1.6 in /usr/local/lib/python3.12/dist-packages (from torch->-r ../requirements.colab (line 2)) (1.11.1.6)
+...
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+torchaudio 2.8.0+cu126 requires torch==2.8.0, but you have torch 2.3.1 which is incompatible.
+torchvision 0.23.0+cu126 requires torch==2.8.0, but you have torch 2.3.1 which is incompatible.
+Successfully installed nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-8.9.2.26 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.20.5 nvidia-nvtx-cu12-12.1.105 torch-2.3.1 triton-2.3.0
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+---------------------------------------------------------------------------
+AcceleratorError                          Traceback (most recent call last)
+Cell In[37], line 1
+----> 1 profile_triton(32)
+
+Cell In[36], line 9
+      6 import torch
+      8 M = N = K = size
+----> 9 A = torch.randn((M, K), device="cuda", dtype=torch.float32)
+     10 B = torch.randn((K, N), device="cuda", dtype=torch.float32)
+     12 C = matmul_triton_naive(A, B)
+
+AcceleratorError: CUDA error: no kernel image is available for execution on the device
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+         3913 function calls (3802 primitive calls) in 0.007 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    0.000    0.000 {built-in method torch.randn}
+      260    0.000    0.000    0.001    0.000 /usr/lib/python3.12/tokenize.py:577(_generate_tokens_from_c_tokenizer)
+        2    0.000    0.000    0.001    0.001 /usr/lib/python3.12/inspect.py:1239(getblock)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.compile}
+        8    0.000    0.000    0.000    0.000 {built-in method _io.open}
+        1    0.000    0.000    0.000    0.000 {built-in method cuda_utils.get_device_properties}
+      258    0.000    0.000    0.000    0.000 /usr/lib/python3.12/collections/__init__.py:447(_make)
+       15    0.000    0.000    0.000    0.000 {built-in method posix.stat}
+        1    0.000    0.000    0.004    0.004 /usr/local/lib/python3.12/dist-packages/triton/runtime/jit.py:355(run)
+  466/462    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 {built-in method cuda_utils.load_binary}
+     29/1    0.000    0.000    0.000    0.000 /usr/lib/python3.12/ast.py:409(generic_visit)
+        1    0.000    0.000    0.002    0.002 /usr/local/lib/python3.12/dist-packages/triton/runtime/jit.py:432(__init__)
+      271    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0xa22b20}
+     59/1    0.000    0.000    0.000    0.000 /usr/lib/python3.12/ast.py:403(visit)
+      258    0.000    0.000    0.000    0.000 /usr/lib/python3.12/inspect.py:1196(tokeneater)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+      177    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+        1    0.000    0.000    0.001    0.001 /usr/local/lib/python3.12/dist-packages/triton/compiler/compiler.py:212(__init__)
+        7    0.000    0.000    0.000    0.000 {method 'read' of '_io.TextIOWrapper' objects}
+...
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1280(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:653(has_location)
+
+
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+True
+GPU 0: NVIDIA GeForce GTX 1080 Ti (UUID: GPU-d9c5fed3-cb5b-a851-7956-c16fb36d2249)
+GPU 1: NVIDIA GeForce GTX 1080 Ti (UUID: GPU-c226cb77-a30d-4960-a433-c287ef9b66bb)
+GPU 2: NVIDIA GeForce GTX 1080 Ti (UUID: GPU-352fd5d3-bbea-6939-14b8-5113586e7936)
+GPU 3: NVIDIA GeForce GTX 1080 Ti (UUID: GPU-0cefea6d-fdf1-ba03-6451-057a717a9977)
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+Cell In[2], line 4
+      1 from typing import overload
+      3 import numpy as np
+----> 4 import numpy.typing as npt
+
+File /usr/lib64/python3.9/site-packages/numpy/typing/__init__.py:158
+      1 """
+      2 ============================
+      3 Typing (:mod:`numpy.typing`)
+   (...)
+    153 
+    154 """
+    155 # NOTE: The API section will be appended with additional entries
+    156 # further down in this file
+--> 158 from numpy._typing import (
+    159     ArrayLike,
+    160     DTypeLike,
+    161     NBitBase,
+    162     NDArray,
+    163 )
+    165 __all__ = ["ArrayLike", "DTypeLike", "NBitBase", "NDArray"]
+    167 if __doc__ is not None:
+
+ModuleNotFoundError: No module named 'numpy._typing'
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[3], line 2
+      1 @overload
+----> 2 def matmul(a: npt.NDArray[np.float32], b: npt.NDArray[np.float32]) -> np.ndarray: ...
+
+NameError: name 'npt' is not defined
+Defaulting to user installation because normal site-packages is not writeable
+Collecting torch==2.1.2 (from -r ../requirements.institue (line 1))
+  Using cached torch-2.1.2-cp39-cp39-manylinux1_x86_64.whl.metadata (25 kB)
+Requirement already satisfied: filelock in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (3.19.1)
+Requirement already satisfied: typing-extensions in /usr/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (4.12.2)
+Requirement already satisfied: sympy in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (1.14.0)
+Requirement already satisfied: networkx in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (3.2.1)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (3.1.6)
+Requirement already satisfied: fsspec in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (2025.10.0)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.1.105 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (12.1.105)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.1.105 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (12.1.105)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.1.105 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (12.1.105)
+Collecting nvidia-cudnn-cu12==8.9.2.26 (from torch==2.1.2->-r ../requirements.institue (line 1))
+  Using cached nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cublas-cu12==12.1.3.1 (from torch==2.1.2->-r ../requirements.institue (line 1))
+  Using cached nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+Requirement already satisfied: nvidia-cufft-cu12==11.0.2.54 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (11.0.2.54)
+Requirement already satisfied: nvidia-curand-cu12==10.3.2.106 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (10.3.2.106)
+Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch==2.1.2->-r ../requirements.institue (line 1))
+  Using cached nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+Requirement already satisfied: nvidia-cusparse-cu12==12.1.0.106 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (12.1.0.106)
+Requirement already satisfied: nvidia-nccl-cu12==2.18.1 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (2.18.1)
+Requirement already satisfied: nvidia-nvtx-cu12==12.1.105 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (12.1.105)
+Requirement already satisfied: triton==2.1.0 in /system/user/khashan/.local/lib/python3.9/site-packages (from torch==2.1.2->-r ../requirements.institue (line 1)) (2.1.0)
+Requirement already satisfied: nvidia-nvjitlink-cu12 in /system/user/khashan/.local/lib/python3.9/site-packages (from nvidia-cusolver-cu12==11.4.5.107->torch==2.1.2->-r ../requirements.institue (line 1)) (12.8.93)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib64/python3.9/site-packages (from jinja2->torch==2.1.2->-r ../requirements.institue (line 1)) (3.0.2)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /system/user/khashan/.local/lib/python3.9/site-packages (from sympy->torch==2.1.2->-r ../requirements.institue (line 1)) (1.3.0)
+Using cached torch-2.1.2-cp39-cp39-manylinux1_x86_64.whl (670.2 MB)
+Using cached nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)
+Using cached nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl (731.7 MB)
+Using cached nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)
+WARNING: Error parsing dependencies of pyodbc: Invalid version: '4.0.0-unsupported'
+Installing collected packages: nvidia-cublas-cu12, nvidia-cusolver-cu12, nvidia-cudnn-cu12, torch
+  Attempting uninstall: nvidia-cublas-cu12
+    Found existing installation: nvidia-cublas-cu12 12.8.4.1
+    Uninstalling nvidia-cublas-cu12-12.8.4.1:
+      Successfully uninstalled nvidia-cublas-cu12-12.8.4.1
+  Rolling back uninstall of nvidia-cublas-cu12
+  Moving to /system/user/khashan/.local/lib/python3.9/site-packages/nvidia/__pycache__/
+   from /system/user/khashan/.local/lib/python3.9/site-packages/nvidia/~_pycache__
+  Moving to /system/user/khashan/.local/lib/python3.9/site-packages/nvidia/cublas/
+   from /system/user/khashan/.local/lib/python3.9/site-packages/nvidia/~ublas
+  Moving to /system/user/khashan/.local/lib/python3.9/site-packages/nvidia_cublas_cu12-12.8.4.1.dist-info/
+   from /system/user/khashan/.local/lib/python3.9/site-packages/~vidia_cublas_cu12-12.8.4.1.dist-info
+ERROR: Could not install packages due to an OSError: [Errno 28] No space left on device
+
+
+[notice] A new release of pip is available: 25.0.1 -> 25.3
+[notice] To update, run: pip install --upgrade pip
