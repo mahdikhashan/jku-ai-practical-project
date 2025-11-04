@@ -1,0 +1,152 @@
+[khashan@student01 jku-ai-practical-project]$ python
+Python 3.9.21 (main, Aug 19 2025, 00:00:00) 
+[GCC 11.5.0 20240719 (Red Hat 11.5.0-5)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 13, in <module>
+    def profile_kernel(kernel: Callable, size=1024):
+NameError: name 'Callable' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_triton(matmul_triton_naive, 32)
+NameError: name 'profile_triton' is not defined
+>>> import kernels.matmul
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 1382, in <module>
+    from .functional import *  # noqa: F403
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/functional.py", line 7, in <module>
+    import torch.nn.functional as F
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/__init__.py", line 1, in <module>
+    from .modules import *  # noqa: F403
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/modules/__init__.py", line 2, in <module>
+    from .linear import Identity, Linear, Bilinear, LazyLinear
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/modules/linear.py", line 7, in <module>
+    from .. import functional as F
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/functional.py", line 20, in <module>
+    from .._jit_internal import boolean_dispatch, _overload, BroadcastingList1, BroadcastingList2, BroadcastingList3
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/_jit_internal.py", line 42, in <module>
+    import torch.package._mangling as package_mangling
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 846, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 941, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1041, in get_data
+KeyboardInterrupt
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> exit
+Use exit() or Ctrl-D (i.e. EOF) to exit
+>>> exit()
+^[[A^[[B
+
+
+
+
+
+
+
+
+^C
+[khashan@student01 jku-ai-practical-project]$ ^C
+[khashan@student01 jku-ai-practical-project]$ ^C
+[khashan@student01 jku-ai-practical-project]$ ^C
+[khashan@student01 jku-ai-practical-project]$ ^C
+[khashan@student01 jku-ai-practical-project]$ ^C
+[khashan@student01 jku-ai-practical-project]$ ^C
+[khashan@student01 jku-ai-practical-project]$ python
+Python 3.9.21 (main, Aug 19 2025, 00:00:00) 
+[GCC 11.5.0 20240719 (Red Hat 11.5.0-5)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import kernels.matmul
+/tmp/tmpfu5jcwie/cuda_utils.c:5:10: fatal error: Python.h: No such file or directory
+    5 | #include <Python.h>
+      |          ^~~~~~~~~~
+compilation terminated.
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 25, in profile_kernel
+    C = kernel(A, B)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 67, in matmul_triton_naive
+    kernel[grid](
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/jit.py", line 390, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/jit.py", line 551, in run
+    device = driver.active.get_current_device()
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/driver.py", line 30, in __getattr__
+    return getattr(self._initialize_obj(), name)
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/driver.py", line 26, in _initialize_obj
+    self._obj = self._init_fn()
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/driver.py", line 12, in _create_driver
+    return active_drivers[0]()
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/backends/nvidia/driver.py", line 715, in __init__
+    self.utils = CudaUtils()  # TODO: make static
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/backends/nvidia/driver.py", line 62, in __init__
+    mod = compile_module_from_src(
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/build.py", line 88, in compile_module_from_src
+    so = _build(name, src_path, tmpdir, library_dirs or [], include_dirs or [], libraries or [])
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/triton/runtime/build.py", line 51, in _build
+    subprocess.check_call(cc_cmd, stdout=subprocess.DEVNULL)
+  File "/usr/lib64/python3.9/subprocess.py", line 373, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/usr/bin/gcc', '/tmp/tmpfu5jcwie/cuda_utils.c', '-O3', '-shared', '-fPIC', '-Wno-psabi', '-o', '/tmp/tmpfu5jcwie/cuda_utils.cpython-39-x86_64-linux-gnu.so', '-lcuda', '-L/system/user/khashan/.local/lib/python3.9/site-packages/triton/backends/nvidia/lib', '-L/lib64', '-L/lib', '-I/system/user/khashan/.local/lib/python3.9/site-packages/triton/backends/nvidia/include', '-I/tmp/tmpfu5jcwie', '-I/usr/include/python3.9']' returned non-zero exit status 1.
+>>> 

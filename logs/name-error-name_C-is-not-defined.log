@@ -1,0 +1,75 @@
+[khashan@student01 jku-ai-practical-project]$ python
+Python 3.9.21 (main, Aug 19 2025, 00:00:00) 
+[GCC 11.5.0 20240719 (Red Hat 11.5.0-5)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 13, in <module>
+    def profile_kernel(kernel: Callable, size=1024):
+NameError: name 'Callable' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_triton(matmul_triton_naive, 32)
+NameError: name 'profile_triton' is not defined
+>>> import kernels.matmul
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 1382, in <module>
+    from .functional import *  # noqa: F403
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/functional.py", line 7, in <module>
+    import torch.nn.functional as F
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/__init__.py", line 1, in <module>
+    from .modules import *  # noqa: F403
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/modules/__init__.py", line 2, in <module>
+    from .linear import Identity, Linear, Bilinear, LazyLinear
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/modules/linear.py", line 7, in <module>
+    from .. import functional as F
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/nn/functional.py", line 20, in <module>
+    from .._jit_internal import boolean_dispatch, _overload, BroadcastingList1, BroadcastingList2, BroadcastingList3
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/_jit_internal.py", line 42, in <module>
+    import torch.package._mangling as package_mangling
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 846, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 941, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1041, in get_data
+KeyboardInterrupt
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> import kernels.matmul
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 75, in <module>
+    assert profile_kernel(matmul_triton_naive, 32)
+  File "/system/user/khashan/jku-ai-practical-project/kernels/matmul.py", line 19, in profile_kernel
+    import torch
+  File "/system/user/khashan/.local/lib/python3.9/site-packages/torch/__init__.py", line 465, in <module>
+    for name in dir(_C):
+NameError: name '_C' is not defined
+>>> 
