@@ -1,6 +1,10 @@
 .idea
 
 .DS_Store
+.idea
 
 TOKEN
 dump.rdb
+
+./server
+server/
