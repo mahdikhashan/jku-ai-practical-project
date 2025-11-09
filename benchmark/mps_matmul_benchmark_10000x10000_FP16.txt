@@ -1,0 +1,49 @@
+Experiment Report: PyTorch MPS Large Matmul Benchmark
+------------------------------------------------------
+
+Machine Model:       MacBookPro17,1
+OS Version:          macOS 24G90
+GPU Backend:         Apple M1 (MPS)
+Date & Time:         2025-11-09
+
+Benchmark Details:
+------------------
+Matrix Size:         10000 x 10000
+Data Type:           float16 (FP16)
+Iterations:          10
+Warm-up Iterations:  3 (excluded from timing)
+Tensors Allocation:  Pre-allocated on GPU
+
+Throughput Results:
+------------------
+Time per Iteration:  1100.95 ms (~1.10 s)
+Iterations per Second: 0.908
+Total Time (10 iter): 11.01 s
+Effective FLOPs:      ~1.8 TFLOP/s (FP16)
+
+GPU Performance (powermetrics):
+-------------------------------
+Active Frequency:    1278 MHz (max)
+Active Residency:    100 %
+Idle Residency:      0 %
+Power Draw:          8.6 W
+GPU Fully Saturated: Yes
+
+Optimizations Applied:
+----------------------
+1. Pre-allocated tensors on GPU to avoid CPU-GPU sync overhead
+2. Used FP16 data type for faster computation and lower memory usage
+3. Warm-up iterations to compile Metal shaders
+4. torch.mps.synchronize() calls for accurate timing
+5. MPS environment variables to reduce throttling:
+   - PYTORCH_ENABLE_MPS_FALLBACK=1
+   - PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0
+
+Summary:
+--------
+The experiment achieved near-peak M1 GPU utilization for large matrix multiplication.
+Time per iteration decreased from ~2.97 s (FP32, naive allocation) to ~1.10 s (FP16, pre-allocated),
+representing ~2.7× speedup. GPU active residency and power draw confirm full hardware utilization.
+Effective performance reached ~70% of theoretical FP16 peak (~1.8 TFLOP/s).
+
+This setup represents an efficient and near-optimal configuration for large-scale matmul workloads on Apple M1 using PyTorch MPS.

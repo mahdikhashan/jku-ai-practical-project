@@ -44,5 +44,93 @@
     "total_time_sec": 27.577998042004765,
     "num_iterations": 10000,
     "timestamp": "2025-11-09T06:28:18.935269"
+  },
+  {
+    "job_id": "1196e407",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 470.00616417572803,
+    "time_per_iter_ms": 2.1276316700095776,
+    "total_time_sec": 0.21276316700095776,
+    "num_iterations": 100,
+    "timestamp": "2025-11-09T22:42:12.627983"
+  },
+  {
+    "job_id": "5ca56b25",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 511.2284948450203,
+    "time_per_iter_ms": 1.9560725000337698,
+    "total_time_sec": 0.19560725000337698,
+    "num_iterations": 100,
+    "timestamp": "2025-11-09T22:42:56.243231"
+  },
+  {
+    "job_id": "82009dc9",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 505.1254543153897,
+    "time_per_iter_ms": 1.9797062124998774,
+    "total_time_sec": 19.797062124998774,
+    "num_iterations": 10000,
+    "timestamp": "2025-11-09T22:43:56.551349"
+  },
+  {
+    "job_id": "222764f6",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 9.199572066855003,
+    "time_per_iter_ms": 108.70070832999772,
+    "total_time_sec": 10.870070832999772,
+    "num_iterations": 100,
+    "timestamp": "2025-11-09T22:44:58.778397"
+  },
+  {
+    "job_id": "758cb3c5",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 0.3366518206729159,
+    "time_per_iter_ms": 2970.428016700316,
+    "total_time_sec": 29.704280167003162,
+    "num_iterations": 10,
+    "timestamp": "2025-11-09T22:53:07.962422"
+  },
+  {
+    "job_id": "40f4b7c4",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 0.9083064729133083,
+    "time_per_iter_ms": 1100.9499874999165,
+    "total_time_sec": 11.009499874999165,
+    "num_iterations": 10,
+    "timestamp": "2025-11-09T22:59:26.474413"
+  },
+  {
+    "job_id": "6a5ffd4e",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 0.8220378198785624,
+    "time_per_iter_ms": 1216.4890420099255,
+    "total_time_sec": 1.2164890420099255,
+    "num_iterations": 1,
+    "timestamp": "2025-11-09T23:03:00.122407"
+  },
+  {
+    "job_id": "fde47f3f",
+    "type": "throughput",
+    "status": "completed",
+    "device": "mps",
+    "throughput_iter_per_sec": 0.9973226872503982,
+    "time_per_iter_ms": 1002.6844999956666,
+    "total_time_sec": 2.005368999991333,
+    "num_iterations": 2,
+    "timestamp": "2025-11-09T23:03:26.619027"
   }
 ]

@@ -30,10 +30,7 @@ def submit(args):
     
     # task
     task_map = {
-        'memory': tasks.benchmark_memory,
         'throughput': tasks.benchmark_throughput,
-        'inference': tasks.benchmark_inference,
-        'stability': tasks.benchmark_stability,
     }
     
     task = task_map[args.type]
