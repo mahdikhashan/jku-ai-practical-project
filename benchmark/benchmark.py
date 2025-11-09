@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Simple CLI tool for submitting and viewing benchmarks
-"""
-
 import sys
 import json
 import uuid
@@ -13,10 +8,11 @@ from celery_app import app
 import tasks
 
 def submit(args):
-    """Submit a benchmark job"""
+    """
+    Submit a benchmark job
+    """
     job_id = str(uuid.uuid4())[:8]
     
-    # Read code from file or stdin
     if args.code_file:
         with open(args.code_file, 'r') as f:
             code = f.read()
@@ -24,7 +20,6 @@ def submit(args):
         print("Enter your code (Ctrl+D when done):")
         code = sys.stdin.read()
     
-    # Parse parameters
     params = {}
     if args.batch_size:
         params['batch_size'] = args.batch_size
@@ -33,7 +28,7 @@ def submit(args):
     if args.num_iterations:
         params['num_iterations'] = args.num_iterations
     
-    # Submit task
+    # task
     task_map = {
         'memory': tasks.benchmark_memory,
         'throughput': tasks.benchmark_throughput,
@@ -51,7 +46,9 @@ def submit(args):
     print(f"\nCheck status with: python benchmark.py status {result.id}")
 
 def status(args):
-    """Check job status"""
+    """
+    Check job status
+    """
     result = AsyncResult(args.task_id, app=app)
     
     print(f"Task ID: {args.task_id}")
@@ -132,7 +129,9 @@ def view(args):
         print("No results file found")
 
 def compare(args):
-    """Compare two jobs"""
+    """
+    Compare two jobs
+    """
     try:
         with open('results.json', 'r') as f:
             results = json.load(f)
@@ -148,7 +147,6 @@ def compare(args):
         print(f"Comparing: {args.job1} vs {args.job2}")
         print("=" * 60)
         
-        # Find common metrics
         metrics1 = {k: v for k, v in job1.items() if isinstance(v, (int, float))}
         metrics2 = {k: v for k, v in job2.items() if isinstance(v, (int, float))}
         
@@ -174,14 +172,14 @@ def compare(args):
     except FileNotFoundError:
         print("No results file found")
 
-def main():
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Benchmark CLI - Submit and view PyTorch/NumPy benchmarks'
     )
     
     subparsers = parser.add_subparsers(dest='command', help='Commands')
     
-    # Submit command
     submit_parser = subparsers.add_parser('submit', help='Submit a benchmark job')
     submit_parser.add_argument('type', choices=['memory', 'throughput', 'inference', 'stability'])
     submit_parser.add_argument('-f', '--code-file', help='Python file to benchmark')
@@ -190,35 +188,24 @@ def main():
     submit_parser.add_argument('-n', '--num-iterations', type=int, help='Number of iterations')
     submit_parser.set_defaults(func=submit)
     
-    # Status command
     status_parser = subparsers.add_parser('status', help='Check job status')
     status_parser.add_argument('task_id', help='Celery task ID')
     status_parser.set_defaults(func=status)
     
-    # List command
     list_parser = subparsers.add_parser('list', help='List all jobs')
     list_parser.add_argument('-l', '--limit', type=int, default=20, help='Number of jobs to show')
     list_parser.set_defaults(func=list_jobs)
     
-    # View command
     view_parser = subparsers.add_parser('view', help='View job details')
     view_parser.add_argument('job_id', help='Job ID')
     view_parser.add_argument('-v', '--verbose', action='store_true', help='Show full traceback on errors')
     view_parser.set_defaults(func=view)
     
-    # Compare command
     compare_parser = subparsers.add_parser('compare', help='Compare two jobs')
     compare_parser.add_argument('job1', help='First job ID')
     compare_parser.add_argument('job2', help='Second job ID')
     compare_parser.set_defaults(func=compare)
     
     args = parser.parse_args()
-    
-    if not args.command:
-        parser.print_help()
-        return
-    
+        
     args.func(args)
-
-if __name__ == '__main__':
-    main()

@@ -8,3 +8,6 @@ dump.rdb
 
 ./server
 server/
+
+
+__pycache__

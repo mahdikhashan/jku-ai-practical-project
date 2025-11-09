@@ -1,13 +1,11 @@
 from celery import Celery
 
-# Simple Celery app
 app = Celery(
     'benchmarks',
     broker='redis://localhost:6379/0',
     backend='redis://localhost:6379/0'
 )
 
-# Basic configuration
 app.conf.update(
     task_serializer='json',
     accept_content=['json'],
