@@ -1,6 +1,0 @@
-name: jku-ai-practical-project
-channels:
-  - defaults
-dependencies:
-  - python=3.10
-prefix: /Users/mahdikhashan/miniconda3/envs/jku-ai-practical-project
