@@ -11,7 +11,7 @@ import torch
 import triton
 import triton.language as tl
 
-from .helper import is_cuda, DEVICE
+from helper import is_cuda, DEVICE
 
 
 TORCH_HAS_FP8 = hasattr(torch, "float8_e5m2")
