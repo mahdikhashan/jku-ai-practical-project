@@ -11,10 +11,19 @@ import torch
 import triton
 import triton.language as tl
 
-from helper import is_cuda, DEVICE
+# from helper import is_cuda, DEVICE
 
 
 TORCH_HAS_FP8 = hasattr(torch, "float8_e5m2")
+
+is_cuda = torch.cuda.is_available()
+if is_cuda:
+    DEVICE = torch.device("cuda:0") 
+else:
+    DEVICE = torch.device("cpu")
+
+def is_cuda():
+    return torch.cuda.is_available()
 
 @triton.jit
 def kernel(
