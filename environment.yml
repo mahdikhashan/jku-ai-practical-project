@@ -1,6 +1,9 @@
 name: jku-ai-practical-project
 channels:
   - defaults
+  - pytorch
 dependencies:
   - python=3.10
-prefix: /Users/mahdikhashan/miniconda3/envs/jku-ai-practical-project
+  - pip
+  - pip:
+    - torch==2.1.2
