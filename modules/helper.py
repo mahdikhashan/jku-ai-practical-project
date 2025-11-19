@@ -57,3 +57,9 @@ def get_1d_mask(offs, max): return offs < max
 
 @triton.jit
 def get_2d_mask(offs_0, offs_1, max_0, max_1): return (tl.expand_dims(offs_0, 1) < max_0) & (tl.expand_dims(offs_1, 0) < max_1)
+
+# ref: https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html#final-result
+DEVICE = triton.runtime.driver.active.get_active_torch_device()
+
+def is_cuda():
+    return triton.runtime.driver.active.get_current_target().backend == "cuda"
