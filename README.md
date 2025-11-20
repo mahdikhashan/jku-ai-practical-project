@@ -7,3 +7,9 @@ Lizard Paper Implementation
     - it setups git user with dedicated token
 - on each login, `conda activate jku-ai-practical-project` should be used to activate conda environment.
 ---
+
+#### Modules
+
+```sh
+CUDA_VISIBLE_DEVICES=0 python ./modules/matmul_naive_fp16.py
+```
