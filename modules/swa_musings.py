@@ -72,3 +72,6 @@ def swa_strided(q, k, v, window_sizes: tuple[int, int] = (15, 16)):
     qk_masked = torch.masked_fill(qk, fwd_inv_mask | bwd_inv_mask, -float("inf"))
     a = torch.softmax(qk_masked, dim=-1)
     return torch.sum(a.unsqueeze(-1) * v_strided, dim=-2)
+
+if __name__ == "__main__":
+    pass
