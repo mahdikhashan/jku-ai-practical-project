@@ -73,8 +73,8 @@ def profile_kernel(kernel: Callable, size=1024):
     profiler.enable()
 
     M = N = K = size
-    A = torch.randn((M, K), device="cuda", dtype=torch.float32)
-    B = torch.randn((K, N), device="cuda", dtype=torch.float32)
+    A = torch.randn((M, K), device=DEVICE, dtype=torch.float32)
+    B = torch.randn((K, N), device=DEVICE, dtype=torch.float32)
 
     C = kernel(A, B)
 
@@ -86,7 +86,7 @@ def profile_kernel(kernel: Callable, size=1024):
 
 if __name__ == "__main__":    
     M, N, K = 3, 3, 3 
-    DTYPE = torch.float16 
+    DTYPE = torch.float32 
     
     print(f"Running Triton MatMul for a {M}x{K} @ {K}x{N} = {M}x{N} matrix (3x3)...")
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     C_ref = torch.matmul(A, B)
 
     if torch.allclose(C_triton, C_ref, atol=1e-4):
-        print(f"Correctness Check Passed (Tolerance: {TOLERANCE})")
+        print(f"Correctness Check Passed (Tolerance: {1e-4})")
         print("Triton Result (C_triton):")
         print(C_triton)
     else:
