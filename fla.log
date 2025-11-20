@@ -1,0 +1,32 @@
+(/system/apps/studentenv/khashan/jku-ai-practical-project) [khashan@student01 fla]$ python -c "import fla; print(f'Success! Installed version: {fla.__version__}')"
+Current Triton version 2.1.0 is below the recommended 3.2.0 version. Errors may occur and these issues will not be fixed. Please consider upgrading Triton.
+Current Python version 3.10 is below the recommended 3.11 version. It is recommended to upgrade to Python 3.11 or higher for the best experience.
+/system/user/khashan/jku-ai-practical-project/fla/fla/utils.py:356: UserWarning: Triton is not supported on current platform, roll back to CPU.
+  warnings.warn(('Triton is not supported on current platform, roll back to CPU.'), stacklevel=1)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/__init__.py", line 2, in <module>
+    from fla.layers import (
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/layers/__init__.py", line 3, in <module>
+    from .abc import ABCAttention
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/layers/abc.py", line 12, in <module>
+    from fla.modules import FusedRMSNormGated, RMSNorm, RotaryEmbedding, ShortConvolution
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/modules/__init__.py", line 2, in <module>
+    from fla.modules.convolution import ImplicitLongConvolution, LongConvolution, ShortConvolution
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/modules/convolution.py", line 13, in <module>
+    from fla.ops.utils import prepare_chunk_indices, prepare_sequence_ids
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/ops/__init__.py", line 2, in <module>
+    from .abc import chunk_abc
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/ops/abc/__init__.py", line 2, in <module>
+    from .chunk import chunk_abc
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/ops/abc/chunk.py", line 8, in <module>
+    from fla.ops.utils import softmax_bwd, softmax_fwd
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/ops/utils/__init__.py", line 2, in <module>
+    from .cumsum import (
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/ops/utils/cumsum.py", line 8, in <module>
+    from fla.ops.utils.index import prepare_chunk_indices
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/ops/utils/index.py", line 9, in <module>
+    from fla.utils import autotune_cache_kwargs, tensor_cache
+  File "/system/user/khashan/jku-ai-practical-project/fla/fla/utils.py", line 464, in <module>
+    assert device == 'cuda', 'Only cuda device is supported for PyTorch version < 2.4.0.'
+AssertionError: Only cuda device is supported for PyTorch version < 2.4.0.
