@@ -1,0 +1,13 @@
+Current Triton version 3.1.0 is below the recommended 3.2.0 version. Errors may occur and these issues will not be fixed. Please consider upgrading Triton.
+Current Python version 3.10 is below the recommended 3.11 version. It is recommended to upgrade to Python 3.11 or higher for the best experience.
+torch.compile is not available in Python 3.10, using identity decorator instead
+Device: Tesla V100-PCIE-16GB
+Warming up GPU...
+Benchmarking...
+Success! Output shape: 3
+------------------------------
+Total time for 100 runs: 995.07 ms
+Average time per run: 9.9507 ms
+------------------------------
+585.90user 4.97system 10:00.60elapsed 98%CPU (0avgtext+0avgdata 1188512maxresident)k
+168760inputs+256712outputs (0major+1744589minor)pagefaults 0swaps

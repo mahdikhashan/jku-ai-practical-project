@@ -1,0 +1,14 @@
+Current Triton version 3.1.0 is below the recommended 3.2.0 version. Errors may occur and these issues will not be fixed. Please consider upgrading Triton.
+Current Python version 3.10 is below the recommended 3.11 version. It is recommended to upgrade to Python 3.11 or higher for the best experience.
+torch.compile is not available in Python 3.10, using identity decorator instead
+Success! Output shape: 3
+(tensor([[[ 0.0144, -0.0004, -0.1752,  ..., -0.0179, -0.0018, -0.0191],
+         [ 0.2448, -0.2372,  0.0598,  ..., -0.1035,  0.0258, -0.2267],
+         [-0.0470, -0.0165, -0.3530,  ...,  0.1769, -0.0342, -0.2096],
+         ...,
+         [ 0.0669,  0.0151, -0.0854,  ..., -0.0420,  0.1747,  0.2007],
+         [ 0.2308, -0.0716, -0.1586,  ..., -0.0955,  0.0414,  0.2274],
+         [ 0.1705,  0.2462, -0.0350,  ...,  0.2661,  0.1113, -0.1465]]],
+       device='cuda:0', dtype=torch.float16, grad_fn=<UnsafeViewBackward0>), None, None)
+76.49user 3.49system 1:30.06elapsed 88%CPU (0avgtext+0avgdata 1201968maxresident)k
+127480inputs+122104outputs (185major+1038784minor)pagefaults 0swaps

@@ -1,13 +1,14 @@
 import torch
 from fla.layers import GatedLinearAttention
 
+print(torch.cuda.get_device_name(0))
 
 batch_size = 1
 seq_len = 128
 hidden_size = 512
 num_heads = 2
-# bfloat16
-dtype = torch.bfloat16
+# float16
+dtype = torch.float16
 device = "cuda:0"
 
 gla = GatedLinearAttention(

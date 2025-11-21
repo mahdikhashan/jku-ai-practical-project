@@ -1,0 +1,45 @@
+Current Triton version 3.1.0 is below the recommended 3.2.0 version. Errors may occur and these issues will not be fixed. Please consider upgrading Triton.
+Current Python version 3.10 is below the recommended 3.11 version. It is recommended to upgrade to Python 3.11 or higher for the best experience.
+torch.compile is not available in Python 3.10, using identity decorator instead
+Failed: Internal Triton PTX codegen error: 
+ptxas /tmp/tmpzxszp0b7.ptx, line 175; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 175; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 179; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 179; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 183; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 183; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 187; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 187; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 191; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 191; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 195; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 195; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 199; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 199; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 203; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 203; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 207; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 207; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 211; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 211; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 215; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 215; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 219; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 219; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 223; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 223; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 227; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 227; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 231; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 231; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 235; error   : Feature '.bf16' requires .target sm_80 or higher
+ptxas /tmp/tmpzxszp0b7.ptx, line 235; error   : Feature 'cvt with .f32.bf16' requires .target sm_80 or higher
+ptxas fatal   : Ptx assembly aborted due to errors
+
+Traceback (most recent call last):
+  File "/system/user/khashan/jku-ai-practical-project/./modules/gla_fla_bfloat16.py", line 27, in <module>
+    print(y)
+NameError: name 'y' is not defined
+Command exited with non-zero status 1
+6.79user 1.06system 0:09.53elapsed 82%CPU (0avgtext+0avgdata 833660maxresident)k
+0inputs+296outputs (0major+210706minor)pagefaults 0swaps
