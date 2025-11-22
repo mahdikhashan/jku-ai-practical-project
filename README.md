@@ -1,7 +1,7 @@
 Lizard Paper Implementation
 ---
 
-#### SETUP
+#### Setup
 
 - on ml-institute machines, run `SETUP` once per clone.
     - it setups git user with dedicated token
