@@ -1,0 +1,48 @@
+Current Triton version 3.1.0 is below the recommended 3.2.0 version. Errors may occur and these issues will not be fixed. Please consider upgrading Triton.
+Current Python version 3.10 is below the recommended 3.11 version. It is recommended to upgrade to Python 3.11 or higher for the best experience.
+torch.compile is not available in Python 3.10, using identity decorator instead
+[W1122 19:30:31.178905397 CPUAllocator.cpp:249] Memory block of unknown size was allocated before the profiling started, profiler results will not include the deallocation event
+Device: NVIDIA GeForce RTX 2080 Ti
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg       CPU Mem  Self CPU Mem      CUDA Mem  Self CUDA Mem    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                            gla_forward         0.00%       0.000us         0.00%       0.000us       0.000us     537.873ms       100.16%     537.873ms       5.379ms           0 b           0 b           0 b           0 b           100  
+                                            gla_forward         6.98%      37.522ms        32.23%     173.199ms       1.732ms       0.000us         0.00%     537.010ms       5.370ms           8 b           8 b     485.00 Mb     -48.45 Gb           100  
+                                       ChunkGLAFunction         7.95%      42.728ms         9.75%      52.419ms     524.194us     347.232ms        64.66%     347.232ms       3.472ms           0 b           0 b      28.12 Gb      -3.52 Gb           100  
+                                           aten::linear         0.69%       3.698ms         9.24%      49.660ms      70.943us       0.000us         0.00%     157.742ms     225.346us           0 b           0 b      14.16 Gb           0 b           700  
+                                           aten::matmul         1.07%       5.754ms         6.34%      34.070ms      56.784us       0.000us         0.00%     153.480ms     255.801us           0 b           0 b      12.60 Gb           0 b           600  
+                                               aten::mm         3.31%      17.809ms         4.44%      23.857ms      39.762us     153.480ms        28.58%     153.480ms     255.801us           0 b           0 b      12.60 Gb      12.60 Gb           600  
+                 chunk_gla_fwd_A_kernel_intra_sub_inter         0.00%       0.000us         0.00%       0.000us       0.000us     148.915ms        27.73%     148.915ms       1.489ms           0 b           0 b           0 b           0 b           100  
+turing_fp16_s1688gemm_fp16_128x256_ldg8_f2f_stages_3...         0.00%       0.000us         0.00%       0.000us       0.000us     145.490ms        27.09%     145.490ms     290.980us           0 b           0 b           0 b           0 b           500  
+                 chunk_gla_fwd_A_kernel_intra_sub_intra         0.00%       0.000us         0.00%       0.000us       0.000us      86.833ms        16.17%      86.833ms     868.331us           0 b           0 b           0 b           0 b           100  
+                                 chunk_gla_fwd_kernel_o         0.00%       0.000us         0.00%       0.000us       0.000us      76.535ms        14.25%      76.535ms     765.355us           0 b           0 b           0 b           0 b           100  
+                                     chunk_fwd_kernel_h         0.00%       0.000us         0.00%       0.000us       0.000us      20.758ms         3.87%      20.758ms     207.575us           0 b           0 b           0 b           0 b           100  
+                                 LayerNormGatedFunction         3.17%      17.053ms         4.04%      21.733ms     217.327us      19.288ms         3.59%      19.288ms     192.884us           0 b           0 b       3.52 Gb           0 b           100  
+                            layer_norm_gated_fwd_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      19.288ms         3.59%      19.288ms     192.884us           0 b           0 b           0 b           0 b           100  
+                       chunk_local_cumsum_vector_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      14.190ms         2.64%      14.190ms     141.902us           0 b           0 b           0 b           0 b           100  
+turing_fp16_s1688gemm_fp16_64x128_sliced1x2_ldg8_f2f...         0.00%       0.000us         0.00%       0.000us       0.000us       7.991ms         1.49%       7.991ms      79.907us           0 b           0 b           0 b           0 b           100  
+                                      aten::log_sigmoid         0.04%     233.835us         1.01%       5.423ms      54.228us       0.000us         0.00%       6.397ms      63.970us           0 b           0 b       1.56 Gb           0 b           100  
+                              aten::log_sigmoid_forward         0.40%       2.133ms         0.97%       5.189ms      51.890us       6.397ms         1.19%       6.397ms      63.970us           0 b           0 b       1.56 Gb           0 b           100  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       6.397ms         1.19%       6.397ms      63.970us           0 b           0 b           0 b           0 b           100  
+                                              aten::div         0.39%       2.081ms         0.54%       2.911ms      29.110us       6.351ms         1.18%       6.351ms      63.511us           0 b           0 b       1.56 Gb       1.56 Gb           100  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       6.351ms         1.18%       6.351ms      63.511us           0 b           0 b           0 b           0 b           100  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 537.414ms
+Self CUDA time total: 537.010ms
+
+--------------------------------------------------
+Iterations: 100
+Average GPU time per run: 5.3701 ms
+Average CPU time per run: 1.7320 ms
+Throughput: 186.22 runs/sec
+--------------------------------------------------
+Peak CUDA memory: 0.99 GB
+
+Top 5 CUDA kernels:
+  ChunkGLAFunction                                             3.4723 ms
+  chunk_gla_fwd_A_kernel_intra_sub_inter                       1.4892 ms
+  chunk_gla_fwd_A_kernel_intra_sub_intra                       0.8683 ms
+  chunk_gla_fwd_kernel_o                                       0.7654 ms
+  turing_fp16_s1688gemm_fp16_128x256_ldg8_f2f_stages_32x1_tn   0.2910 ms
+26.06user 1.81system 0:33.88elapsed 82%CPU (0avgtext+0avgdata 922532maxresident)k
+0inputs+20320outputs (0major+307643minor)pagefaults 0swaps
