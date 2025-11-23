@@ -1,0 +1,46 @@
+Device: NVIDIA TITAN V
+Warming up...
+Profiling (100 iterations)...
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg       CPU Mem  Self CPU Mem      CUDA Mem  Self CUDA Mem    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                     local_attn_forward         0.00%       0.000us         0.00%       0.000us       0.000us        3.534s       100.15%        3.534s      35.337ms           0 b           0 b           0 b           0 b           100  
+                                     local_attn_forward         2.56%      90.471ms        81.04%        2.864s      28.639ms       0.000us         0.00%        3.528s      35.284ms           0 b           0 b      16.00 Mb    -542.50 Gb           100  
+                                      aten::masked_fill         0.10%       3.708ms        22.16%     783.262ms       2.611ms       0.000us         0.00%        2.181s       7.271ms           0 b           0 b     300.00 Gb           0 b           300  
+                                     aten::masked_fill_         0.13%       4.720ms         0.29%      10.244ms      34.148us        1.109s        31.44%        1.109s       3.698ms           0 b           0 b           0 b           0 b           300  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us        1.109s        31.44%        1.109s       3.698ms           0 b           0 b           0 b           0 b           300  
+                                            aten::copy_         0.27%       9.514ms        37.32%        1.319s       1.319ms        1.095s        31.04%        1.095s       1.095ms           0 b           0 b           0 b           0 b          1000  
+                         Memcpy DtoD (Device -> Device)         0.00%       0.000us         0.00%       0.000us       0.000us        1.089s        30.87%        1.089s       1.556ms           0 b           0 b           0 b           0 b           700  
+                                            aten::clone         0.07%       2.433ms        29.51%        1.043s       2.086ms       0.000us         0.00%        1.082s       2.165ms           0 b           0 b     303.17 Gb           0 b           500  
+                                           aten::einsum         0.27%       9.452ms         9.36%     330.672ms       1.102ms       0.000us         0.00%     808.268ms       2.694ms           0 b           0 b     101.57 Gb      -3.12 Gb           300  
+                                              aten::bmm         0.16%       5.726ms         8.52%     301.222ms       1.506ms     798.408ms        22.63%     798.408ms       3.992ms           0 b           0 b     101.56 Gb     101.56 Gb           200  
+                                  volta_sgemm_32x128_nn         0.00%       0.000us         0.00%       0.000us       0.000us     595.744ms        16.88%     595.744ms       5.957ms           0 b           0 b           0 b           0 b           100  
+                                          aten::softmax         0.01%     394.277us         0.12%       4.199ms      41.988us       0.000us         0.00%     361.628ms       3.616ms           0 b           0 b     100.00 Gb           0 b           100  
+                                         aten::_softmax         0.04%       1.360ms         0.11%       3.805ms      38.045us     361.628ms        10.25%     361.628ms       3.616ms           0 b           0 b     100.00 Gb     100.00 Gb           100  
+void (anonymous namespace)::softmax_warp_forward<flo...         0.00%       0.000us         0.00%       0.000us       0.000us     361.628ms        10.25%     361.628ms       3.616ms           0 b           0 b           0 b           0 b           100  
+                                  volta_sgemm_32x128_tn         0.00%       0.000us         0.00%       0.000us       0.000us     202.664ms         5.74%     202.664ms       2.027ms           0 b           0 b           0 b           0 b           100  
+                                              aten::mul         0.45%      15.780ms         0.64%      22.614ms      22.614us      73.044ms         2.07%      73.044ms      73.044us           0 b           0 b      20.32 Gb      20.32 Gb          1000  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      67.275ms         1.91%      67.275ms      74.750us           0 b           0 b           0 b           0 b           900  
+                                              aten::cat         0.41%      14.566ms         0.66%      23.319ms      38.865us      43.008ms         1.22%      43.008ms      71.680us           0 b           0 b       9.38 Gb       9.38 Gb           600  
+void at::native::(anonymous namespace)::CatArrayBatc...         0.00%       0.000us         0.00%       0.000us       0.000us      25.748ms         0.73%      25.748ms     128.738us           0 b           0 b           0 b           0 b           200  
+                                              aten::add         0.07%       2.500ms         3.96%     139.947ms     699.735us      24.952ms         0.71%      24.952ms     124.761us           0 b           0 b       4.69 Gb       4.69 Gb           200  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 3.534s
+Self CUDA time total: 3.528s
+
+--------------------------------------------------
+Iterations: 100
+Average GPU time per run: 35.2844 ms
+Average CPU time per run: 28.6395 ms
+Throughput: 28.34 runs/sec
+--------------------------------------------------
+Peak CUDA memory: 2.23 GB
+
+Top 5 CUDA kernels:
+  aten::masked_fill                                            7.2715 ms
+  volta_sgemm_32x128_nn                                        5.9574 ms
+  aten::bmm                                                    3.9920 ms
+  aten::masked_fill_                                           3.6977 ms
+  void at::native::elementwise_kernel<128, 2, at::native::gpu_ 3.6977 ms
+11.42user 2.06system 0:15.27elapsed 88%CPU (0avgtext+0avgdata 1144212maxresident)k
+0inputs+52088outputs (0major+271870minor)pagefaults 0swaps

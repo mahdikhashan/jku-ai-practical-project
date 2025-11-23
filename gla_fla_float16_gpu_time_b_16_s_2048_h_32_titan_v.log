@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/system/user/studentwork/khashan/jku-ai-practical-project/./modules/gla_fla_float16_gpu_time_b_16_s_2048_h_32.py", line 2, in <module>
+    from fla.layers import GatedLinearAttention
+ModuleNotFoundError: No module named 'fla'
+Command exited with non-zero status 1
+1.65user 0.59system 0:38.79elapsed 5%CPU (0avgtext+0avgdata 413444maxresident)k
+574248inputs+16outputs (2873major+39965minor)pagefaults 0swaps
