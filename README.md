@@ -23,10 +23,18 @@ CUDA_VISIBLE_DEVICES=1 time python ./modules/gla_fla_float32_gpu_time_b_16_s_204
 
 ##### GPU Type: RTX 2080Ti (11GB)
 
+###### GLA
+
 ```sh
 CUDA_VISIBLE_DEVICES=0 time python ./modules/gla_fla_float16_gpu_time_b_16_s_2048_h_32.py > gla_fla_float16_gpu_time_b_16_s_2048_h_32_rtx_2080.log 2>&1
 ```
 
 ```sh
 CUDA_VISIBLE_DEVICES=0 time python ./modules/gla_fla_float32_gpu_time_b_16_s_2048_h_32.py > gla_fla_float32_gpu_time_b_16_s_2048_h_32_rtx_2080.log 2>&1
+```
+
+###### Local Attention
+
+```sh
+CUDA_VISIBLE_DEVICES=0 time python ./modules/local_attention_float32.py > local_attention_float32_profile_rtx_2080.log 2>&1
 ```
