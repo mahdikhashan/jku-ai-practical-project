@@ -4,17 +4,17 @@ from local_attention import LocalAttention
 
 print(f"Device: {torch.cuda.get_device_name(0)}")
 
-batch_size = 16
-seq_len = 2048
+batch_size = 1
+seq_len = 1024
 hidden_size = 512
-num_heads = 32
+num_heads = 8
 head_dim = 16
 dtype = torch.float32
 device = "cuda:0"
 
 attn = LocalAttention(
     dim=head_dim,           # dimension of each head
-    window_size=512,        # window size
+    window_size=256,        # window size
     causal=True,            # auto-regressive
     look_backward=1,        # each window looks at the window before
     look_forward=0,         # for causal attention
