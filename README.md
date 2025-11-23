@@ -52,3 +52,9 @@ CUDA_VISIBLE_DEVICES=4 time python ./modules/gla_fla_float16_gpu_time_b_16_s_204
 ```sh
 CUDA_VISIBLE_DEVICES=4 time python ./modules/local_attention_float32.py > local_attention_float32_profile_titan_v.log 2>&1
 ```
+
+###### SWA Musings
+
+```sh
+CUDA_VISIBLE_DEVICES=4 time python ./modules/swa_musings_benchmark.py > swa_musings_benchmark_profile_titan_v.log 2>&1
+```
