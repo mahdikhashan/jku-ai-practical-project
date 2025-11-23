@@ -1,0 +1,24 @@
+Device: NVIDIA TITAN V
+
+--- Correctness Test (float32) ---
+Max Diff: 0.000011
+Mean Diff: 0.000000
+✅ Correctness verified!
+
+--- Correctness Test (float16, larger) ---
+Max Diff: 4.750000
+Mean Diff: 0.618652
+❌ Failed
+
+============================================================
+BENCHMARK: Triton SWA vs PyTorch Naive
+============================================================
+
+Triton SWA:        16.82 ms
+PyTorch Naive:     4.25 ms (from earlier)
+GLA fused_recurrent: 3.96 ms (from earlier)
+
+Speedup vs Naive:  0.25x
+vs GLA:            4.25x slower
+8.34user 0.89system 0:09.91elapsed 93%CPU (0avgtext+0avgdata 967180maxresident)k
+4792inputs+7144outputs (0major+201068minor)pagefaults 0swaps

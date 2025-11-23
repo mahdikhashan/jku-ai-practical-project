@@ -1,0 +1,27 @@
+Device: NVIDIA TITAN V
+
+--- 1. Verifying Correctness ---
+Max Diff: nan
+Mean Diff: nan
+Has NaN (Triton): True
+Has NaN (Ref): False
+❌ Mismatch Detected!
+
+Sample Triton output: tensor([[-0.5864,  0.1552, -1.0000, -0.6646,  0.2800],
+        [-0.6943, -0.6929,  0.5029, -0.7192,  1.2158],
+        [-0.4688,  0.2139, -0.8071,  0.7310,  1.3467],
+        [-0.2220, -0.3289, -0.1830,  0.5728,  0.4446],
+        [-0.3206, -0.5913, -0.5034, -0.7588,  0.6265]], device='cuda:0',
+       dtype=torch.float16)
+Sample Ref output: tensor([[-0.2299, -0.1081, -0.2781,  0.1571,  0.0173],
+        [-0.2224,  0.0327, -0.2883,  0.0685,  0.1544],
+        [-0.0679, -0.1344, -0.1763,  0.0964, -0.0291],
+        [-0.1052, -0.0291, -0.2791,  0.1991,  0.1647],
+        [-0.0832, -0.0171, -0.2308,  0.2571,  0.1257]], device='cuda:0',
+       dtype=torch.float16)
+
+--- 2. Benchmarking (Sequence Length = 16k) ---
+Compiling & Autotuning...
+Avg Latency: 798.05 ms
+127.26user 1.17system 2:10.98elapsed 98%CPU (0avgtext+0avgdata 1022340maxresident)k
+30440inputs+12952outputs (92major+297437minor)pagefaults 0swaps

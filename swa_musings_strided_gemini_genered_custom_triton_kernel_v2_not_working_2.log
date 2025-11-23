@@ -1,0 +1,25 @@
+Device: NVIDIA TITAN V
+
+--- Verifying Correctness ---
+Triton has NaN: False
+Ref has NaN: False
+Max Diff: 4.750000
+Mean Diff: 0.618652
+❌ Mismatch!
+
+Triton sample:
+tensor([[-0.6509,  0.1893, -1.1641, -0.6890,  0.3696],
+        [-0.0904,  0.5254,  0.1664,  0.0235,  1.1914],
+        [-1.4482, -0.1295,  2.0879,  1.1611,  0.6406]], device='cuda:0',
+       dtype=torch.float16)
+
+Ref sample:
+tensor([[-0.1022, -0.2842, -0.2883,  0.2556, -0.0907],
+        [-0.1709, -0.0383, -0.2412,  0.0699,  0.0637],
+        [-0.1693, -0.2759, -0.1602,  0.2421, -0.0834]], device='cuda:0',
+       dtype=torch.float16)
+
+--- Benchmarking ---
+Avg Latency: 15.57 ms
+5.94user 0.82system 0:07.39elapsed 91%CPU (0avgtext+0avgdata 939824maxresident)k
+2856inputs+3224outputs (5major+171999minor)pagefaults 0swaps

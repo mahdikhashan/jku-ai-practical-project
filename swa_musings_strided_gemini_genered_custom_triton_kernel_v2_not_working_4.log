@@ -1,0 +1,13 @@
+Device: NVIDIA TITAN V
+
+--- Simple Test (1 batch, 1 head, small seq) ---
+Triton has NaN: False
+Ref has NaN: False
+Max Diff (valid): 3.258338
+Mean Diff (valid): 0.169632
+❌ Values don't match!
+
+--- Benchmarking ---
+Avg Latency: 14.95 ms
+7.16user 0.87system 0:08.78elapsed 91%CPU (0avgtext+0avgdata 979752maxresident)k
+5480inputs+5224outputs (9major+201763minor)pagefaults 0swaps
