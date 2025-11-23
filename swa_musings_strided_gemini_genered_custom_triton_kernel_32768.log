@@ -1,0 +1,18 @@
+Device: NVIDIA TITAN V
+Benchmarking SWA Triton | N=32768 | Window=(256, 256)
+Warming up...
+Warmup done.
+Avg Latency: 70.721 ms
+Throughput:  14.14 runs/sec
+-------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                     Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+          _swa_fwd_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     708.443ms       100.00%     708.443ms      70.844ms            10  
+           cuLaunchKernel         0.01%      96.573us         0.01%      96.573us       9.657us       0.000us         0.00%       0.000us       0.000us            10  
+    cudaDeviceSynchronize        99.99%     707.920ms        99.99%     707.920ms     353.960ms       0.000us         0.00%       0.000us       0.000us             2  
+-------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 708.016ms
+Self CUDA time total: 708.443ms
+
+11.12user 0.70system 0:12.37elapsed 95%CPU (0avgtext+0avgdata 635360maxresident)k
+0inputs+8outputs (0major+110838minor)pagefaults 0swaps
