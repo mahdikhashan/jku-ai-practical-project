@@ -11,5 +11,5 @@ Traceback (most recent call last):
     sim = sim.masked_fill(causal_mask, mask_value)
 torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.00 GiB. GPU 0 has a total capacity of 10.57 GiB of which 1.74 GiB is free. Including non-PyTorch memory, this process has 8.83 GiB memory in use. Of the allocated memory 4.65 GiB is allocated by PyTorch, and 3.99 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
 Command exited with non-zero status 1
-2.64user 0.90system 0:04.62elapsed 76%CPU (0avgtext+0avgdata 900536maxresident)k
-5696inputs+64outputs (28major+104240minor)pagefaults 0swaps
+2.70user 0.92system 0:04.33elapsed 83%CPU (0avgtext+0avgdata 903340maxresident)k
+0inputs+64outputs (0major+133970minor)pagefaults 0swaps
