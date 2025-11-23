@@ -1,3 +1,6 @@
 [submodule "fla"]
 	path = fla
 	url = https://github.com/fla-org/flash-linear-attention
+[submodule "local-attention"]
+	path = local-attention
+	url = https://github.com/lucidrains/local-attention.git
