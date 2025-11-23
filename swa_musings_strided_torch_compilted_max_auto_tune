@@ -1,0 +1,40 @@
+Device: NVIDIA TITAN V
+Compiling and warming up...
+Warmup done.
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg       CPU Mem  Self CPU Mem    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                           swa_strided_compiled_forward         0.00%       0.000us         0.00%       0.000us       0.000us        3.771s       100.02%        3.771s      37.708ms           0 b           0 b           100  
+                           swa_strided_compiled_forward         0.12%       4.420ms         0.56%      21.239ms     212.393us       0.000us         0.00%        3.770s      37.702ms           0 b           0 b           100  
+                                  Torch-Compiled Region         0.21%       7.822ms         0.43%      16.083ms     160.832us        3.734s        99.05%        3.770s      37.702ms           0 b           0 b           100  
+                                                triton_         0.00%       0.000us         0.00%       0.000us       0.000us        3.734s        99.05%        3.734s       7.469ms           0 b           0 b           500  
+                                   aten::_foreach_copy_         0.08%       3.072ms         0.13%       5.018ms      50.180us      35.475ms         0.94%      35.475ms     354.754us           0 b           0 b           100  
+void at::native::(anonymous namespace)::multi_tensor...         0.00%       0.000us         0.00%       0.000us       0.000us      35.475ms         0.94%      35.475ms     118.251us           0 b           0 b           300  
+                                            aten::fill_         0.03%       1.085ms         0.05%       1.950ms       9.750us     316.994us         0.01%     316.994us       1.585us           0 b           0 b           200  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us     316.994us         0.01%     316.994us       1.585us           0 b           0 b           200  
+                               TorchDynamo Cache Lookup         0.02%     735.736us         0.02%     735.736us       7.357us       0.000us         0.00%       0.000us       0.000us           0 b           0 b           100  
+                                       cudaLaunchKernel         0.07%       2.811ms         0.07%       2.811ms       5.622us       0.000us         0.00%       0.000us       0.000us           0 b           0 b           500  
+                                  cudaStreamIsCapturing         0.00%     121.185us         0.00%     121.185us       0.606us       0.000us         0.00%       0.000us       0.000us           0 b           0 b           200  
+                                        cudaGraphLaunch         0.03%       1.155ms         0.03%       1.155ms      11.553us       0.000us         0.00%       0.000us       0.000us           0 b           0 b           100  
+                                   cudaDriverGetVersion         0.00%      16.642us         0.00%      16.642us       0.166us       0.000us         0.00%       0.000us       0.000us           0 b           0 b           100  
+                                  cudaDeviceSynchronize        99.44%        3.751s        99.44%        3.751s        1.875s       0.000us         0.00%       0.000us       0.000us           0 b           0 b             2  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 3.772s
+Self CUDA time total: 3.770s
+
+--------------------------------------------------
+Iterations: 100
+Average GPU time per run: 37.7016 ms
+Average CPU time per run: 0.2124 ms
+Throughput: 26.52 runs/sec
+--------------------------------------------------
+Peak CUDA memory: 1.40 GB
+
+Top 5 CUDA kernels:
+  Torch-Compiled Region                                        37.7016 ms
+  triton_                                                      7.4687 ms
+  aten::_foreach_copy_                                         0.3548 ms
+  void at::native::(anonymous namespace)::multi_tensor_apply_k 0.1183 ms
+  aten::fill_                                                  0.0016 ms
+12.23user 1.02system 0:14.82elapsed 89%CPU (0avgtext+0avgdata 837992maxresident)k
+0inputs+3568outputs (0major+180090minor)pagefaults 0swaps
