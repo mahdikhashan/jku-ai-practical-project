@@ -1,0 +1,15 @@
+Device: NVIDIA GeForce RTX 2080 Ti
+Warming up...
+Traceback (most recent call last):
+  File "/system/user/studentwork/khashan/jku-ai-practical-project/./modules/local_attention_float32.py", line 36, in <module>
+    _ = attn(q, k, v, mask=mask)
+  File "/system/apps/studentenv/khashan/jku-ai-practical-project/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/system/apps/studentenv/khashan/jku-ai-practical-project/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/system/user/studentwork/khashan/jku-ai-practical-project/local-attention/local_attention/local_attention.py", line 196, in forward
+    sim = sim.masked_fill(causal_mask, mask_value)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.00 GiB. GPU 0 has a total capacity of 10.57 GiB of which 1.74 GiB is free. Including non-PyTorch memory, this process has 8.83 GiB memory in use. Of the allocated memory 4.65 GiB is allocated by PyTorch, and 3.99 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Command exited with non-zero status 1
+2.64user 0.90system 0:04.62elapsed 76%CPU (0avgtext+0avgdata 900536maxresident)k
+5696inputs+64outputs (28major+104240minor)pagefaults 0swaps
