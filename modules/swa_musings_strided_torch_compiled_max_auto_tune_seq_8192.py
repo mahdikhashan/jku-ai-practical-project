@@ -1,6 +1,8 @@
 import torch
 from torch.profiler import profile, record_function, ProfilerActivity
 
+from helper import print_gpu_specs
+
 
 @torch.compile(mode="max-autotune", fullgraph=True)
 def swa_strided(q, k, v, window_sizes: tuple[int, int] = (15, 16)):
@@ -44,7 +46,7 @@ def swa_strided(q, k, v, window_sizes: tuple[int, int] = (15, 16)):
     return torch.sum(a.unsqueeze(-1) * v_strided, dim=-2)
 
 
-print(f"Device: {torch.cuda.get_device_name(0)}")
+print_gpu_specs()
 
 batch_size = 16
 seq_len = 8192
@@ -91,6 +93,7 @@ for event in prof.key_averages():
         print(f"Iterations: {event.count}")
         print(f"Average GPU time per run: {avg_device_time_ms:.4f} ms")
         print(f"Average CPU time per run: {avg_cpu_time_ms:.4f} ms")
+        # todo(mahdi): calculate correct throughput
         print(f"Throughput: {1000 / avg_device_time_ms:.2f} runs/sec")
         break
 
@@ -103,4 +106,10 @@ cuda_events = [(e.key, e.device_time) for e in prof.key_averages()
 for name, time_us in sorted(cuda_events, key=lambda x: -x[1])[:5]:
     print(f"  {name[:60]:60s} {time_us/1000:.4f} ms")
 
-prof.export_chrome_trace(f"{impl_name}_profile_benchmark_torch_compiled_8192.json")
+
+try:
+    from datetime import datetime
+
+    prof.export_chrome_trace(f"{impl_name}_profile_benchmark_torch_compiled_8192_{datetime.now()}.json")
+except Exception as e:
+    raise(e)
