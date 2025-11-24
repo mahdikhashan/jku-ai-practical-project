@@ -2,8 +2,12 @@
 # based on youtube tutorial: https://www.youtube.com/watch?v=DdTsX6DQk24
 
 import os
+
+import torch
+
 import triton
 import triton.language as tl
+
 
 def test_pid_conds(conds, pid_0=[0], pid_1=[0], pid_2=[0]):
     '''Test if condition on pids are fulfilled
@@ -63,3 +67,9 @@ DEVICE = triton.runtime.driver.active.get_active_torch_device()
 
 def is_cuda():
     return triton.runtime.driver.active.get_current_target().backend == "cuda"
+
+def print_gpu_specs():
+    print(f"Detected {torch.cuda.device_count()} device(s):")
+    for i in range(torch.cuda.device_count()):
+        p = torch.cuda.get_device_properties(i)
+        print(f"[{i}] {p.name} | {p.total_memory / 1024**3:.1f} GB VRAM | {p.multi_processor_count} SMs")
