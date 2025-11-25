@@ -12,5 +12,4 @@ server/
 
 __pycache__
 
-logs/
-
+infra/
