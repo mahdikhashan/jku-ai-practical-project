@@ -1,0 +1,82 @@
+nohup: ignoring input
+
+Benchmarking MatMul Performance:   0%|          | 0/93 [00:00<?, ?it/s]
+Benchmarking MatMul Performance:   1%|          | 1/93 [00:00<00:21,  4.35it/s]
+Benchmarking MatMul Performance:   2%|▏         | 2/93 [00:00<00:30,  2.95it/s]
+Benchmarking MatMul Performance:   3%|▎         | 3/93 [00:00<00:20,  4.30it/s]
+Benchmarking MatMul Performance:   4%|▍         | 4/93 [00:01<00:51,  1.72it/s]
+Benchmarking MatMul Performance:   5%|▌         | 5/93 [00:01<00:36,  2.43it/s]
+Benchmarking MatMul Performance:   6%|▋         | 6/93 [00:04<01:41,  1.17s/it]
+Benchmarking MatMul Performance:   8%|▊         | 7/93 [00:04<01:10,  1.22it/s]
+Benchmarking MatMul Performance:   9%|▊         | 8/93 [00:09<03:08,  2.21s/it]
+Benchmarking MatMul Performance:  10%|▉         | 9/93 [00:10<02:10,  1.55s/it]
+Benchmarking MatMul Performance:  11%|█         | 10/93 [00:19<05:20,  3.86s/it]
+Benchmarking MatMul Performance:  12%|█▏        | 11/93 [00:19<03:42,  2.72s/it]
+Benchmarking MatMul Performance:  13%|█▎        | 12/93 [00:33<08:27,  6.26s/it]
+Benchmarking MatMul Performance:  14%|█▍        | 13/93 [00:33<05:51,  4.40s/it]
+Benchmarking MatMul Performance:  15%|█▌        | 14/93 [00:55<12:36,  9.57s/it]
+Benchmarking MatMul Performance:  16%|█▌        | 15/93 [00:55<08:44,  6.72s/it]
+Benchmarking MatMul Performance:  17%|█▋        | 16/93 [01:26<17:54, 13.95s/it]
+Benchmarking MatMul Performance:  18%|█▊        | 17/93 [01:26<12:24,  9.79s/it]
+Benchmarking MatMul Performance:  19%|█▉        | 18/93 [02:08<24:29, 19.59s/it]
+Benchmarking MatMul Performance:  20%|██        | 19/93 [02:08<16:56, 13.74s/it]
+Benchmarking MatMul Performance:  22%|██▏       | 20/93 [03:05<32:18, 26.56s/it]
+Benchmarking MatMul Performance:  23%|██▎       | 21/93 [03:05<22:20, 18.62s/it]
+Benchmarking MatMul Performance:  24%|██▎       | 22/93 [04:18<41:26, 35.02s/it]
+Benchmarking MatMul Performance:  25%|██▍       | 23/93 [04:18<28:38, 24.55s/it]
+Benchmarking MatMul Performance:  26%|██▌       | 24/93 [05:51<51:54, 45.13s/it]
+Benchmarking MatMul Performance:  27%|██▋       | 25/93 [05:51<35:50, 31.63s/it]
+Benchmarking MatMul Performance:  28%|██▊       | 26/93 [07:49<1:03:58, 57.29s/it]
+Benchmarking MatMul Performance:  29%|██▉       | 27/93 [07:49<44:09, 40.14s/it]  
+Benchmarking MatMul Performance:  30%|███       | 28/93 [10:13<1:17:15, 71.32s/it]
+Benchmarking MatMul Performance:  31%|███       | 29/93 [10:13<53:17, 49.97s/it]  
+Benchmarking MatMul Performance:  32%|███▏      | 30/93 [13:08<1:31:48, 87.43s/it]
+Benchmarking MatMul Performance:  33%|███▎      | 31/93 [13:08<1:03:16, 61.24s/it]
+Benchmarking MatMul Performance:  34%|███▍      | 32/93 [16:38<1:47:32, 105.79s/it]
+Benchmarking MatMul Performance:  35%|███▌      | 33/93 [16:38<1:14:05, 74.09s/it] 
+Benchmarking MatMul Performance:  37%|███▋      | 34/93 [20:47<2:04:26, 126.55s/it]
+Benchmarking MatMul Performance:  38%|███▊      | 35/93 [20:47<1:25:40, 88.63s/it] 
+Benchmarking MatMul Performance:  39%|███▊      | 36/93 [25:40<2:22:22, 149.87s/it]
+Benchmarking MatMul Performance:  40%|███▉      | 37/93 [25:40<1:37:57, 104.96s/it]
+Benchmarking MatMul Performance:  41%|████      | 38/93 [31:21<2:41:15, 175.92s/it]
+Benchmarking MatMul Performance:  42%|████▏     | 39/93 [31:21<1:50:52, 123.19s/it]
+Benchmarking MatMul Performance:  43%|████▎     | 40/93 [37:57<3:00:55, 204.83s/it]
+Benchmarking MatMul Performance:  44%|████▍     | 41/93 [37:57<2:04:18, 143.42s/it]
+Benchmarking MatMul Performance:  45%|████▌     | 42/93 [45:31<3:21:14, 236.75s/it]
+Benchmarking MatMul Performance:  46%|████▌     | 43/93 [45:32<2:18:08, 165.77s/it]
+Benchmarking MatMul Performance:  47%|████▋     | 44/93 [54:11<3:42:00, 271.85s/it]
+Benchmarking MatMul Performance:  48%|████▊     | 45/93 [54:11<2:32:16, 190.34s/it]
+Benchmarking MatMul Performance:  49%|████▉     | 46/93 [1:04:01<4:03:02, 310.27s/it]
+Benchmarking MatMul Performance:  51%|█████     | 47/93 [1:04:01<2:46:32, 217.24s/it]
+Benchmarking MatMul Performance:  52%|█████▏    | 48/93 [1:15:08<4:24:06, 352.15s/it]
+Benchmarking MatMul Performance:  53%|█████▎    | 49/93 [1:15:08<3:00:48, 246.56s/it]
+Benchmarking MatMul Performance:  54%|█████▍    | 50/93 [1:27:39<4:44:59, 397.66s/it]
+Benchmarking MatMul Performance:  55%|█████▍    | 51/93 [1:27:39<3:14:53, 278.42s/it]
+Benchmarking MatMul Performance:  56%|█████▌    | 52/93 [1:41:39<5:05:24, 446.94s/it]
+Benchmarking MatMul Performance:  57%|█████▋    | 53/93 [1:41:39<3:28:36, 312.91s/it]
+Benchmarking MatMul Performance:  58%|█████▊    | 54/93 [1:57:16<5:25:05, 500.14s/it]
+Benchmarking MatMul Performance:  59%|█████▉    | 55/93 [1:57:16<3:41:45, 350.16s/it]
+Benchmarking MatMul Performance:  60%|██████    | 56/93 [2:14:37<5:43:44, 557.42s/it]
+Benchmarking MatMul Performance:  61%|██████▏   | 57/93 [2:14:38<3:54:09, 390.25s/it]
+Benchmarking MatMul Performance:  62%|██████▏   | 58/93 [2:33:50<6:01:02, 618.92s/it]
+Benchmarking MatMul Performance:  63%|██████▎   | 59/93 [2:33:50<4:05:32, 433.30s/it]
+Benchmarking MatMul Performance:  65%|██████▍   | 60/93 [2:55:02<6:16:38, 684.79s/it]
+Benchmarking MatMul Performance:  66%|██████▌   | 61/93 [2:55:02<4:15:41, 479.42s/it]
+Benchmarking MatMul Performance:  67%|██████▋   | 62/93 [3:18:21<6:30:10, 755.19s/it]
+Benchmarking MatMul Performance:  67%|██████▋   | 62/93 [3:18:21<1:39:10, 191.96s/it]
+Traceback (most recent call last):
+  File "/system/user/khashan/jku-ai-practical-project/modules/matmul_naive.py", line 150, in <module>
+    perf_value = original_benchmark_fn(M, N, K, provider, config.args['fp8_inputs'])
+  File "/system/user/khashan/jku-ai-practical-project/modules/matmul_naive.py", line 128, in benchmark
+    ms, min_ms, max_ms = triton.testing.do_bench(lambda: matmul(a, b), quantiles=quantiles)
+  File "/system/apps/studentenv/khashan/jku-ai-practical-project/lib/python3.10/site-packages/triton/testing.py", line 104, in do_bench
+    fn()
+  File "/system/user/khashan/jku-ai-practical-project/modules/matmul_naive.py", line 128, in <lambda>
+    ms, min_ms, max_ms = triton.testing.do_bench(lambda: matmul(a, b), quantiles=quantiles)
+  File "/system/user/khashan/jku-ai-practical-project/modules/matmul_naive.py", line 63, in matmul
+    kernel[grid](
+  File "<string>", line 57, in kernel
+  File "<string>", line 57, in <dictcomp>
+  File "/system/apps/studentenv/khashan/jku-ai-practical-project/lib/python3.10/site-packages/triton/runtime/jit.py", line 228, in _type_of
+    return key if isinstance(key, str) else f"*{tys[dtype_str]}"
+KeyError: 'float8_e5m2'
