@@ -1,4 +1,4 @@
-Lizard Paper Implementation
+Lizard Kernels
 ---
 
 #### Setup
