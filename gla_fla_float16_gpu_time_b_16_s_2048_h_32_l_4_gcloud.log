@@ -1,1 +1,11 @@
--bash: time: command not found
+Current Triton version 3.1.0 is below the recommended 3.2.0 version. Errors may occur and these issues will not be fixed. Please consider upgrading Triton.
+Device: NVIDIA L4
+Warming up GPU...
+Benchmarking...
+Success! Output shape: 3
+------------------------------
+Total time for 100 runs: 717.15 ms
+Average time per run: 7.1715 ms
+------------------------------
+70.11user 2.46system 1:12.50elapsed 100%CPU (0avgtext+0avgdata 1389196maxresident)k
+80672inputs+72816outputs (425major+686553minor)pagefaults 0swaps
