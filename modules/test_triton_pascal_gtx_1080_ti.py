@@ -6,7 +6,9 @@ try:
 except ImportError:
     print("triton-pascal not installed or cannot be imported.")
     print("Install with:")
-    print('pip install --upgrade triton-pascal -i https://sasha0552.github.io/pascal-pkgs-ci/')
+    print(
+        "pip install --upgrade triton-pascal -i https://sasha0552.github.io/pascal-pkgs-ci/"
+    )
     sys.exit(1)
 
 import torch
@@ -18,6 +20,7 @@ print("Number of GPUs:", torch.cuda.device_count())
 for i in range(torch.cuda.device_count()):
     print("  ", torch.cuda.get_device_name(i))
 
+
 @triton.jit
 def add_kernel(x_ptr, y_ptr, out_ptr, n):
     pid = tl.program_id(0)
@@ -26,6 +29,7 @@ def add_kernel(x_ptr, y_ptr, out_ptr, n):
     x = tl.load(x_ptr + offs, mask=mask)
     y = tl.load(y_ptr + offs, mask=mask)
     tl.store(out_ptr + offs, x + y, mask=mask)
+
 
 x = torch.randn(1, device="cuda")
 y = torch.randn(1, device="cuda")
