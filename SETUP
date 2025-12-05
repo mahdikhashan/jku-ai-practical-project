@@ -3,4 +3,7 @@
 git config core.hooksPath .githooks
 git remote set-url origin https://mahdikhashan:$(cat TOKEN)@github.com/mahdikhashan/jku-ai-practical-project.git
 
+git config --global user.email "mahdikhashan1@gmail.com"
+git config --global user.name "Mahdi Khashan"
+
 conda env create -f env.yaml
