@@ -121,3 +121,8 @@ def get_datetime_now():
     import datetime
 
     datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+
+def is_contagious():
+    # todo(mahdi): is contagious
+    pass
