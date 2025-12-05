@@ -368,7 +368,11 @@ def benchmark():
         
         # Warmup
         for _ in range(10):
-            _ = swa_naive(q, k, v, window_sizes)
+            if seq_len <= 4096:  # Only warmup naive for smaller sequences
+                try:
+                    _ = swa_naive(q, k, v, window_sizes)
+                except RuntimeError:
+                    pass
             _ = sliding_window_attention(q, k, v, window_sizes)
         
         torch.cuda.synchronize()
