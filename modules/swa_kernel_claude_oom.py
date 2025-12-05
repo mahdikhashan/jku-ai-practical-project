@@ -376,7 +376,6 @@ def benchmark():
         # Benchmark naive (skip for very long sequences as it's too slow and OOMs)
         if seq_len <= 8192:
             try:
-            try:
                 start = time.time()
                 for _ in range(n_iters):
                     _ = swa_naive(q, k, v, window_sizes)
@@ -465,4 +464,3 @@ if __name__ == "__main__":
     print("\n=== Running full correctness test ===")
     test_correctness()
     benchmark()
-    
