@@ -1,0 +1,45 @@
+Device: NVIDIA L4
+Compiling and warming up...
+Warmup done.
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg       CPU Mem  Self CPU Mem    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                           swa_strided_compiled_forward         0.08%       4.460ms         0.55%      32.251ms     322.515us       0.000us         0.00%        5.813s      58.129ms           0 B           0 B           100  
+                             Torch-Compiled Region: 0/0         0.08%       4.787ms         0.45%      26.021ms     260.210us        5.737s        98.70%        5.813s      58.129ms           0 B           0 B           100  
+## Call CompiledFxGraph fgnbow3bjijas4vonmg6elkpnkjs...         0.00%       0.000us         0.00%       0.000us       0.000us        5.813s       100.01%        5.813s      58.126ms           0 B           0 B           100  
+triton_red_fused__softmax_arange_as_strided_bitwise_...         0.00%       0.000us         0.00%       0.000us       0.000us        4.236s        72.88%        4.236s      42.356ms           0 B           0 B           100  
+        triton_per_fused_as_strided_mul_sum_unsqueeze_1         0.00%       0.000us         0.00%       0.000us       0.000us        1.013s        17.43%        1.013s      10.133ms           0 B           0 B           100  
+triton_per_fused__softmax_arange_bitwise_or_lt_maske...         0.00%       0.000us         0.00%       0.000us       0.000us     446.428ms         7.68%     446.428ms       4.464ms           0 B           0 B           100  
+## Call CompiledFxGraph fgnbow3bjijas4vonmg6elkpnkjs...         0.20%      11.417ms         0.35%      20.217ms     202.166us       0.000us         0.00%      76.344ms     763.442us           0 B           0 B           100  
+                                   aten::_foreach_copy_         0.04%       2.145ms         0.12%       6.843ms      68.432us      75.588ms         1.30%      76.344ms     763.442us           0 B           0 B           100  
+void at::native::(anonymous namespace)::multi_tensor...         0.00%       0.000us         0.00%       0.000us       0.000us      75.588ms         1.30%      75.588ms     251.961us           0 B           0 B           300  
+                      triton_poi_fused_cat_view_zeros_0         0.00%       0.000us         0.00%       0.000us       0.000us      41.209ms         0.71%      41.209ms     206.047us           0 B           0 B           200  
+                                Activity Buffer Request         0.03%       1.776ms         0.03%       1.776ms       1.776ms     756.032us         0.01%     756.032us     756.032us           0 B           0 B             1  
+                               TorchDynamo Cache Lookup         0.03%       1.771ms         0.03%       1.771ms      17.706us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           100  
+                                      Pregraph bytecode         0.01%     373.456us         0.01%     373.456us       3.735us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           100  
+                 AOTDispatcher Runtime Wrapper Prologue         0.01%     643.819us         0.01%     643.819us       6.438us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           100  
+                                       cudaLaunchKernel         0.05%       2.922ms         0.05%       2.922ms       9.739us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           300  
+                                  cudaStreamIsCapturing         0.00%     102.856us         0.00%     102.856us       1.029us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           100  
+                                        cudaGraphLaunch         0.03%       1.837ms         0.03%       1.837ms      18.365us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           100  
+                                   cudaDriverGetVersion         0.00%      17.414us         0.00%      17.414us       0.174us       0.000us         0.00%       0.000us       0.000us           0 B           0 B           100  
+                                  cudaDeviceSynchronize        99.45%        5.781s        99.45%        5.781s        2.891s       0.000us         0.00%       0.000us       0.000us           0 B           0 B             2  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 5.814s
+Self CUDA time total: 5.812s
+
+--------------------------------------------------
+Iterations: 100
+Average GPU time per run: 58.1287 ms
+Average CPU time per run: 0.3225 ms
+Throughput: 17.20 runs/sec
+--------------------------------------------------
+Peak CUDA memory: 1.21 GB
+
+Top 5 CUDA kernels:
+  Torch-Compiled Region: 0/0                                   58.1287 ms
+  ## Call CompiledFxGraph fgnbow3bjijas4vonmg6elkpnkjsub3bv3ib 58.1255 ms
+  triton_red_fused__softmax_arange_as_strided_bitwise_or_exp_l 42.3561 ms
+  triton_per_fused_as_strided_mul_sum_unsqueeze_1              10.1327 ms
+  triton_per_fused__softmax_arange_bitwise_or_lt_masked_fill_n 4.4643 ms
+31.32user 2.01system 0:28.75elapsed 115%CPU (0avgtext+0avgdata 1080156maxresident)k
+9544inputs+16792outputs (15major+447945minor)pagefaults 0swaps
