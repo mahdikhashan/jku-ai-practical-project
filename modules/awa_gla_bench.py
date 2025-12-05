@@ -172,11 +172,11 @@ if __name__ == "__main__":
     print(f"Device: {torch.cuda.get_device_name(0)}")
     
     # --- Configuration ---
-    BATCH_SIZE = 16
-    SEQ_LEN = 2048
-    HIDDEN_SIZE = 512
+    BATCH_SIZE = 8          # Reduced batch to fit larger hidden size
+    SEQ_LEN = 4096          # Increased sequence length
+    HIDDEN_SIZE = 2048      # Increased hidden size
     NUM_HEADS = 32
-    D_HEAD = HIDDEN_SIZE // NUM_HEADS  # 512 / 32 = 16
+    D_HEAD = HIDDEN_SIZE // NUM_HEADS  # Now 64! (Much better for Triton)
     DTYPE = torch.float16
     DEVICE = "cuda:0"
     
