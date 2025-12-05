@@ -48,3 +48,143 @@ CUDA_VISIBLE_DEVICES=4 time python ./modules/local_attention_float32.py > local_
 ```sh
 CUDA_VISIBLE_DEVICES=4 time python ./modules/swa_musings_benchmark.py > swa_musings_benchmark_profile_titan_v.log 2>&1
 ```
+
+---
+
+##### Run Commands for All Modules
+
+```sh
+python ./modules/gla_fla_bfloat16.py
+```
+
+```sh
+python ./modules/gla_fla_float16.py
+```
+
+```sh
+python ./modules/gla_fla_float16_gpu_time.py
+```
+
+```sh
+python ./modules/gla_fla_float16_gpu_time_b_16_s_2048_h_32.py
+```
+
+```sh
+python ./modules/gla_fla_float16_torch_profile.py
+```
+
+```sh
+python ./modules/gla_fla_float16_torch_profile_each_iter.py
+```
+
+```sh
+python ./modules/gla_fla_float16_torch_profile_top_cuda_kernels.py
+```
+
+```sh
+python ./modules/gla_fla_float16_torch_profile_top_cuda_kernels_fused_recurrent.py
+```
+
+```sh
+python ./modules/gla_fla_float32.py
+```
+
+```sh
+python ./modules/gla_fla_float32_gpu_time_b_16_s_2048_h_32.py
+```
+
+```sh
+python ./modules/local_attention_float32.py
+```
+
+```sh
+python ./modules/local_attention_float32_b_16_seq_2048_h_512_w_512.py
+```
+
+```sh
+python ./modules/matmul_naive_fp16.py
+```
+
+```sh
+python ./modules/matmul_naive_fp16_fp8.py
+```
+
+```sh
+python ./modules/matmul_naive_fp16_no_benchmark.py
+```
+
+```sh
+python ./modules/swa_fzkuji.py
+```
+
+```sh
+python ./modules/swa_fzkuji_benchmark.py
+```
+
+```sh
+python ./modules/swa_musings.py
+```
+
+```sh
+python ./modules/swa_musings_benchmark.py
+```
+
+```sh
+python ./modules/swa_musings_naive_benchmark.py
+```
+
+```sh
+python ./modules/swa_musings_strided_benchmark.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel_v2.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel_v2_not_working.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel_v2_not_working_2.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel_v2_not_working_3.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel_v2_working_1.py
+```
+
+```sh
+python ./modules/swa_musings_strided_gemini_generated_triton_kernel_v2_working_2.py
+```
+
+```sh
+python ./modules/swa_musings_strided_torch_compiled.py
+```
+
+```sh
+python ./modules/swa_musings_strided_torch_compiled_max_auto_tune.py
+```
+
+```sh
+python ./modules/swa_musings_strided_torch_compiled_max_auto_tune_seq_4096.py
+```
+
+```sh
+python ./modules/swa_musings_strided_torch_compiled_max_auto_tune_seq_8192.py
+```
+
+```sh
+python ./modules/test_triton_gtx_1080_ti.py
+```
+
+```sh
+python ./modules/test_triton_pascal_gtx_1080_ti.py
+```
