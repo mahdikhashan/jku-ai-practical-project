@@ -15,4 +15,5 @@ pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.
 
 #### Early Results
 
-![bench](./benchmark_results.png)
+![bench](./docs/benchmark_results.png)
+![bench-2](./docs/comparison_optimized_final.png)
