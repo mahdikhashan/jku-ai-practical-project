@@ -13,7 +13,7 @@ except ImportError:
     FLA_AVAILABLE = False
 
 # ============================================================================
-# 1. OPTIMIZED AWA KERNEL (TENSOR CORES + FLASH ATTN STYLE)
+# 1. OPTIMIZED AWA KERNEL (Fixed for Shared Memory)
 # ============================================================================
 
 @triton.jit
@@ -26,7 +26,6 @@ def anchor_window_fwd_kernel_optimized(
     seq_len, d_head, window_size,
     BLOCK_Q: tl.constexpr, BLOCK_K: tl.constexpr, BLOCK_DMODEL: tl.constexpr
 ):
-    # Grid: (seq_len // BLOCK_Q, batch, heads)
     pid_m = tl.program_id(0)
     pid_b = tl.program_id(1)
     pid_h = tl.program_id(2)
@@ -34,81 +33,73 @@ def anchor_window_fwd_kernel_optimized(
     # Offsets for Q
     off_m = pid_m * BLOCK_Q + tl.arange(0, BLOCK_Q)
     off_d = tl.arange(0, BLOCK_DMODEL)
-    
-    # Mask for Q (handle seq_len edge cases)
     mask_m = off_m < seq_len
     
     # Pointers to Q
     q_ptr = Q + (pid_b * stride_qb + pid_h * stride_qh) + \
             off_m[:, None] * stride_qs + off_d[None, :] * stride_qd
     
-    # Load Q (BF16 -> FP32 for dot)
-    q = tl.load(q_ptr, mask=mask_m[:, None], other=0.0).to(tl.float32)
+    # --- MEMORY FIX: Keep Q in BF16 (do not cast to fp32 yet) ---
+    q = tl.load(q_ptr, mask=mask_m[:, None], other=0.0)
 
-    # Initialize Accumulators
+    # Initialize Accumulators (FP32 for stability)
     acc = tl.zeros([BLOCK_Q, BLOCK_DMODEL], dtype=tl.float32)
     l_i = tl.zeros([BLOCK_Q], dtype=tl.float32)
     m_i = tl.full([BLOCK_Q], float("-inf"), dtype=tl.float32)
 
-    # Determine K/V block range
-    # We need keys from [start - window, end]
-    # start index of this Q block is pid_m * BLOCK_Q
+    # Window Logic
     start_idx = pid_m * BLOCK_Q
     min_k_idx = tl.maximum(0, start_idx - window_size)
-    # We align min_k_idx to BLOCK_K boundary for efficiency
     start_block_k = min_k_idx // BLOCK_K
-    end_block_k = (start_idx + BLOCK_Q + BLOCK_K - 1) // BLOCK_K # simplistic upper bound
-
+    
     # Loop over K/V blocks
     for block_k in range(start_block_k, pid_m + 1):
         off_n = block_k * BLOCK_K + tl.arange(0, BLOCK_K)
         
-        # Pointers to K, V
+        # Pointers
         k_ptr = K + (pid_b * stride_kb + pid_h * stride_kh) + \
                 off_n[None, :] * stride_ks + off_d[:, None] * stride_kd
         v_ptr = V + (pid_b * stride_vb + pid_h * stride_vh) + \
                 off_n[:, None] * stride_vs + off_d[None, :] * stride_vd
         
-        # Load K, V
+        # --- MEMORY FIX: Keep K, V in BF16 ---
         mask_n = off_n < seq_len
-        k = tl.load(k_ptr, mask=mask_n[None, :], other=0.0).to(tl.float32)
-        v = tl.load(v_ptr, mask=mask_n[:, None], other=0.0).to(tl.float32)
+        k = tl.load(k_ptr, mask=mask_n[None, :], other=0.0)
+        v = tl.load(v_ptr, mask=mask_n[:, None], other=0.0)
         
-        # --- ATTENTION SCORE (Q @ K.T) ---
-        qk = tl.dot(q, k) # Tensor Core
+        # --- COMPUTE: Tensor Core Dot (BF16 inputs -> FP32 output) ---
+        # We perform Q @ K.T. 
+        # Note: We must transpose K manually or use the correct operand order
+        qk = tl.dot(q, tl.trans(k))
         
-        # --- MASKING ---
-        # 1. Causal Mask: i >= j
-        # 2. Window Mask: i - j <= window
-        # 3. Valid Range: i < seq_len, j < seq_len (handled by loads/pad)
-        
+        # Masking
         diff = off_m[:, None] - off_n[None, :]
         window_mask = (diff >= 0) & (diff <= window_size)
-        
-        # Apply mask
         qk = tl.where(window_mask & mask_m[:, None] & mask_n[None, :], qk, float("-inf"))
         
-        # --- SOFTMAX UPDATE (Online) ---
+        # Softmax (Online Update)
         m_curr = tl.max(qk, 1)
         m_new = tl.maximum(m_i, m_curr)
-        
         alpha = tl.exp(m_i - m_new)
         p = tl.exp(qk - m_new[:, None])
         
-        acc = acc * alpha[:, None] + tl.dot(p.to(tl.float16), v.to(tl.float16)) # Mixed precision dot
+        # Update Accumulators
+        # p is FP32. v is BF16. We cast p to BF16 for the second dot product.
+        acc = acc * alpha[:, None] + tl.dot(p.to(v.dtype), v)
         l_i = l_i * alpha + tl.sum(p, 1)
         m_i = m_new
 
     # Finalize
     acc = acc / l_i[:, None]
     
-    # Store Out
+    # Store (Auto-cast to BF16)
     out_ptr = Out + (pid_b * stride_ob + pid_h * stride_oh) + \
               off_m[:, None] * stride_os + off_d[None, :] * stride_od
-    tl.store(out_ptr, acc.to(tl.bfloat16), mask=mask_m[:, None])
+    tl.store(out_ptr, acc, mask=mask_m[:, None])
+
 
 # ============================================================================
-# 2. ROBUST GLA KERNEL (Unchanged)
+# 2. GLA KERNEL (Unchanged)
 # ============================================================================
 
 @triton.jit
@@ -123,33 +114,32 @@ def gla_chunk_fwd_kernel(
     stride_sb: tl.int64, stride_sh: tl.int64, stride_sd: tl.int64,
     BLOCK_D: tl.constexpr, BLOCK_CHUNK: tl.constexpr,
 ):
-    # ... (Same logic as previous robust/bf16 script) ...
-    # Re-pasting simplified body for self-contained run
     pid_batch = tl.program_id(0).to(tl.int64)
     pid_head = tl.program_id(1).to(tl.int64)
     pid_chunk = tl.program_id(2).to(tl.int64)
     
     chunk_start = pid_chunk * BLOCK_CHUNK
     chunk_end = tl.minimum(chunk_start + BLOCK_CHUNK, seq_len)
-    actual_chunk_size = chunk_end - chunk_start
-    if actual_chunk_size <= 0: return
+    if (chunk_end - chunk_start) <= 0: return
 
     seq_offsets = chunk_start + tl.arange(0, BLOCK_CHUNK)
     d_offsets = tl.arange(0, BLOCK_D)
     seq_mask = seq_offsets < chunk_end
     d_mask = d_offsets < d_model
     
-    q_offset = pid_batch * stride_qb + pid_head * stride_qh
-    k_offset = pid_batch * stride_kb + pid_head * stride_kh
-    v_offset = pid_batch * stride_vb + pid_head * stride_vh
-    g_offset = pid_batch * stride_gb + pid_head * stride_gh
+    # Calculate Offsets (simplified for brevity, assume correct)
+    q_off = pid_batch * stride_qb + pid_head * stride_qh
+    k_off = pid_batch * stride_kb + pid_head * stride_kh
+    v_off = pid_batch * stride_vb + pid_head * stride_vh
+    g_off = pid_batch * stride_gb + pid_head * stride_gh
     
-    Q_c = tl.load(Q + q_offset + seq_offsets[:, None] * stride_qs + d_offsets[None, :] * stride_qd, mask=seq_mask[:, None] & d_mask[None, :], other=0.0).to(tl.float32)
-    K_c = tl.load(K + k_offset + seq_offsets[:, None] * stride_ks + d_offsets[None, :] * stride_kd, mask=seq_mask[:, None] & d_mask[None, :], other=0.0).to(tl.float32)
-    V_c = tl.load(V + v_offset + seq_offsets[:, None] * stride_vs + d_offsets[None, :] * stride_vd, mask=seq_mask[:, None] & d_mask[None, :], other=0.0).to(tl.float32)
-    gates = tl.load(G + g_offset + seq_offsets * stride_gs, mask=seq_mask, other=0.0).to(tl.float32)
+    # Load BF16, cast to FP32 for Recurrent Precision
+    Q_c = tl.load(Q + q_off + seq_offsets[:, None]*stride_qs + d_offsets[None, :]*stride_qd, mask=seq_mask[:, None]&d_mask[None, :], other=0.0).to(tl.float32)
+    K_c = tl.load(K + k_off + seq_offsets[:, None]*stride_ks + d_offsets[None, :]*stride_kd, mask=seq_mask[:, None]&d_mask[None, :], other=0.0).to(tl.float32)
+    V_c = tl.load(V + v_off + seq_offsets[:, None]*stride_vs + d_offsets[None, :]*stride_vd, mask=seq_mask[:, None]&d_mask[None, :], other=0.0).to(tl.float32)
+    gates = tl.load(G + g_off + seq_offsets*stride_gs, mask=seq_mask, other=0.0).to(tl.float32)
     
-    state_off = pid_batch * stride_sb + pid_head * stride_sh + pid_chunk * stride_sd
+    state_off = pid_batch*stride_sb + pid_head*stride_sh + pid_chunk*stride_sd
     prev_state = tl.load(State_in + state_off + d_offsets, mask=d_mask, other=0.0).to(tl.float32)
     
     scores = tl.dot(Q_c, tl.trans(K_c))
@@ -165,12 +155,14 @@ def gla_chunk_fwd_kernel(
     
     last_mask = seq_offsets == (chunk_end - 1)
     new_state = tl.sum(tl.where(last_mask[:, None], out_chunk, 0.0), axis=0)
+    
+    state_out_off = pid_batch*stride_sb + pid_head*stride_sh + (pid_chunk + 1)*stride_sd
     tl.store(State_out + state_out_off + d_offsets, new_state, mask=d_mask)
-    tl.store(Out + pid_batch * stride_ob + pid_head * stride_oh + seq_offsets[:, None] * stride_os + d_offsets[None, :] * stride_od, out_chunk, mask=seq_mask[:, None] & d_mask[None, :])
+    tl.store(Out + pid_batch*stride_ob + pid_head*stride_oh + seq_offsets[:, None]*stride_os + d_offsets[None, :]*stride_od, out_chunk, mask=seq_mask[:, None] & d_mask[None, :])
 
 
 # ============================================================================
-# 3. OPTIMIZED LIZARD LAYER
+# 3. LIZARD LAYER
 # ============================================================================
 
 class LizardLayer(nn.Module):
@@ -203,7 +195,8 @@ class LizardLayer(nn.Module):
             v.stride(0), v.stride(1), v.stride(2), v.stride(3),
             out.stride(0), out.stride(1), out.stride(2), out.stride(3),
             seq, self.d_head, self.window_size,
-            BLOCK_Q=BLOCK_Q, BLOCK_K=BLOCK_K, BLOCK_DMODEL=BLOCK_D
+            BLOCK_Q=BLOCK_Q, BLOCK_K=BLOCK_K, BLOCK_DMODEL=BLOCK_D,
+            num_stages=2, num_warps=4 # Conservative settings for stability
         )
         return out
 
@@ -233,14 +226,15 @@ class LizardLayer(nn.Module):
 # 4. BENCHMARK
 # ============================================================================
 
-def benchmark_optimized():
+def benchmark_optimized_v2():
     if not torch.cuda.is_available(): return
     
     BATCH = 4
     HEADS = 8
     DIM = 128
     D_MODEL = HEADS * DIM
-    SEQ_LENS = [1024, 2048, 4096, 8192, 16384, 32768]
+    # 16k causes long runtime, 32k might OOM on L4, let's try up to 8k first
+    SEQ_LENS = [1024, 2048, 4096, 8192] 
     DTYPE = torch.bfloat16
     
     lizard = LizardLayer(D_MODEL, HEADS).cuda().to(DTYPE)
@@ -304,8 +298,8 @@ def benchmark_optimized():
     plt.ylabel('Latency (ms)')
     plt.grid(True, alpha=0.3)
     plt.legend()
-    plt.savefig('comparison_optimized.png')
-    print("\nSaved chart to 'comparison_optimized.png'")
+    plt.savefig('comparison_optimized_v2.png')
+    print("\nSaved chart to 'comparison_optimized_v2.png'")
 
 if __name__ == "__main__":
-    benchmark_optimized()
+    benchmark_optimized_v2()
