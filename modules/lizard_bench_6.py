@@ -147,7 +147,7 @@ def gla_tensor_core_stateful(q, k, v, gates, chunk_size=64):
 
 def gla_tensor_core(q, k, v, gates, chunk_size=64):
     """
-    GLA using Triton with tensor cores.
+    GLA using Triton with tensor cores (chunk-local only, no state).
     
     Args:
         q, k, v: [batch, n_heads, seq_len, d_model]
@@ -166,22 +166,28 @@ def gla_tensor_core(q, k, v, gates, chunk_size=64):
     
     out = torch.empty_like(q)
     
+    # Create dummy state tensors (not used in chunk-local version)
+    num_chunks = triton.cdiv(seq_len, chunk_size)
+    state_in = torch.zeros(batch, n_heads, num_chunks + 1, d_model, 
+                           device=q.device, dtype=q.dtype)
+    state_out = torch.zeros_like(state_in)
+    
     # Block sizes (must be powers of 2 for tensor cores)
     BLOCK_D = triton.next_power_of_2(d_model)
     BLOCK_CHUNK = chunk_size
     
     # Grid: (batch, heads, num_chunks)
-    num_chunks = triton.cdiv(seq_len, chunk_size)
     grid = (batch, n_heads, num_chunks)
     
     gla_chunk_fwd_kernel[grid](
-        q, k, v, gates, out,
+        q, k, v, gates, out, state_in, state_out,
         seq_len, d_model, chunk_size,
         q.stride(0), q.stride(1), q.stride(2), q.stride(3),
         k.stride(0), k.stride(1), k.stride(2), k.stride(3),
         v.stride(0), v.stride(1), v.stride(2), v.stride(3),
         gates.stride(0), gates.stride(1), gates.stride(2),
         out.stride(0), out.stride(1), out.stride(2), out.stride(3),
+        state_in.stride(0), state_in.stride(1), state_in.stride(3),
         BLOCK_D=BLOCK_D,
         BLOCK_CHUNK=BLOCK_CHUNK,
     )
