@@ -13,29 +13,32 @@ except ImportError:
     FLA_AVAILABLE = False
 
 # ============================================================================
-# 1. OPTIMIZED AWA KERNEL (V3: Fixed Shapes)
+# 1. OPTIMIZED AWA KERNEL (Fixed for 16k/32k Scaling)
 # ============================================================================
 
 @triton.jit
 def anchor_window_fwd_kernel_optimized(
     Q, K, V, Out,
-    stride_qb, stride_qh, stride_qs, stride_qd,
-    stride_kb, stride_kh, stride_ks, stride_kd,
-    stride_vb, stride_vh, stride_vs, stride_vd,
-    stride_ob, stride_oh, stride_os, stride_od,
+    # --- CRITICAL FIX: Explicit 64-bit Strides ---
+    stride_qb: tl.int64, stride_qh: tl.int64, stride_qs: tl.int64, stride_qd: tl.int64,
+    stride_kb: tl.int64, stride_kh: tl.int64, stride_ks: tl.int64, stride_kd: tl.int64,
+    stride_vb: tl.int64, stride_vh: tl.int64, stride_vs: tl.int64, stride_vd: tl.int64,
+    stride_ob: tl.int64, stride_oh: tl.int64, stride_os: tl.int64, stride_od: tl.int64,
     seq_len, d_head, window_size,
     BLOCK_Q: tl.constexpr, BLOCK_K: tl.constexpr, BLOCK_DMODEL: tl.constexpr
 ):
-    pid_m = tl.program_id(0)
-    pid_b = tl.program_id(1)
-    pid_h = tl.program_id(2)
+    # Force 64-bit indexing for large grids
+    pid_m = tl.program_id(0).to(tl.int64)
+    pid_b = tl.program_id(1).to(tl.int64)
+    pid_h = tl.program_id(2).to(tl.int64)
 
-    # Offsets for Q: [BLOCK_Q, BLOCK_DMODEL]
+    # Offsets for Q
     off_m = pid_m * BLOCK_Q + tl.arange(0, BLOCK_Q)
     off_d = tl.arange(0, BLOCK_DMODEL)
     mask_m = off_m < seq_len
     
-    # Load Q in BF16
+    # Load Q (BF16)
+    # Calculation strictly in 64-bit to avoid overflow
     q_ptr = Q + (pid_b * stride_qb + pid_h * stride_qh) + \
             off_m[:, None] * stride_qs + off_d[None, :] * stride_qd
     q = tl.load(q_ptr, mask=mask_m[:, None], other=0.0)
@@ -54,20 +57,17 @@ def anchor_window_fwd_kernel_optimized(
         off_n = block_k * BLOCK_K + tl.arange(0, BLOCK_K)
         mask_n = off_n < seq_len
         
-        # --- SHAPE FIX: Load K as [BLOCK_K, BLOCK_DMODEL] ---
-        # Previous error was swapping these indices
+        # Load K, V (BF16)
+        # Note: K loaded as [BLOCK_K, D]
         k_ptr = K + (pid_b * stride_kb + pid_h * stride_kh) + \
                 off_n[:, None] * stride_ks + off_d[None, :] * stride_kd
-        
         v_ptr = V + (pid_b * stride_vb + pid_h * stride_vh) + \
                 off_n[:, None] * stride_vs + off_d[None, :] * stride_vd
         
         k = tl.load(k_ptr, mask=mask_n[:, None], other=0.0)
         v = tl.load(v_ptr, mask=mask_n[:, None], other=0.0)
         
-        # --- COMPUTE: Q @ K.T ---
-        # q: [Q, D], k: [K, D] -> trans(k): [D, K]
-        # result: [Q, K]
+        # Compute Q @ K.T
         qk = tl.dot(q, tl.trans(k))
         
         # Masking
@@ -81,8 +81,7 @@ def anchor_window_fwd_kernel_optimized(
         alpha = tl.exp(m_i - m_new)
         p = tl.exp(qk - m_new[:, None])
         
-        # Update Acc: p @ v
-        # p: [Q, K], v: [K, D] -> [Q, D]
+        # Update Accumulator
         acc = acc * alpha[:, None] + tl.dot(p.to(v.dtype), v)
         l_i = l_i * alpha + tl.sum(p, 1)
         m_i = m_new
@@ -96,7 +95,7 @@ def anchor_window_fwd_kernel_optimized(
     tl.store(out_ptr, acc, mask=mask_m[:, None])
 
 # ============================================================================
-# 2. GLA KERNEL (Unchanged)
+# 2. GLA KERNEL (Unchanged - Already Robust)
 # ============================================================================
 
 @triton.jit
@@ -220,14 +219,15 @@ class LizardLayer(nn.Module):
 # 4. BENCHMARK
 # ============================================================================
 
-def benchmark_optimized_v3():
+def benchmark_final_robust():
     if not torch.cuda.is_available(): return
     
     BATCH = 4
     HEADS = 8
     DIM = 128
     D_MODEL = HEADS * DIM
-    SEQ_LENS = [1024, 2048, 4096, 8192, 16384] # Up to 16k
+    # Now that we have 64-bit pointers, 16k and 32k should be safe
+    SEQ_LENS = [1024, 2048, 4096, 8192, 16384, 32768]
     DTYPE = torch.bfloat16
     
     lizard = LizardLayer(D_MODEL, HEADS).cuda().to(DTYPE)
@@ -241,7 +241,6 @@ def benchmark_optimized_v3():
     results = {'seq':[], 'fla':[], 'awa':[], 'liz':[]}
     
     for s in SEQ_LENS:
-        # Generate Data
         q = torch.randn(BATCH, HEADS, s, DIM, device='cuda', dtype=DTYPE)
         k = torch.randn(BATCH, HEADS, s, DIM, device='cuda', dtype=DTYPE)
         v = torch.randn(BATCH, HEADS, s, DIM, device='cuda', dtype=DTYPE)
@@ -286,14 +285,13 @@ def benchmark_optimized_v3():
         plt.plot(results['seq'], results['fla'], 'k--', linewidth=2, label='FLA (Reference)')
     plt.plot(results['seq'], results['awa'], 's-', label='Optimized AWA')
     plt.plot(results['seq'], results['liz'], '^-', linewidth=3, label='Optimized Lizard')
-    plt.title(f'Optimized Lizard Performance (Final)\nBatch={BATCH}, D={DIM}x{HEADS}')
+    plt.title(f'Lizard vs FLA (32k Support)\nBatch={BATCH}, D={DIM}x{HEADS}')
     plt.xlabel('Sequence Length')
     plt.ylabel('Latency (ms)')
     plt.grid(True, alpha=0.3)
     plt.legend()
-    plt.savefig('comparison_optimized_final.png')
-    print("\nSaved chart to 'comparison_optimized_final.png'")
+    plt.savefig('lizard_final_32k.png')
+    print("\nSaved chart to 'lizard_final_32k.png'")
 
 if __name__ == "__main__":
-    benchmark_optimized_v3()
-    
+    benchmark_final_robust()
