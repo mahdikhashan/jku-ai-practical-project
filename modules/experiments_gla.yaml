@@ -18,12 +18,12 @@ params:
   dtype: "bfloat16"
   device: "cuda:0"
 ---
-experiment: "GLA_FP32"
+experiment: "GLA_Larger_Context"
 module: "modules.gla.gla_fla"
 params:
-  batch_size: 1
-  seq_len: 128
-  hidden_size: 512
-  num_heads: 2
-  dtype: "float32"
+  batch_size: 4
+  seq_len: 4096
+  hidden_size: 1024
+  num_heads: 4
+  dtype: "bfloat16"
   device: "cuda:0"
