@@ -1,7 +1,7 @@
-def forward(x, hidden_size, num_heads, mode="chunk"):
+def forward(x, hidden_size, num_heads, mode):
     from fla.layers import GatedLinearAttention
 
-    gla = GatedLinearAttention(hidden_size, num_heads, mode).to(
+    gla = GatedLinearAttention(hidden_size, num_heads, mode="chunk").to(
         device=device, dtype=dtype
     )
     return gla(x)
