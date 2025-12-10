@@ -14,3 +14,9 @@ Lizard Kernels
 ```sh
 pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.0.post2/flash_attn-2.7.0.post2+cu12torch2.5cxx11abiFALSE-cp310-cp310-linux_x86_64.whl --no-build-isolation
 ```
+
+#### Run Experiments
+
+```bash
+python -m modules.runner modules/experiments_gla.yaml
+```
