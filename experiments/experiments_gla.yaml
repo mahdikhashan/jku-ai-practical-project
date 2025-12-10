@@ -48,52 +48,52 @@ params:
   dtype: "bfloat16"
   device: "cuda:0"
 ---
-experiment: "GLA_Small_Context_128"
-module: "modules.gla.gla_fla"
-params:
-  batch_size: 1
-  seq_len: 128
-  hidden_size: 512
-  num_heads: 2
-  dtype: "float16"
-  device: "cuda:0"
----
-experiment: "GLA_Large_Context_2k"
-module: "modules.gla.gla_fla"
-params:
-  batch_size: 4
-  seq_len: 2048
-  hidden_size: 1024
-  num_heads: 4
-  dtype: "float16"
-  device: "cuda:0"
----
-experiment: "GLA_Larger_Context_4k"
-module: "modules.gla.gla_fla"
-params:
-  batch_size: 4
-  seq_len: 4096
-  hidden_size: 1024
-  num_heads: 4
-  dtype: "float16"
-  device: "cuda:0"
----
-experiment: "GLA_Larger_Context_16k"
-module: "modules.gla.gla_fla"
-params:
-  batch_size: 8
-  seq_len: 16384
-  hidden_size: 128
-  num_heads: 8
-  dtype: "float16"
-  device: "cuda:0"
----
-experiment: "GLA_Larger_Context_32k"
-module: "modules.gla.gla_fla"
-params:
-  batch_size: 8
-  seq_len: 32768
-  hidden_size: 128
-  num_heads: 8
-  dtype: "float16"
-  device: "cuda:0"
+# experiment: "GLA_Small_Context_128"
+# module: "modules.gla.gla_fla"
+# params:
+#   batch_size: 1
+#   seq_len: 128
+#   hidden_size: 512
+#   num_heads: 2
+#   dtype: "float16"
+#   device: "cuda:0"
+# ---
+# experiment: "GLA_Large_Context_2k"
+# module: "modules.gla.gla_fla"
+# params:
+#   batch_size: 4
+#   seq_len: 2048
+#   hidden_size: 1024
+#   num_heads: 4
+#   dtype: "float16"
+#   device: "cuda:0"
+# ---
+# experiment: "GLA_Larger_Context_4k"
+# module: "modules.gla.gla_fla"
+# params:
+#   batch_size: 4
+#   seq_len: 4096
+#   hidden_size: 1024
+#   num_heads: 4
+#   dtype: "float16"
+#   device: "cuda:0"
+# ---
+# experiment: "GLA_Larger_Context_16k"
+# module: "modules.gla.gla_fla"
+# params:
+#   batch_size: 8
+#   seq_len: 16384
+#   hidden_size: 128
+#   num_heads: 8
+#   dtype: "float16"
+#   device: "cuda:0"
+# ---
+# experiment: "GLA_Larger_Context_32k"
+# module: "modules.gla.gla_fla"
+# params:
+#   batch_size: 8
+#   seq_len: 32768
+#   hidden_size: 128
+#   num_heads: 8
+#   dtype: "float16"
+#   device: "cuda:0"
