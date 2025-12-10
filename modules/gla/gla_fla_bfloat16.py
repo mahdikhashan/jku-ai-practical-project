@@ -1,9 +1,9 @@
-def forward(x, hidden_size, num_heads, mode="chunk"):
+def forward(x, hidden_size, num_heads, mode="chunk", device="cuda:0"):
     from fla.layers import GatedLinearAttention
 
     gla = GatedLinearAttention(
         mode=mode, hidden_size=hidden_size, num_heads=num_heads
-    ).to(device=device, dtype=dtype)
+    ).to(device=device, dtype=torch.bfloat16)
     return gla(x)
 
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         help="Data type (default: bfloat16)",
     )
     parser.add_argument(
-        "--device", type=str, default="cpu", help="Device to use (default: cpu)"
+        "--device", type=str, default="cuda:0", help="Device to use (default: cpu)"
     )
 
     args = parser.parse_args()
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     )
 
     try:
-        y = forward(x, hidden_size, num_heads)
+        y = forward(x, hidden_size, num_heads, device=device)
         print("Success! Output shape:", len(y))
     except Exception as e:
         print("Failed:", e)
