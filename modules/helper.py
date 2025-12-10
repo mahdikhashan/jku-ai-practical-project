@@ -126,3 +126,11 @@ def get_datetime_now():
 def is_contagious():
     # todo(mahdi): is contagious
     pass
+
+
+def get_dtype():
+    return (
+        "bfloat16"
+        if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+        else "float16"
+    )
