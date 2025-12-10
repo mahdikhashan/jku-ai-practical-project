@@ -142,7 +142,7 @@ from functools import wraps
 from datetime import datetime
 import json
 import os
-
+import inspect
 
 def benchmark(
     warmup_iterations=10,
@@ -154,12 +154,34 @@ def benchmark(
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            exp_name = kwargs.get("experiment_name", "N/A")
+            # --- 1. Capture All Parameters ---
+            # Use inspect to map positional args to their names (e.g., x -> input_tensor)
+            sig = inspect.signature(func)
+            bound_args = sig.bind(*args, **kwargs)
+            bound_args.apply_defaults()  # Include default values (e.g., mode="chunk")
 
+            params_to_log = {}
+            for name, value in bound_args.arguments.items():
+                # Special handling for Tensors: Log shape instead of data
+                if isinstance(value, torch.Tensor):
+                    params_to_log[name] = f"Tensor{list(value.shape)}"
+                # Special handling for simple types: Log directly
+                elif isinstance(value, (int, float, str, bool, type(None))):
+                    params_to_log[name] = value
+                # Fallback: String representation
+                else:
+                    params_to_log[name] = str(value)
+
+            # Extract experiment_name specifically if present, else default
+            exp_name = params_to_log.get("experiment_name", "N/A")
+
+            # --- 2. Initialize Results Dict ---
             results = {
                 "timestamp": datetime.now().isoformat(),
-                "experiment_name": exp_name,
                 "function": func.__name__,
+                # We merge all captured parameters directly into the root
+                # This makes the leaderboard easier to sort (e.g. by hidden_size)
+                **params_to_log 
             }
 
             if torch.cuda.is_available():
@@ -171,7 +193,7 @@ def benchmark(
                 results["device"] = "CPU"
                 return func(*args, **kwargs)
 
-            # Warmup
+            # --- 3. Warmup ---
             torch.cuda.reset_peak_memory_stats()
             torch.cuda.empty_cache()
             print(f"Warming up GPU ({warmup_iterations} iters)...")
@@ -179,7 +201,7 @@ def benchmark(
                 _ = func(*args, **kwargs)
             torch.cuda.synchronize()
 
-            # Wall Clock Benchmark
+            # --- 4. Wall Clock Benchmark ---
             torch.cuda.reset_peak_memory_stats()
             print(f"Benchmarking Wall Clock ({benchmark_iterations} iters)...")
 
@@ -199,7 +221,7 @@ def benchmark(
             current_memory_mb = torch.cuda.memory_allocated() / 1024**2
             reserved_memory_mb = torch.cuda.memory_reserved() / 1024**2
 
-            # Profiler
+            # --- 5. Profiler ---
             print(f"Running Profiler ({benchmark_iterations} iters)...")
             final_trace_name = trace_filename or f"{func.__name__}_trace.json"
 
@@ -224,14 +246,8 @@ def benchmark(
             found_event = False
             for event in key_avgs:
                 if event.key == func.__name__:
-                    c_total = getattr(
-                        event, "cpu_time_total", getattr(event, "cpu_time", 0.0)
-                    )
-
-                    # Try getting Total CUDA Time
-                    g_total = getattr(
-                        event, "cuda_time_total", getattr(event, "cuda_time", 0.0)
-                    )
+                    c_total = getattr(event, "cpu_time_total", getattr(event, "cpu_time", 0.0))
+                    g_total = getattr(event, "cuda_time_total", getattr(event, "cuda_time", 0.0))
 
                     avg_cuda_time_ms = (g_total / 1000.0) / benchmark_iterations
                     avg_cpu_time_ms = (c_total / 1000.0) / benchmark_iterations
@@ -239,40 +255,40 @@ def benchmark(
                     break
 
             if not found_event:
-                print(
-                    f"Warning: Could not find key '{func.__name__}' in profiler results."
-                )
+                print(f"Warning: Could not find key '{func.__name__}' in profiler results.")
 
-            results.update(
-                {
-                    "output_shape": str(
-                        result.shape if hasattr(result, "shape") else len(result)
-                    ),
-                    "warmup_iterations": warmup_iterations,
-                    "benchmark_iterations": benchmark_iterations,
-                    "total_wall_time_ms": round(total_wall_time_ms, 2),
-                    "avg_wall_time_ms": round(avg_wall_time_ms, 4),
-                    "avg_cuda_time_ms": round(avg_cuda_time_ms, 4),
-                    "avg_cpu_time_ms": round(avg_cpu_time_ms, 4),
-                    "peak_memory_mb": round(peak_memory_mb, 2),
-                    "current_memory_mb": round(current_memory_mb, 2),
-                    "reserved_memory_mb": round(reserved_memory_mb, 2),
-                    "trace_file": final_trace_name,
-                }
-            )
+            # --- 6. Save Final Results ---
+            output_shape = str(result.shape if hasattr(result, "shape") else len(result))
+            
+            results.update({
+                "output_shape": output_shape,
+                "warmup_iterations": warmup_iterations,
+                "benchmark_iterations": benchmark_iterations,
+                "total_wall_time_ms": round(total_wall_time_ms, 2),
+                "avg_wall_time_ms": round(avg_wall_time_ms, 4),
+                "avg_cuda_time_ms": round(avg_cuda_time_ms, 4),
+                "avg_cpu_time_ms": round(avg_cpu_time_ms, 4),
+                "peak_memory_mb": round(peak_memory_mb, 2),
+                "current_memory_mb": round(current_memory_mb, 2),
+                "reserved_memory_mb": round(reserved_memory_mb, 2),
+                "trace_file": final_trace_name,
+            })
 
             print("\n" + "=" * 60)
             print(f"{'BENCHMARK & PROFILER RESULTS':^60}")
             print("=" * 60)
             print(f"{'Function':<30} {func.__name__:>28}")
-            print(f"{'Device':<30} {results['device']:>28}")
+            # Loop through params to print them nicely in summary
+            for k, v in params_to_log.items():
+                if k != "experiment_name" and k != "device": # Printed separately
+                     # Truncate long values
+                    val_str = str(v)
+                    if len(val_str) > 28: val_str = val_str[:25] + "..."
+                    print(f"{k:<30} {val_str:>28}")
             print("-" * 60)
             print(f"{'Avg Wall Time (ms)':<30} {avg_wall_time_ms:>27.4f}")
             print(f"{'Avg CUDA Kernel Time (ms)':<30} {avg_cuda_time_ms:>27.4f}")
-            print(f"{'Avg CPU Time (ms)':<30} {avg_cpu_time_ms:>27.4f}")
-            print("-" * 60)
             print(f"{'Peak Memory (MB)':<30} {peak_memory_mb:>27.2f}")
-            print(f"{'Trace File':<30} {final_trace_name:>28}")
             print("=" * 60 + "\n")
 
             if save_results:
