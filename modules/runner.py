@@ -8,20 +8,25 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 
-def run_experiments(config_path="experiments_gla.yaml"):
+def run_experiments(config_path):
     if not os.path.exists(config_path):
         print(f"Error: Config file '{config_path}' not found.")
+        print(f"Current working directory: {os.getcwd()}")
         return
 
     experiments = []
-    with open(config_path, 'r') as f:
-        # load_all parses "---" separated blocks
-        for doc in yaml.safe_load_all(f):
-            if doc:
-                experiments.append(doc)
+    try:
+        with open(config_path, 'r') as f:
+            # load_all parses "---" separated blocks
+            for doc in yaml.safe_load_all(f):
+                if doc:
+                    experiments.append(doc)
+    except Exception as e:
+        print(f"Error reading YAML: {e}")
+        return
 
     total = len(experiments)
-    print(f"Found {total} experiments. Running sequentially...\n")
+    print(f"Found {total} experiments in '{config_path}'. Running sequentially...\n")
 
     for i, exp in enumerate(experiments, 1):
         name = exp.get('experiment', 'Unnamed')
@@ -50,4 +55,9 @@ def run_experiments(config_path="experiments_gla.yaml"):
         time.sleep(1) 
 
 if __name__ == "__main__":
-    run_experiments()
+    if len(sys.argv) > 1:
+        yaml_file = sys.argv[1]
+        run_experiments(yaml_file)
+    else:
+        print("Usage: python -m modules.runner <path_to_yaml>")
+        print("Example: python -m modules.runner modules/experiments_gla.yaml")
