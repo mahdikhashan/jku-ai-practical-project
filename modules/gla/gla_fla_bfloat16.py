@@ -1,10 +1,10 @@
-def forward(hidden_size, num_heads, mode="chunk"):
+def forward(x, hidden_size, num_heads, mode="chunk"):
     from fla.layers import GatedLinearAttention
 
     gla = GatedLinearAttention(hidden_size, num_heads, mode).to(
         device=device, dtype=dtype
     )
-    return gla
+    return gla(x)
 
 
 if __name__ == "__main__":
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     x = torch.randn(batch_size, seq_len, hidden_size, device=device, dtype=torch.bfloat16)
 
     try:
-        y = forward(x)
+        y = forward(x, hidden_size, num_heads)
         print("Success! Output shape:", len(y))
     except Exception as e:
         print("Failed:", e)
