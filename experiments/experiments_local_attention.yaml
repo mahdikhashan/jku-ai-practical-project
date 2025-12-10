@@ -20,6 +20,28 @@ params:
   dtype: "float32"
   device: "cuda:0"
 ---
+experiment: "Local_Attention_4K"
+module: "modules.local_attention.local_attention"
+params:
+  batch_size: 8
+  seq_len: 4096
+  hidden_size: 128
+  num_heads: 8
+  head_dim: 16
+  dtype: "float32"
+  device: "cuda:0"
+---
+experiment: "Local_Attention_8K"
+module: "modules.local_attention.local_attention"
+params:
+  batch_size: 8
+  seq_len: 8192
+  hidden_size: 128
+  num_heads: 8
+  head_dim: 16
+  dtype: "float32"
+  device: "cuda:0"
+---
 experiment: "Local_Attention_16K"
 module: "modules.local_attention.local_attention"
 params:
