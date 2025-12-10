@@ -40,10 +40,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    batch_size = args.batch_size
-    seq_len = args.seq_len
-    hidden_size = args.hidden_size
-    num_heads = args.num_heads
+    batch_size = int(args.batch_size)
+    seq_len = int(args.seq_len)
+    hidden_size = int(args.hidden_size)
+    num_heads = int(args.num_heads)
     device = args.device
     dtype = args.dtype
 
