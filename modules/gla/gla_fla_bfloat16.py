@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     import torch
 
-    x = torch.randn(batch_size, seq_len, hidden_size, device=device, dtype=dtype)
+    x = torch.randn(batch_size, seq_len, hidden_size, device=device, dtype='bfloat16')
 
     try:
         y = forward(x)
