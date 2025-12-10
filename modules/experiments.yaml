@@ -1,0 +1,29 @@
+experiment: "GLA_Small_Context"
+module: "modules.gla.gla_fla"
+params:
+  batch_size: 1
+  seq_len: 128
+  hidden_size: 512
+  num_heads: 2
+  dtype: "bfloat16"
+  device: "cuda:0"
+---
+experiment: "GLA_Large_Context"
+module: "modules.gla.gla_fla"
+params:
+  batch_size: 4
+  seq_len: 2048
+  hidden_size: 1024
+  num_heads: 4
+  dtype: "bfloat16"
+  device: "cuda:0"
+---
+experiment: "GLA_FP32"
+module: "modules.gla.gla_fla"
+params:
+  batch_size: 1
+  seq_len: 128
+  hidden_size: 512
+  num_heads: 2
+  dtype: "float32"
+  device: "cuda:0"

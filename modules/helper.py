@@ -154,12 +154,14 @@ def benchmark(
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            exp_name = kwargs.get("experiment_name", "N/A")
+
             results = {
                 "timestamp": datetime.now().isoformat(),
+                "experiment_name": exp_name,
                 "function": func.__name__,
             }
 
-            # 1. Device Check
             if torch.cuda.is_available():
                 device_name = torch.cuda.get_device_name(0)
                 print(f"Device: {device_name}")
@@ -169,7 +171,7 @@ def benchmark(
                 results["device"] = "CPU"
                 return func(*args, **kwargs)
 
-            # 2. Warmup
+            # Warmup
             torch.cuda.reset_peak_memory_stats()
             torch.cuda.empty_cache()
             print(f"Warming up GPU ({warmup_iterations} iters)...")
@@ -177,7 +179,7 @@ def benchmark(
                 _ = func(*args, **kwargs)
             torch.cuda.synchronize()
 
-            # 3. Wall Clock Benchmark
+            # Wall Clock Benchmark
             torch.cuda.reset_peak_memory_stats()
             print(f"Benchmarking Wall Clock ({benchmark_iterations} iters)...")
 
@@ -197,7 +199,7 @@ def benchmark(
             current_memory_mb = torch.cuda.memory_allocated() / 1024**2
             reserved_memory_mb = torch.cuda.memory_reserved() / 1024**2
 
-            # 4. Profiler
+            # Profiler
             print(f"Running Profiler ({benchmark_iterations} iters)...")
             final_trace_name = trace_filename or f"{func.__name__}_trace.json"
 
@@ -216,22 +218,17 @@ def benchmark(
 
             prof.export_chrome_trace(final_trace_name)
 
-            # --- ROBUST METRIC EXTRACTION ---
             key_avgs = prof.key_averages()
             print(key_avgs.table(sort_by="cuda_time_total", row_limit=10))
 
             found_event = False
             for event in key_avgs:
                 if event.key == func.__name__:
-                    # Try different attribute names for compatibility
-                    # Metrics are in microseconds (us), convert to ms
-
-                    # 1. Try getting Total CPU Time
                     c_total = getattr(
                         event, "cpu_time_total", getattr(event, "cpu_time", 0.0)
                     )
 
-                    # 2. Try getting Total CUDA Time
+                    # Try getting Total CUDA Time
                     g_total = getattr(
                         event, "cuda_time_total", getattr(event, "cuda_time", 0.0)
                     )
@@ -246,7 +243,6 @@ def benchmark(
                     f"Warning: Could not find key '{func.__name__}' in profiler results."
                 )
 
-            # 5. Save Results
             results.update(
                 {
                     "output_shape": str(
@@ -265,7 +261,6 @@ def benchmark(
                 }
             )
 
-            # Print Summary
             print("\n" + "=" * 60)
             print(f"{'BENCHMARK & PROFILER RESULTS':^60}")
             print("=" * 60)
