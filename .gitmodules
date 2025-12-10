@@ -4,3 +4,6 @@
 [submodule "local-attention"]
 	path = local-attention
 	url = https://github.com/lucidrains/local-attention.git
+[submodule "leaderboard"]
+	path = leaderboard
+	url = https://huggingface.co/spaces/nanoman1/lizard-kernel-leaderboard
