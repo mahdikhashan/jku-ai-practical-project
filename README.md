@@ -1,5 +1,7 @@
-Lizard Kernels
+Lizard Kernels 
 ---
+
+[![Hugging Face](https://img.shields.io/badge/%20HuggingFace-Space-yellow?logo=huggingface&logoColor=white)](https://huggingface.co/spaces/nanoman1/lizard-kernel-leaderboard)
 
 #### Setup
 
