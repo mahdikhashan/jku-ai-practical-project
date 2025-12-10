@@ -1,3 +1,7 @@
+from helper import benchmark
+
+
+@benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
 def forward(x, hidden_size, num_heads, mode="chunk", device="cuda:0"):
     from fla.layers import GatedLinearAttention
 
