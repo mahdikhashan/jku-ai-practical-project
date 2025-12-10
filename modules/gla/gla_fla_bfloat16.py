@@ -3,7 +3,7 @@ def forward(x, hidden_size, num_heads, mode="chunk", device="cuda:0"):
 
     gla = GatedLinearAttention(
         mode=mode, hidden_size=hidden_size, num_heads=num_heads
-    ).to(device=device, dtype=torch.bfloat16)
+    ).to(device="cuda:0", dtype=torch.bfloat16)
     return gla(x)
 
 
