@@ -47,7 +47,7 @@ jku-ai-practical-project/
 │   │   ├── lizard_bench.py         # Main Lizard benchmark
 │   │   ├── lizard_bench_2.py       # Benchmark version 2
 │   │   ├── lizard_bench_3_claude.py # Claude-generated benchmark
-│   │   ├── lizard_bench_4.py through lizard_bench_10.py  # Additional benchmark versions
+│   │   ├── lizard_bench_4.py - lizard_bench_10.py  # Additional benchmark versions
 │   │   └── lizard_correctness.py   # Correctness tests for Lizard
 │   │
 │   ├── local_attention/            # Local attention implementations
@@ -63,7 +63,7 @@ jku-ai-practical-project/
 │   │
 │   ├── swa/                        # SWA (Sliding Window Attention) implementations
 │   │   ├── __init__.py
-│   │   ├── swa.py, swa2.py, swa3.py, swa4.py, swa5.py  # SWA implementation versions
+│   │   ├── swa.py - swa5.py        # SWA implementation versions (swa, swa2, swa3, swa4, swa5)
 │   │   ├── swa_musings.py          # Experimental SWA implementations
 │   │   ├── swa_fzkuji.py
 │   │   ├── swa_fzkuji_benchmark.py
@@ -80,7 +80,8 @@ jku-ai-practical-project/
 │   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_working_1.py
 │   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_working_2.py
 │   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_not_working.py
-│   │   └── swa_musings_strided_gemini_generated_triton_kernel_v2_not_working_2.py, _3.py
+│   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_not_working_2.py
+│   │   └── swa_musings_strided_gemini_generated_triton_kernel_v2_not_working_3.py
 │   │
 │   └── helper.py                   # Helper utilities for modules
 │
@@ -90,8 +91,8 @@ jku-ai-practical-project/
 │   ├── colab_local_tunnel.ipynb    # Colab local tunnel setup
 │   └── profiler/                   # Profiler-related notebooks
 │
-├── logs/                           # Execution logs and outputs
-│   └── (various benchmark and profiling logs)
+├── logs/                           # Execution logs from benchmark and profiling runs
+│   └── *.log files                 # Timestamped logs from various GPU benchmarks
 │
 ├── profiles/                       # PyTorch profiler outputs (JSON format)
 │   ├── gla_fla_float16_torch_profile_top_cuda_kernels.json
@@ -99,7 +100,7 @@ jku-ai-practical-project/
 │   ├── swa_strided_compiled_profile_benchmark_torch_compiled.json
 │   ├── swa_strided_profile_benchmark.json
 │   ├── swa_naive_profile_benchmark.json
-│   └── (other profiling results)
+│   └── *.json files                # Additional profiling results for different configurations
 │
 ├── fla/                            # Flash Linear Attention submodule (git submodule)
 ├── local-attention/                # Local Attention submodule (git submodule)
