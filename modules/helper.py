@@ -135,7 +135,7 @@ def get_dtype():
         else "float16"
     )
 
-
+# gemini 3 pro generated code
 import torch
 from torch.profiler import profile, record_function, ProfilerActivity
 from functools import wraps
@@ -154,33 +154,46 @@ def benchmark(
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # --- 1. Capture All Parameters ---
-            # Use inspect to map positional args to their names (e.g., x -> input_tensor)
+            # --- 1. Capture & Decompose Parameters ---
             sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
-            bound_args.apply_defaults()  # Include default values (e.g., mode="chunk")
+            bound_args.apply_defaults()
 
             params_to_log = {}
             for name, value in bound_args.arguments.items():
-                # Special handling for Tensors: Log shape instead of data
+                
+                # Handling Tensors: Decompose shape AND dtype
                 if isinstance(value, torch.Tensor):
-                    params_to_log[name] = f"Tensor{list(value.shape)}"
-                # Special handling for simple types: Log directly
+                    shape = value.shape
+                    
+                    # 1. Log generic info
+                    params_to_log[name] = f"Tensor{list(shape)}"
+                    params_to_log[f"{name}_dtype"] = str(value.dtype)  # <--- NEW: Log dtype separately
+                    
+                    # 2. Extract specific dimensions (Batch, Seq, Hidden)
+                    if len(shape) == 3:
+                        params_to_log[f"{name}_batch_size"] = shape[0]
+                        params_to_log[f"{name}_seq_len"] = shape[1]
+                        params_to_log[f"{name}_hidden_size"] = shape[2]
+                    
+                    # Fallback: Log every dimension index
+                    for i, dim in enumerate(shape):
+                        params_to_log[f"{name}_dim_{i}"] = dim
+
+                # Handling Simple Types
                 elif isinstance(value, (int, float, str, bool, type(None))):
                     params_to_log[name] = value
-                # Fallback: String representation
+                
+                # Handling Others
                 else:
                     params_to_log[name] = str(value)
 
-            # Extract experiment_name specifically if present, else default
             exp_name = params_to_log.get("experiment_name", "N/A")
 
-            # --- 2. Initialize Results Dict ---
+            # --- 2. Initialize Results ---
             results = {
                 "timestamp": datetime.now().isoformat(),
                 "function": func.__name__,
-                # We merge all captured parameters directly into the root
-                # This makes the leaderboard easier to sort (e.g. by hidden_size)
                 **params_to_log 
             }
 
@@ -239,7 +252,7 @@ def benchmark(
                 torch.cuda.synchronize()
 
             prof.export_chrome_trace(final_trace_name)
-
+            
             key_avgs = prof.key_averages()
             print(key_avgs.table(sort_by="cuda_time_total", row_limit=10))
 
@@ -248,7 +261,6 @@ def benchmark(
                 if event.key == func.__name__:
                     c_total = getattr(event, "cpu_time_total", getattr(event, "cpu_time", 0.0))
                     g_total = getattr(event, "cuda_time_total", getattr(event, "cuda_time", 0.0))
-
                     avg_cuda_time_ms = (g_total / 1000.0) / benchmark_iterations
                     avg_cpu_time_ms = (c_total / 1000.0) / benchmark_iterations
                     found_event = True
@@ -257,7 +269,7 @@ def benchmark(
             if not found_event:
                 print(f"Warning: Could not find key '{func.__name__}' in profiler results.")
 
-            # --- 6. Save Final Results ---
+            # --- 6. Save Results ---
             output_shape = str(result.shape if hasattr(result, "shape") else len(result))
             
             results.update({
@@ -274,21 +286,21 @@ def benchmark(
                 "trace_file": final_trace_name,
             })
 
+            # Pretty Print Summary
             print("\n" + "=" * 60)
-            print(f"{'BENCHMARK & PROFILER RESULTS':^60}")
+            print(f"{'BENCHMARK RESULTS':^60}")
             print("=" * 60)
             print(f"{'Function':<30} {func.__name__:>28}")
-            # Loop through params to print them nicely in summary
+            
+            # Print important params
             for k, v in params_to_log.items():
-                if k != "experiment_name" and k != "device": # Printed separately
-                     # Truncate long values
-                    val_str = str(v)
-                    if len(val_str) > 28: val_str = val_str[:25] + "..."
-                    print(f"{k:<30} {val_str:>28}")
+                # Print dims, dtypes, and standard params
+                if any(x in k for x in ["dim_", "_len", "_size", "dtype", "mode", "heads"]):
+                     print(f"{k:<30} {str(v):>28}")
+            
             print("-" * 60)
             print(f"{'Avg Wall Time (ms)':<30} {avg_wall_time_ms:>27.4f}")
             print(f"{'Avg CUDA Kernel Time (ms)':<30} {avg_cuda_time_ms:>27.4f}")
-            print(f"{'Peak Memory (MB)':<30} {peak_memory_mb:>27.2f}")
             print("=" * 60 + "\n")
 
             if save_results:
@@ -309,7 +321,5 @@ def benchmark(
                 print(f"JSON results saved to: {log_path}")
 
             return result
-
         return wrapper
-
     return decorator
