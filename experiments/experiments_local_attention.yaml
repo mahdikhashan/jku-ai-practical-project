@@ -6,7 +6,7 @@ params:
   hidden_size: 128
   num_heads: 2
   head_dim: 16
-  dtype: "float16"
+  dtype: "float32"
   device: "cuda:0"
 ---
 experiment: "Local_Attention_8K"
@@ -17,6 +17,6 @@ params:
   hidden_size: 128
   num_heads: 2
   head_dim: 16
-  dtype: "float16"
+  dtype: "float32"
   device: "cuda:0"
 ---
