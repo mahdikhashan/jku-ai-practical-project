@@ -1,4 +1,4 @@
-def forward(x, hidden_size, num_heads, mode):
+def forward(x, hidden_size, num_heads, mode="chunk"):
     from fla.layers import GatedLinearAttention
 
     gla = GatedLinearAttention(hidden_size, num_heads, mode="chunk").to(
@@ -59,7 +59,9 @@ if __name__ == "__main__":
 
     import torch
 
-    x = torch.randn(batch_size, seq_len, hidden_size, device=device, dtype=torch.bfloat16)
+    x = torch.randn(
+        batch_size, seq_len, hidden_size, device=device, dtype=torch.bfloat16
+    )
 
     try:
         y = forward(x, hidden_size, num_heads)
