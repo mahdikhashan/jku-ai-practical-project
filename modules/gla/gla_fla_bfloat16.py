@@ -1,4 +1,4 @@
-from helper import benchmark
+from ..helper import benchmark
 
 
 @benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
