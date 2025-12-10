@@ -2,7 +2,9 @@ from modules.helper import benchmark
 
 
 @benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
-def forward(x, hidden_size, num_heads, mode="chunk", device="cuda:0"):
+def forward(
+    x, hidden_size, num_heads, mode="chunk", device="cuda:0", experiment_name=None
+):
     from fla.layers import GatedLinearAttention
 
     gla = (
@@ -43,6 +45,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device", type=str, default="cuda:0", help="Device to use (default: cpu)"
     )
+    parser.add_argument("--experiment_name", type=str, default="Manual_Run")
 
     args = parser.parse_args()
 
@@ -63,11 +66,21 @@ if __name__ == "__main__":
     import torch
 
     x = torch.randn(
-        batch_size, seq_len, hidden_size, device=device, dtype=torch.bfloat16
+        args.batch_size,
+        args.seq_len,
+        args.hidden_size,
+        device=args.device,
+        dtype=getattr(torch, args.dtype),
     )
 
     try:
-        y = forward(x, hidden_size, num_heads, device=device)
+        y = forward(
+            x,
+            hidden_size=args.hidden_size,
+            num_heads=args.num_heads,
+            device=args.device,
+            experiment_name=args.experiment_name,
+        )
         print("Success! Output shape:", len(y))
     except Exception as e:
         print("Failed:", e)
