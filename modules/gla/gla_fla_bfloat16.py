@@ -1,27 +1,69 @@
-import torch
-from fla.layers import GatedLinearAttention
+def forward(hidden_size, num_heads, mode="chunk"):
+    from fla.layers import GatedLinearAttention
+
+    gla = GatedLinearAttention(hidden_size, num_heads, mode).to(
+        device=device, dtype=dtype
+    )
+    return gla
 
 
-batch_size = 1
-seq_len = 128
-hidden_size = 512
-num_heads = 2
-# bfloat16
-dtype = torch.bfloat16
-device = "cuda:0"
+if __name__ == "__main__":
+    import argparse
 
-gla = GatedLinearAttention(
-    hidden_size=hidden_size,
-    num_heads=num_heads,
-    mode='chunk'
-).to(device=device, dtype=dtype)
+    parser = argparse.ArgumentParser(description="Configuration for Model Parameters")
 
-x = torch.randn(batch_size, seq_len, hidden_size, device=device, dtype=dtype)
+    parser.add_argument(
+        "--batch_size", type=int, default=1, help="Batch size (default: 1)"
+    )
+    parser.add_argument(
+        "--seq_len", type=int, default=128, help="Sequence length (default: 128)"
+    )
+    parser.add_argument(
+        "--hidden_size", type=int, default=512, help="Hidden size (default: 512)"
+    )
+    parser.add_argument(
+        "--num_heads",
+        type=int,
+        default=2,
+        help="Number of attention heads (default: 2)",
+    )
+    parser.add_argument(
+        "--dtype",
+        type=str,
+        default="bfloat16",
+        choices=["float32", "float16", "bfloat16"],
+        help="Data type (default: bfloat16)",
+    )
+    parser.add_argument(
+        "--device", type=str, default="cpu", help="Device to use (default: cpu)"
+    )
 
-try:
-    y = gla(x)
-    print("Success! Output shape:", len(y))
-except Exception as e:
-    print("Failed:", e)
+    args = parser.parse_args()
 
-print(y)
+    batch_size = args.batch_size
+    seq_len = args.seq_len
+    hidden_size = args.hidden_size
+    num_heads = args.num_heads
+    device = args.device
+    dtype = args.dtype
+
+    # ---------------------------------------------------------
+    # Verification Print
+    # ---------------------------------------------------------
+    print(f"Product ID:  {args.product_id}")
+    print(f"Batch Size:  {batch_size}")
+    print(f"Seq Len:     {seq_len}")
+    print(f"Hidden Size: {hidden_size}")
+    print(f"Num Heads:   {num_heads}")
+    print(f"Dtype:       {dtype}")
+    print(f"Device:      {device}")
+
+    import torch
+
+    x = torch.randn(batch_size, seq_len, hidden_size, device=device, dtype=dtype)
+
+    try:
+        y = forward(x)
+        print("Success! Output shape:", len(y))
+    except Exception as e:
+        print("Failed:", e)
