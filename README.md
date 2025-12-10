@@ -45,8 +45,9 @@ jku-ai-practical-project/
 │   │
 │   ├── lizard/                     # Lizard kernel implementations
 │   │   ├── lizard_bench.py         # Main Lizard benchmark
-│   │   ├── lizard_bench_2.py through lizard_bench_10.py  # Various benchmark versions
+│   │   ├── lizard_bench_2.py       # Benchmark version 2
 │   │   ├── lizard_bench_3_claude.py # Claude-generated benchmark
+│   │   ├── lizard_bench_4.py through lizard_bench_10.py  # Additional benchmark versions
 │   │   └── lizard_correctness.py   # Correctness tests for Lizard
 │   │
 │   ├── local_attention/            # Local attention implementations
@@ -62,7 +63,7 @@ jku-ai-practical-project/
 │   │
 │   ├── swa/                        # SWA (Sliding Window Attention) implementations
 │   │   ├── __init__.py
-│   │   ├── swa.py through swa5.py  # SWA implementation versions
+│   │   ├── swa.py, swa2.py, swa3.py, swa4.py, swa5.py  # SWA implementation versions
 │   │   ├── swa_musings.py          # Experimental SWA implementations
 │   │   ├── swa_fzkuji.py
 │   │   ├── swa_fzkuji_benchmark.py
@@ -76,7 +77,10 @@ jku-ai-practical-project/
 │   │   ├── swa_musings_strided_torch_compiled_max_auto_tune_seq_8192.py
 │   │   ├── swa_musings_strided_gemini_generated_triton_kernel.py
 │   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2.py
-│   │   └── (various gemini-generated kernel versions)
+│   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_working_1.py
+│   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_working_2.py
+│   │   ├── swa_musings_strided_gemini_generated_triton_kernel_v2_not_working.py
+│   │   └── swa_musings_strided_gemini_generated_triton_kernel_v2_not_working_2.py, _3.py
 │   │
 │   └── helper.py                   # Helper utilities for modules
 │
