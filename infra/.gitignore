@@ -1,0 +1,5 @@
+*.hcl
+*.json
+*.tfstate
+
+.terraform
