@@ -8,7 +8,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 
-def run_experiments(config_path="experiments.yaml"):
+def run_experiments(config_path="experiments_gla.yaml"):
     if not os.path.exists(config_path):
         print(f"Error: Config file '{config_path}' not found.")
         return
