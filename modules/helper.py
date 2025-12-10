@@ -111,7 +111,7 @@ def get_pid():
     return os.getpid()
 
 
-def git_commit():
+def get_git_commit():
     import subprocess
 
     subprocess.check_output(["git", "describe", "--always"])
