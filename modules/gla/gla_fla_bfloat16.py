@@ -1,9 +1,11 @@
 def forward(x, hidden_size, num_heads, mode="chunk", device="cuda:0"):
     from fla.layers import GatedLinearAttention
 
-    gla = GatedLinearAttention(
-        mode=mode, hidden_size=hidden_size, num_heads=num_heads
-    ).to(device="cuda:0", dtype=torch.bfloat16)
+    gla = (
+        GatedLinearAttention(mode=mode, hidden_size=hidden_size, num_heads=num_heads)
+        .to(torch.bfloat16)
+        .to(device)
+    )
     return gla(x)
 
 
