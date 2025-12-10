@@ -1,9 +1,20 @@
-experiment: "Local_Attention"
+experiment: "Local_Attention_4K"
 module: "modules.local_attention.local_attention"
 params:
   batch_size: 1
-  seq_len: 128
-  hidden_size: 512
+  seq_len: 4096
+  hidden_size: 128
+  num_heads: 2
+  head_dim: 16
+  dtype: "float16"
+  device: "cuda:0"
+---
+experiment: "Local_Attention_8K"
+module: "modules.local_attention.local_attention"
+params:
+  batch_size: 1
+  seq_len: 8192
+  hidden_size: 128
   num_heads: 2
   head_dim: 16
   dtype: "float16"
