@@ -53,9 +53,6 @@ if __name__ == "__main__":
     device = args.device
     dtype = args.dtype
 
-    # ---------------------------------------------------------
-    # Verification Print
-    # ---------------------------------------------------------
     print(f"Batch Size:  {batch_size}")
     print(f"Seq Len:     {seq_len}")
     print(f"Hidden Size: {hidden_size}")
