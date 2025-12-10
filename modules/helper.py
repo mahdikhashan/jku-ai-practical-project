@@ -149,12 +149,8 @@ def benchmark(
     benchmark_iterations=100,
     log_file=None,
     save_results=True,
-    trace_filename=None,  # Optional custom name for trace file
+    trace_filename=None,
 ):
-    """
-    Decorator to benchmark GPU performance with memory tracking AND torch.profiler integration.
-    """
-
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -163,7 +159,7 @@ def benchmark(
                 "function": func.__name__,
             }
 
-            # --- 1. Device Check ---
+            # 1. Device Check
             if torch.cuda.is_available():
                 device_name = torch.cuda.get_device_name(0)
                 print(f"Device: {device_name}")
@@ -173,17 +169,15 @@ def benchmark(
                 results["device"] = "CPU"
                 return func(*args, **kwargs)
 
-            # --- 2. Warmup ---
+            # 2. Warmup
             torch.cuda.reset_peak_memory_stats()
             torch.cuda.empty_cache()
-
             print(f"Warming up GPU ({warmup_iterations} iters)...")
             for _ in range(warmup_iterations):
                 _ = func(*args, **kwargs)
             torch.cuda.synchronize()
 
-            # --- 3. Standard Wall-Clock Benchmark ---
-            # We run this separately to get "clean" wall clock time without profiler overhead
+            # 3. Wall Clock Benchmark
             torch.cuda.reset_peak_memory_stats()
             print(f"Benchmarking Wall Clock ({benchmark_iterations} iters)...")
 
@@ -196,19 +190,15 @@ def benchmark(
             end_event.record()
             torch.cuda.synchronize()
 
-            # Wall Clock Stats
             total_wall_time_ms = start_event.elapsed_time(end_event)
             avg_wall_time_ms = total_wall_time_ms / benchmark_iterations
 
-            # Memory Stats
             peak_memory_mb = torch.cuda.max_memory_allocated() / 1024**2
             current_memory_mb = torch.cuda.memory_allocated() / 1024**2
             reserved_memory_mb = torch.cuda.memory_reserved() / 1024**2
 
-            # --- 4. Profiler Pass ---
+            # 4. Profiler
             print(f"Running Profiler ({benchmark_iterations} iters)...")
-
-            # specific filename or default to function name
             final_trace_name = trace_filename or f"{func.__name__}_trace.json"
 
             avg_cuda_time_ms = 0.0
@@ -220,42 +210,43 @@ def benchmark(
                 profile_memory=True,
             ) as prof:
                 for _ in range(benchmark_iterations):
-                    # We use the function name as the record key
                     with record_function(func.__name__):
                         _ = func(*args, **kwargs)
                 torch.cuda.synchronize()
 
-            # Export Trace
             prof.export_chrome_trace(final_trace_name)
 
-            # Extract Specific Metrics from Profiler
-            # We calculate the average per iteration based on the profiler's total for our key
+            # --- ROBUST METRIC EXTRACTION ---
             key_avgs = prof.key_averages()
             print(key_avgs.table(sort_by="cuda_time_total", row_limit=10))
 
             found_event = False
             for event in key_avgs:
                 if event.key == func.__name__:
-                    # event.cuda_time_total is in microseconds (us), usually printed as ms.
-                    # The event object properties are usually in 'us' (microseconds).
-                    # We want Milliseconds (ms). 1 ms = 1000 us.
-                    # Note: prof.key_averages() returns an object where time is usually accumulated.
+                    # Try different attribute names for compatibility
+                    # Metrics are in microseconds (us), convert to ms
 
-                    avg_cuda_time_ms = (
-                        event.cuda_time_total / 1000.0
-                    ) / benchmark_iterations
-                    avg_cpu_time_ms = (
-                        event.cpu_time_total / 1000.0
-                    ) / benchmark_iterations
+                    # 1. Try getting Total CPU Time
+                    c_total = getattr(
+                        event, "cpu_time_total", getattr(event, "cpu_time", 0.0)
+                    )
+
+                    # 2. Try getting Total CUDA Time
+                    g_total = getattr(
+                        event, "cuda_time_total", getattr(event, "cuda_time", 0.0)
+                    )
+
+                    avg_cuda_time_ms = (g_total / 1000.0) / benchmark_iterations
+                    avg_cpu_time_ms = (c_total / 1000.0) / benchmark_iterations
                     found_event = True
                     break
 
             if not found_event:
                 print(
-                    f"Warning: Could not find event key '{func.__name__}' in profiler results."
+                    f"Warning: Could not find key '{func.__name__}' in profiler results."
                 )
 
-            # --- 5. Compile & Save Results ---
+            # 5. Save Results
             results.update(
                 {
                     "output_shape": str(
@@ -263,17 +254,13 @@ def benchmark(
                     ),
                     "warmup_iterations": warmup_iterations,
                     "benchmark_iterations": benchmark_iterations,
-                    # Standard Timing
                     "total_wall_time_ms": round(total_wall_time_ms, 2),
                     "avg_wall_time_ms": round(avg_wall_time_ms, 4),
-                    # Profiler Timing (Kernel Level)
                     "avg_cuda_time_ms": round(avg_cuda_time_ms, 4),
                     "avg_cpu_time_ms": round(avg_cpu_time_ms, 4),
-                    # Memory
                     "peak_memory_mb": round(peak_memory_mb, 2),
                     "current_memory_mb": round(current_memory_mb, 2),
                     "reserved_memory_mb": round(reserved_memory_mb, 2),
-                    # Trace File Reference
                     "trace_file": final_trace_name,
                 }
             )
@@ -308,7 +295,6 @@ def benchmark(
 
                 with open(log_path, "w") as f:
                     json.dump(all_results, f, indent=2)
-
                 print(f"JSON results saved to: {log_path}")
 
             return result
