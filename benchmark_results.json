@@ -1,0 +1,15 @@
+[
+  {
+    "timestamp": "2025-12-10T15:52:54.685349",
+    "function": "forward",
+    "device": "NVIDIA L4",
+    "output_shape": "3",
+    "warmup_iterations": 10,
+    "benchmark_iterations": 100,
+    "total_time_ms": 1132.11,
+    "avg_time_ms": 11.3211,
+    "peak_memory_mb": 15.18,
+    "current_memory_mb": 12.22,
+    "reserved_memory_mb": 274.0
+  }
+]
