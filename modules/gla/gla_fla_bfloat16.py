@@ -50,7 +50,6 @@ if __name__ == "__main__":
     # ---------------------------------------------------------
     # Verification Print
     # ---------------------------------------------------------
-    print(f"Product ID:  {args.product_id}")
     print(f"Batch Size:  {batch_size}")
     print(f"Seq Len:     {seq_len}")
     print(f"Hidden Size: {hidden_size}")
