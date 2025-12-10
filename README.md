@@ -18,5 +18,5 @@ pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.
 #### Run Experiments
 
 ```bash
-python -m modules.runner modules/experiments_gla.yaml
+python -m modules.runner experiments/experiments_gla.yaml
 ```
