@@ -77,15 +77,22 @@ if __name__ == "__main__":
 
     import torch
 
+    dtype_map = {
+        "float32": torch.float32,
+        "float16": torch.float16,
+        "bfloat16": torch.bfloat16
+    }
+    _dtype = dtype_map[dtype]
+
     # (batch, heads, seq_len, head_dim)
     q = torch.randn(
-        batch_size, num_heads, seq_len, head_dim, device=device, dtype=dtype
+        batch_size, num_heads, seq_len, head_dim, device=device, dtype=_dtype
     )
     k = torch.randn(
-        batch_size, num_heads, seq_len, head_dim, device=device, dtype=dtype
+        batch_size, num_heads, seq_len, head_dim, device=device, dtype=_dtype
     )
     v = torch.randn(
-        batch_size, num_heads, seq_len, head_dim, device=device, dtype=dtype
+        batch_size, num_heads, seq_len, head_dim, device=device, dtype=_dtype
     )
 
     mask = torch.ones(batch_size, seq_len, device=device).bool()
