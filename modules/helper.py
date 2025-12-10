@@ -136,6 +136,8 @@ def get_dtype():
     )
 
 # gemini 3 pro generated code
+# https://gemini.google.com/share/a4cc2bb0a838
+
 import torch
 from torch.profiler import profile, record_function, ProfilerActivity
 from functools import wraps
