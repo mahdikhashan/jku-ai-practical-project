@@ -1,5 +1,7 @@
-*.hcl
 *.json
 *.tfstate
 
 .terraform
+
+ssk_key
+ssk_key.pub
