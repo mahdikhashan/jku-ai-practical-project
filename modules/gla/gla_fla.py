@@ -1,11 +1,20 @@
 from modules.helper import benchmark
 
 
+# all parameters are passed to function signature to catch later during logging
 @benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
 def forward(
-    x, hidden_size, num_heads, mode="chunk", device="cuda:0", experiment_name=None
+    x,
+    hidden_size,
+    num_heads,
+    batch_size,
+    sequence_length,
+    dtype,
+    mode="chunk",
+    device="cuda:0",
+    experiment_name=None,
 ):
-    from fla.layers import GatedLinearAttention
+    from fla.layers import GatedLinearAttention  # type: ignore
 
     gla = (
         GatedLinearAttention(mode=mode, hidden_size=hidden_size, num_heads=num_heads)
@@ -50,20 +59,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     batch_size = int(args.batch_size)
-    seq_len = int(args.seq_len)
+    sequence_length = int(args.seq_len)
     hidden_size = int(args.hidden_size)
     num_heads = int(args.num_heads)
     device = args.device
     dtype = args.dtype
 
     print(f"Batch Size:  {batch_size}")
-    print(f"Seq Len:     {seq_len}")
+    print(f"Seq Len:     {sequence_length}")
     print(f"Hidden Size: {hidden_size}")
     print(f"Num Heads:   {num_heads}")
     print(f"Dtype:       {dtype}")
     print(f"Device:      {device}")
 
-    import torch
+    import torch  # type: ignore
 
     x = torch.randn(
         args.batch_size,
@@ -78,9 +87,12 @@ if __name__ == "__main__":
             x,
             hidden_size=args.hidden_size,
             num_heads=args.num_heads,
+            batch_size=batch_size,
+            sequence_length=sequence_length,
+            dtype=dtype,
             device=args.device,
             experiment_name=args.experiment_name,
         )
-        print("Success! Output shape:", len(y))
+        assert len(y) == 3, f"Failed, output shape is wrong: {len(y)}"
     except Exception as e:
         print("Failed:", e)

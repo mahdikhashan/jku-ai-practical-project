@@ -5,7 +5,7 @@ from modules.helper import benchmark
 def forward(
     q, v, k, mask, window_size=256, causal=True, device="cuda:0", experiment_name=None
 ):
-    from local_attention import LocalAttention
+    from local_attention import LocalAttention  # type: ignore
 
     attn = (
         LocalAttention(
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     dtype_map = {
         "float32": torch.float32,
         "float16": torch.float16,
-        "bfloat16": torch.bfloat16
+        "bfloat16": torch.bfloat16,
     }
     _dtype = dtype_map[dtype]
 
