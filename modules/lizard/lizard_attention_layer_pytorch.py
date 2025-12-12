@@ -29,7 +29,7 @@ class LizardAttention(nn.Module):
         self.phi_q = nn.Identity()
         self.phi_k = nn.Identity()
 
-    @benchmark(warmup_iterations=1, benchmark_iterations=5, save_results=True)
+    @benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
     def forward(self, q, k, v, x=None, alpha=None, triton_kernel=False):
         if alpha is None:
             alpha = self.alpha
@@ -41,13 +41,13 @@ class LizardAttention(nn.Module):
             gla_out = self.gla_fwd(q, k, v, x)
             awa_out = self.awa_fwd(q, k, v)
             result = gla_out + alpha * awa_out
-            
+
             # Free memory after computation
             del gla_out, awa_out
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
             gc.collect()
-            
+
             return result
 
         raise NotImplementedError("custom kernel is not implemented yet!")
@@ -65,7 +65,9 @@ class LizardAttention(nn.Module):
 
         out = torch.zeros_like(q)
 
-        for i in tqdm(range(seq_len), desc="AWA forward", leave=False, disable=seq_len < 512):
+        for i in tqdm(
+            range(seq_len), desc="AWA forward", leave=False, disable=seq_len < 512
+        ):
             # Define window boundaries: [i-w+1, i] for causal
             start = max(0, i - self.window_size + 1)
             end = min(seq_len, i + self.window_size)
@@ -118,9 +120,15 @@ class LizardAttention(nn.Module):
         out = torch.zeros_like(q)
 
         # each position attends to all positions (non-causal)
-        for i in tqdm(range(seq_len), desc="GLA forward", leave=False, disable=seq_len < 512):
-            numerator = torch.zeros(batch, heads, 1, d_head, device=q.device, dtype=q.dtype)
-            denominator = torch.zeros(batch, heads, 1, 1, device=q.device, dtype=q.dtype)
+        for i in tqdm(
+            range(seq_len), desc="GLA forward", leave=False, disable=seq_len < 512
+        ):
+            numerator = torch.zeros(
+                batch, heads, 1, d_head, device=q.device, dtype=q.dtype
+            )
+            denominator = torch.zeros(
+                batch, heads, 1, 1, device=q.device, dtype=q.dtype
+            )
 
             q_i = q_feat[:, :, i : i + 1, :]
 
@@ -137,7 +145,9 @@ class LizardAttention(nn.Module):
                         gamma[:, :, i + 1 : t + 1, :], dim=2, keepdim=True
                     )
                 else:
-                    cum_gamma = torch.ones(batch, heads, 1, 1, device=q.device, dtype=q.dtype)
+                    cum_gamma = torch.ones(
+                        batch, heads, 1, 1, device=q.device, dtype=q.dtype
+                    )
 
                 k_t = k_feat[:, :, t : t + 1, :]
                 v_t = v[:, :, t : t + 1, :]
@@ -150,7 +160,17 @@ class LizardAttention(nn.Module):
                 qk_t = q_i @ k_t.transpose(-2, -1)
                 denominator += cum_gamma * qk_t
 
+                # Aggressively free memory
+                del cum_gamma, k_t, v_t, kv_t, qk_t
+
             out[:, :, i : i + 1, :] = numerator / (denominator + 1e-8)
+
+            # Free memory after each position
+            del numerator, denominator, q_i
+
+            # Clear cache periodically
+            if i % 32 == 0 and torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
         return out
 
