@@ -172,7 +172,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dtype",
         type=str,
-        default="bfloat16",
+        default="float16",
         choices=["float32", "float16", "bfloat16"],
         help="Data type (default: bfloat16)",
     )
