@@ -25,7 +25,7 @@ class LizardAttention(nn.Module):
         self.phi_q = nn.Identity()  # Can be replaced with actual feature map
         self.phi_k = nn.Identity()  # Can be replaced with actual feature map
 
-    def forward(self, q, k, v, x=None, g=None, alpha=None, triton_kernel=False, causal=True):
+    def forward(self, q, k, v, x=None, g=None, alpha=None, triton_kernel=False, causal=False):
         """
         Args:
             q, k, v: (batch, heads, seq_len, d_head)
