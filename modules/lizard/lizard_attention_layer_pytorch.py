@@ -29,7 +29,7 @@ class LizardAttention(nn.Module):
         self.phi_q = nn.Identity()
         self.phi_k = nn.Identity()
 
-    @benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
+    @benchmark(warmup_iterations=0, benchmark_iterations=1, save_results=True)
     def forward(self, q, k, v, x=None, alpha=None, triton_kernel=False):
         if alpha is None:
             alpha = self.alpha
