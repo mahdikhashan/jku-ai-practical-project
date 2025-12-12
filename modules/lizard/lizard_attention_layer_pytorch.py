@@ -29,7 +29,7 @@ class LizardAttention(nn.Module):
         self.phi_q = nn.Identity()
         self.phi_k = nn.Identity()
 
-    @benchmark(warmup_iterations=0, benchmark_iterations=1, save_results=True)
+    # @benchmark(warmup_iterations=0, benchmark_iterations=1, save_results=True)
     def forward(self, q, k, v, x=None, alpha=None, triton_kernel=False):
         if alpha is None:
             alpha = self.alpha
@@ -42,11 +42,11 @@ class LizardAttention(nn.Module):
             awa_out = self.awa_fwd(q, k, v)
             result = gla_out + alpha * awa_out
 
-            # Free memory after computation
-            del gla_out, awa_out
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            gc.collect()
+            # # Free memory after computation
+            # del gla_out, awa_out
+            # if torch.cuda.is_available():
+            #     torch.cuda.empty_cache()
+            # gc.collect()
 
             return result
 
