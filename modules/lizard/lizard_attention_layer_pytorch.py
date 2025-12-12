@@ -1,6 +1,6 @@
 import math
 
-import torch # type: ignore #
+import torch  # type: ignore #
 import torch.nn as nn  # type: ignore
 import torch.nn.functional as F  # type: ignore
 
@@ -14,13 +14,13 @@ class LizardAttention(nn.Module):
         self.window_size = window_size
         self.alpha = alpha
         self.m = m
-        
+
         # (learnable)
         self.meta_tokens = nn.Parameter(torch.randn(1, n_heads, m, self.d_head))
-        
+
         # gating parameters for GLA
         self.W_gamma = nn.Parameter(torch.randn(1, n_heads, 1, self.d_head))
-        
+
         # feature maps
         self.phi_q = nn.Identity()
         self.phi_k = nn.Identity()
@@ -28,10 +28,10 @@ class LizardAttention(nn.Module):
     def forward(self, q, k, v, x=None, alpha=None, triton_kernel=False):
         if alpha is None:
             alpha = self.alpha
-        
+
         if x is None:
             x = q  # Use queries as input for gating if not provided
-            
+
         if not triton_kernel:
             gla_out = self.gla_fwd(q, k, v, x)
             awa_out = self.awa_fwd(q, k, v)
@@ -39,86 +39,105 @@ class LizardAttention(nn.Module):
 
         raise NotImplementedError("custom kernel is not implemented yet!")
 
-    def awa_fwd(self, q, k, v,):
+    def awa_fwd(
+        self,
+        q,
+        k,
+        v,
+    ):
         batch, heads, seq_len, d_head = q.shape
-        
+
         # Expand meta-tokens for batch: (batch, heads, m, d_head)
         meta_tokens = self.meta_tokens.expand(batch, -1, -1, -1)
-        
+
         out = torch.zeros_like(q)
-        
+
         for i in range(seq_len):
             # Define window boundaries: [i-w+1, i] for causal
             start = max(0, i - self.window_size + 1)
             end = min(seq_len, i + self.window_size)
-            
+
             # Extract current query and window
-            q_i = q[:, :, i:i+1, :]  # (batch, heads, 1, d_head)
+            q_i = q[:, :, i : i + 1, :]  # (batch, heads, 1, d_head)
             k_window = k[:, :, start:end, :]  # (batch, heads, window_len, d_head)
             v_window = v[:, :, start:end, :]  # (batch, heads, window_len, d_head)
-            
+
             # Compute attention scores with keys in window: exp(q_i^T k_t / √d)
             scores_k = torch.matmul(q_i, k_window.transpose(-2, -1)) / math.sqrt(d_head)
             exp_scores_k = torch.exp(scores_k)  # (batch, heads, 1, window_len)
-            
+
             # Compute attention scores with meta-tokens: exp(q_i^T t_j / √d)
-            scores_t = torch.matmul(q_i, meta_tokens.transpose(-2, -1)) / math.sqrt(d_head)
+            scores_t = torch.matmul(q_i, meta_tokens.transpose(-2, -1)) / math.sqrt(
+                d_head
+            )
             exp_scores_t = torch.exp(scores_t)  # (batch, heads, 1, m)
-            
+
             # Denominator: Σ[j=0 to m-1] exp(q_i^T t_j / √d) + Σ[t=i-w+1 to i] exp(q_i^T k_t / √d)
             sum_meta = exp_scores_t.sum(dim=-1, keepdim=True)  # (batch, heads, 1, 1)
             sum_keys = exp_scores_k.sum(dim=-1, keepdim=True)  # (batch, heads, 1, 1)
             denominator = sum_meta + sum_keys  # (batch, heads, 1, 1)
-            
+
             # Numerator: Σ[t=i-w+1 to i] exp(q_i^T k_t / √d) v_t
-            numerator = torch.matmul(exp_scores_k, v_window)  # (batch, heads, 1, d_head)
-            
+            numerator = torch.matmul(
+                exp_scores_k, v_window
+            )  # (batch, heads, 1, d_head)
+
             # Final output: ŷ_i = numerator / denominator
-            out[:, :, i:i+1, :] = numerator / (denominator + 1e-8)  # Add epsilon for numerical stability
-        
+            out[:, :, i : i + 1, :] = numerator / (
+                denominator + 1e-8
+            )  # Add epsilon for numerical stability
+
         return out
 
     def gla_fwd(self, q, k, v, x):
         batch, heads, seq_len, d_head = q.shape
-        
+
         # feature maps, identity
         q_feat = self.phi_q(q)  # (batch, heads, seq_len, d_head)
         k_feat = self.phi_k(k)  # (batch, heads, seq_len, d_head)
-        
+
         # gating factors
         # W_gamma: (1, heads, 1, d_head), x: (batch, heads, seq_len, d_head)
-        gamma = torch.sigmoid((self.W_gamma * x).sum(dim=-1, keepdim=True))  # (batch, heads, seq_len, 1)
-        
+        gamma = torch.sigmoid(
+            (self.W_gamma * x).sum(dim=-1, keepdim=True)
+        )  # (batch, heads, seq_len, 1)
+
         out = torch.zeros_like(q)
-        
+
         # each position attends to all positions (non-causal)
         for i in range(seq_len):
             numerator = torch.zeros(batch, heads, 1, d_head, device=q.device)
             denominator = torch.zeros(batch, heads, 1, 1, device=q.device)
-            
-            q_i = q_feat[:, :, i:i+1, :]
-            
+
+            q_i = q_feat[:, :, i : i + 1, :]
+
             for t in range(seq_len):
                 # Compute gating product based on relative positions
                 if t < i:
                     # Product from t+1 to i
-                    cum_gamma = torch.prod(gamma[:, :, t+1:i+1, :], dim=2, keepdim=True)
+                    cum_gamma = torch.prod(
+                        gamma[:, :, t + 1 : i + 1, :], dim=2, keepdim=True
+                    )
                 elif t > i:
                     # Product from i+1 to t
-                    cum_gamma = torch.prod(gamma[:, :, i+1:t+1, :], dim=2, keepdim=True)
+                    cum_gamma = torch.prod(
+                        gamma[:, :, i + 1 : t + 1, :], dim=2, keepdim=True
+                    )
                 else:
                     cum_gamma = torch.ones(batch, heads, 1, 1, device=q.device)
 
-                k_t = k_feat[:, :, t:t+1, :]
-                v_t = v[:, :, t:t+1, :]
+                k_t = k_feat[:, :, t : t + 1, :]
+                v_t = v[:, :, t : t + 1, :]
 
                 kv_t = k_t.transpose(-2, -1) @ v_t
-                numerator += cum_gamma.squeeze(-1).unsqueeze(-1) * (q_i @ kv_t).squeeze(2).unsqueeze(2)
+                numerator += cum_gamma.squeeze(-1).unsqueeze(-1) * (q_i @ kv_t).squeeze(
+                    2
+                ).unsqueeze(2)
 
-                qk_t = (q_i @ k_t.transpose(-2, -1))
+                qk_t = q_i @ k_t.transpose(-2, -1)
                 denominator += cum_gamma * qk_t
 
-            out[:, :, i:i+1, :] = numerator / (denominator + 1e-8)
+            out[:, :, i : i + 1, :] = numerator / (denominator + 1e-8)
 
         return out
 
@@ -161,8 +180,15 @@ if __name__ == "__main__":
         "--device", type=str, default="cuda:0", help="Device to use (default: 'cuda:0')"
     )
     parser.add_argument("--experiment_name", type=str, default="Manual_Run")
-    parser.add_argument("--alpha", type=float, default=1.0, help="awa attention ratio (default: 1.0)")
-    parser.add_argument("--m", type=int, default=4, help="Number of meta-tokens (default: 4)")
+    parser.add_argument(
+        "--alpha", type=float, default=1.0, help="awa attention ratio (default: 1.0)"
+    )
+    parser.add_argument(
+        "--m", type=int, default=4, help="Number of meta-tokens (default: 4)"
+    )
+    parser.add_argument(
+        "--window_size", type=int, default=64, help="Window size (default: 64)"
+    )
 
     args = parser.parse_args()
 
@@ -173,6 +199,8 @@ if __name__ == "__main__":
     device = args.device
     dtype = args.dtype
     dtype = args.window_size
+    m = args.m
+    alpha = args.alpha
 
     print(f"Batch Size:  {batch_size}")
     print(f"Sequence Length:     {sequence_length}")
@@ -187,21 +215,29 @@ if __name__ == "__main__":
         "bfloat16": torch.bfloat16,
     }
     _dtype = dtype_map[dtype]
-    
+
     model = LizardAttention(
-        d_model=hidden_size,
-        n_heads=num_heads,
-        window_size=64,
-        alpha=1.0,
-        m=4
+        d_model=hidden_size, n_heads=num_heads, window_size=64, alpha=alpha, m=m
     )
-    
+
     # inputs
     d_head = hidden_size // num_heads
-    q = torch.randn(batch_size, num_heads, sequence_length, d_head).to(device).to(_dtype)
-    k = torch.randn(batch_size, num_heads, sequence_length, d_head).to(device).to(_dtype)
-    v = torch.randn(batch_size, num_heads, sequence_length, d_head).to(device).to(_dtype)
-    
+    q = (
+        torch.randn(batch_size, num_heads, sequence_length, d_head)
+        .to(device)
+        .to(_dtype)
+    )
+    k = (
+        torch.randn(batch_size, num_heads, sequence_length, d_head)
+        .to(device)
+        .to(_dtype)
+    )
+    v = (
+        torch.randn(batch_size, num_heads, sequence_length, d_head)
+        .to(device)
+        .to(_dtype)
+    )
+
     print("\nTesting non-causal GLA + AWA:")
     out2 = model(q, k, v)
     print(f"Output shape: {out2.shape}")
