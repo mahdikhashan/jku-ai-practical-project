@@ -222,7 +222,7 @@ if __name__ == "__main__":
         window_size=window_size,
         alpha=alpha,
         m=m,
-    )
+    ).to(device).to(_dtype)
 
     # inputs
     d_head = hidden_size // num_heads
