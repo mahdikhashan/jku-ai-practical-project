@@ -198,7 +198,7 @@ if __name__ == "__main__":
     num_heads = int(args.num_heads)
     device = args.device
     dtype = args.dtype
-    dtype = args.window_size
+    window_size = args.window_size
     m = args.m
     alpha = args.alpha
 
@@ -217,7 +217,11 @@ if __name__ == "__main__":
     _dtype = dtype_map[dtype]
 
     model = LizardAttention(
-        d_model=hidden_size, n_heads=num_heads, window_size=64, alpha=alpha, m=m
+        d_model=hidden_size,
+        n_heads=num_heads,
+        window_size=window_size,
+        alpha=alpha,
+        m=m,
     )
 
     # inputs
