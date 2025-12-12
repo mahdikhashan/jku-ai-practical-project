@@ -216,13 +216,17 @@ if __name__ == "__main__":
     }
     _dtype = dtype_map[dtype]
 
-    model = LizardAttention(
-        d_model=hidden_size,
-        n_heads=num_heads,
-        window_size=window_size,
-        alpha=alpha,
-        m=m,
-    ).to(device).to(_dtype)
+    model = (
+        LizardAttention(
+            d_model=hidden_size,
+            n_heads=num_heads,
+            window_size=window_size,
+            alpha=alpha,
+            m=m,
+        )
+        .to(device)
+        .to(_dtype)
+    )
 
     # inputs
     d_head = hidden_size // num_heads
