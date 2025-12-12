@@ -4,6 +4,8 @@ import torch  # type: ignore #
 import torch.nn as nn  # type: ignore
 import torch.nn.functional as F  # type: ignore
 
+from modules.helper import benchmark
+
 
 class LizardAttention(nn.Module):
     def __init__(self, d_model, n_heads, window_size=64, alpha=1.0, m=4):
@@ -25,6 +27,7 @@ class LizardAttention(nn.Module):
         self.phi_q = nn.Identity()
         self.phi_k = nn.Identity()
 
+    @benchmark(warmup_iterations=10, benchmark_iterations=100, save_results=True)
     def forward(self, q, k, v, x=None, alpha=None, triton_kernel=False):
         if alpha is None:
             alpha = self.alpha
