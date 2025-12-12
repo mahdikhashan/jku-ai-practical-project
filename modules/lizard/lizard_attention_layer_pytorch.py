@@ -1,8 +1,10 @@
 import math
+import gc
 
 import torch  # type: ignore #
 import torch.nn as nn  # type: ignore
 import torch.nn.functional as F  # type: ignore
+from tqdm import tqdm
 
 from modules.helper import benchmark
 
@@ -38,7 +40,15 @@ class LizardAttention(nn.Module):
         if not triton_kernel:
             gla_out = self.gla_fwd(q, k, v, x)
             awa_out = self.awa_fwd(q, k, v)
-            return gla_out + alpha * awa_out
+            result = gla_out + alpha * awa_out
+            
+            # Free memory after computation
+            del gla_out, awa_out
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            gc.collect()
+            
+            return result
 
         raise NotImplementedError("custom kernel is not implemented yet!")
 
@@ -55,7 +65,7 @@ class LizardAttention(nn.Module):
 
         out = torch.zeros_like(q)
 
-        for i in range(seq_len):
+        for i in tqdm(range(seq_len), desc="AWA forward", leave=False, disable=seq_len < 512):
             # Define window boundaries: [i-w+1, i] for causal
             start = max(0, i - self.window_size + 1)
             end = min(seq_len, i + self.window_size)
@@ -108,9 +118,9 @@ class LizardAttention(nn.Module):
         out = torch.zeros_like(q)
 
         # each position attends to all positions (non-causal)
-        for i in range(seq_len):
-            numerator = torch.zeros(batch, heads, 1, d_head, device=q.device)
-            denominator = torch.zeros(batch, heads, 1, 1, device=q.device)
+        for i in tqdm(range(seq_len), desc="GLA forward", leave=False, disable=seq_len < 512):
+            numerator = torch.zeros(batch, heads, 1, d_head, device=q.device, dtype=q.dtype)
+            denominator = torch.zeros(batch, heads, 1, 1, device=q.device, dtype=q.dtype)
 
             q_i = q_feat[:, :, i : i + 1, :]
 
@@ -127,7 +137,7 @@ class LizardAttention(nn.Module):
                         gamma[:, :, i + 1 : t + 1, :], dim=2, keepdim=True
                     )
                 else:
-                    cum_gamma = torch.ones(batch, heads, 1, 1, device=q.device)
+                    cum_gamma = torch.ones(batch, heads, 1, 1, device=q.device, dtype=q.dtype)
 
                 k_t = k_feat[:, :, t : t + 1, :]
                 v_t = v[:, :, t : t + 1, :]
