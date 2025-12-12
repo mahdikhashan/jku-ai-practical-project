@@ -3,9 +3,9 @@ module: "modules.lizard.lizard_attention_layer_pytorch"
 params:
   batch_size: 1
   seq_len: 128
-  hidden_size: 512
-  num_heads: 2
-  dtype: "float16"
+  hidden_size: 128
+  num_heads: 1
+  dtype: "bfloat16"
   device: "cuda:0"
 ---
 # experiment: "Lizard_Large_Context_256"
