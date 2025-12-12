@@ -5,7 +5,7 @@ params:
   seq_len: 128
   hidden_size: 512
   num_heads: 2
-  dtype: "bfloat16"
+  dtype: "float16"
   device: "cuda:0"
 ---
 experiment: "Lizard_Large_Context_256"
@@ -15,7 +15,7 @@ params:
   seq_len: 256
   hidden_size: 1024
   num_heads: 4
-  dtype: "bfloat16"
+  dtype: "float16"
   device: "cuda:0"
 ---
 experiment: "Lizard_Large_Context_512"
@@ -25,7 +25,7 @@ params:
   seq_len: 512
   hidden_size: 1024
   num_heads: 4
-  dtype: "bfloat16"
+  dtype: "float16"
   device: "cuda:0"
 ---
 experiment: "Lizard_Large_Context_1k"
@@ -35,86 +35,86 @@ params:
   seq_len: 1024
   hidden_size: 1024
   num_heads: 4
-  dtype: "bfloat16"
+  dtype: "float16"
   device: "cuda:0"
 ---
-experiment: "Lizard_Large_Context_2k"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 4
-  seq_len: 2048
-  hidden_size: 1024
-  num_heads: 4
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_4k"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 4
-  seq_len: 4096
-  hidden_size: 1024
-  num_heads: 4
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_8k"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 4
-  seq_len: 8192
-  hidden_size: 1024
-  num_heads: 4
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_16k_h_128"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 8
-  seq_len: 16384
-  hidden_size: 128
-  num_heads: 8
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_16k_h_256"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 8
-  seq_len: 16384
-  hidden_size: 256
-  num_heads: 8
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_16k_h_512"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 8
-  seq_len: 16384
-  hidden_size: 512
-  num_heads: 8
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_16k_h_1024"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 8
-  seq_len: 16384
-  hidden_size: 1024
-  num_heads: 8
-  dtype: "bfloat16"
-  device: "cuda:0"
----
-experiment: "Lizard_Larger_Context_32k"
-module: "modules.lizard.lizard_attention_layer_pytorch"
-params:
-  batch_size: 8
-  seq_len: 32768
-  hidden_size: 128
-  num_heads: 8
-  dtype: "bfloat16"
-  device: "cuda:0"
----
+# experiment: "Lizard_Large_Context_2k"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 4
+#   seq_len: 2048
+#   hidden_size: 1024
+#   num_heads: 4
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_4k"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 4
+#   seq_len: 4096
+#   hidden_size: 1024
+#   num_heads: 4
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_8k"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 4
+#   seq_len: 8192
+#   hidden_size: 1024
+#   num_heads: 4
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_16k_h_128"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 8
+#   seq_len: 16384
+#   hidden_size: 128
+#   num_heads: 8
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_16k_h_256"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 8
+#   seq_len: 16384
+#   hidden_size: 256
+#   num_heads: 8
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_16k_h_512"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 8
+#   seq_len: 16384
+#   hidden_size: 512
+#   num_heads: 8
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_16k_h_1024"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 8
+#   seq_len: 16384
+#   hidden_size: 1024
+#   num_heads: 8
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
+# experiment: "Lizard_Larger_Context_32k"
+# module: "modules.lizard.lizard_attention_layer_pytorch"
+# params:
+#   batch_size: 8
+#   seq_len: 32768
+#   hidden_size: 128
+#   num_heads: 8
+#   dtype: "bfloat16"
+#   device: "cuda:0"
+# ---
