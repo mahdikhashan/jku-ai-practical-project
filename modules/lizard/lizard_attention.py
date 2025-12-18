@@ -139,19 +139,21 @@ def gla_kernel(
     denom = 0.0
 
     for t in range(L):
-        cum_gamma = 1.0
+        log_cum_gamma = 0.0
         if t < i:
             for j in range(t + 1, i + 1):
                 g = tl.load(Gamma + b * stride_gb + h * stride_gh + j * stride_gl).to(
                     tl.float32
                 )
-                cum_gamma *= g
+                log_cum_gamma += tl.log(tl.maximum(g, 1e-12))
         elif t > i:
             for j in range(i + 1, t + 1):
                 g = tl.load(Gamma + b * stride_gb + h * stride_gh + j * stride_gl).to(
                     tl.float32
                 )
-                cum_gamma *= g
+                log_cum_gamma += tl.log(tl.maximum(g, 1e-12))
+
+        cum_gamma = tl.exp(log_cum_gamma)
 
         k = tl.load(
             K + b * stride_kb + h * stride_kh + t * stride_kl + d_range * stride_kd,
@@ -186,14 +188,12 @@ class LizardAttention(nn.Module):
     def forward(self, q, k, v, x=None, alpha=None, use_triton=False):
         alpha = alpha if alpha is not None else self.alpha
         x = x if x is not None else q
-
         if use_triton:
             gla_out = self.fwd_gla_triton(q, k, v, x)
             awa_out = self.fwd_awa_triton(q, k, v)
         else:
             gla_out = self.fwd_gla(q, k, v, x)
             awa_out = self.fwd_awa(q, k, v)
-
         return gla_out + alpha * awa_out
 
     def fwd_awa_triton(self, q, k, v):
@@ -281,25 +281,19 @@ class LizardAttention(nn.Module):
         meta_tokens = self.meta_tokens.expand(B, -1, -1, -1)
         out = torch.zeros_like(q)
         for i in range(L):
-            start = max(0, i - self.window_size + 1)
-            end = min(L, i + self.window_size)
+            start, end = max(0, i - self.window_size + 1), min(L, i + self.window_size)
             q_i = q[:, :, i : i + 1, :].to(torch.float32)
-            k_win = k[:, :, start:end, :].to(torch.float32)
-            v_win = v[:, :, start:end, :].to(torch.float32)
+            k_win, v_win = k[:, :, start:end, :].to(torch.float32), v[
+                :, :, start:end, :
+            ].to(torch.float32)
             m_win = meta_tokens.to(torch.float32)
-
-            scores_k = torch.matmul(q_i, k_win.transpose(-2, -1)) / math.sqrt(D)
-            scores_t = torch.matmul(q_i, m_win.transpose(-2, -1)) / math.sqrt(D)
-
-            concat_scores = torch.cat([scores_k, scores_t], dim=-1)
-            max_val = torch.max(concat_scores, dim=-1, keepdim=True)[0]
-
-            exp_k = torch.exp(scores_k - max_val)
-            exp_t = torch.exp(scores_t - max_val)
-
-            denom = exp_t.sum(dim=-1, keepdim=True) + exp_k.sum(dim=-1, keepdim=True)
-            num = torch.matmul(exp_k, v_win)
-            out[:, :, i : i + 1, :] = (num / (denom + 1e-8)).to(q.dtype)
+            s_k = torch.matmul(q_i, k_win.transpose(-2, -1)) / math.sqrt(D)
+            s_t = torch.matmul(q_i, m_win.transpose(-2, -1)) / math.sqrt(D)
+            mv = torch.max(torch.cat([s_k, s_t], dim=-1), dim=-1, keepdim=True)[0]
+            ek, et = torch.exp(s_k - mv), torch.exp(s_t - mv)
+            out[:, :, i : i + 1, :] = (
+                torch.matmul(ek, v_win) / (ek.sum(-1, True) + et.sum(-1, True) + 1e-8)
+            ).to(q.dtype)
         return out
 
     def fwd_gla(self, q, k, v, x):
@@ -307,97 +301,51 @@ class LizardAttention(nn.Module):
         gamma = torch.sigmoid((self.W_gamma * x).sum(dim=-1, keepdim=True))
         out = torch.zeros_like(q)
         for i in range(L):
-            q_i = q[:, :, i : i + 1, :].to(torch.float32)
-            num = torch.zeros(B, H, 1, D, device=q.device)
-            denom = torch.zeros(B, H, 1, 1, device=q.device)
+            qi, n, d = q[:, :, i : i + 1, :].to(torch.float32), 0.0, 0.0
             for t in range(L):
                 if t < i:
-                    cum_gamma = torch.prod(
-                        gamma[:, :, t + 1 : i + 1, :], dim=2, keepdim=True
-                    )
+                    cg = torch.prod(gamma[:, :, t + 1 : i + 1, :], dim=2, keepdim=True)
                 elif t > i:
-                    cum_gamma = torch.prod(
-                        gamma[:, :, i + 1 : t + 1, :], dim=2, keepdim=True
-                    )
+                    cg = torch.prod(gamma[:, :, i + 1 : t + 1, :], dim=2, keepdim=True)
                 else:
-                    cum_gamma = torch.ones(B, H, 1, 1, device=q.device)
-
-                k_t = k[:, :, t : t + 1, :].to(torch.float32)
-                v_t = v[:, :, t : t + 1, :].to(torch.float32)
-                qk = (q_i * k_t).sum(dim=-1, keepdim=True)
-                num += cum_gamma.to(torch.float32) * qk * v_t
-                denom += cum_gamma.to(torch.float32) * qk
-            out[:, :, i : i + 1, :] = (num / (denom + 1e-8)).to(q.dtype)
+                    cg = torch.ones(B, H, 1, 1, device=q.device)
+                kt, vt = k[:, :, t : t + 1, :].to(torch.float32), v[
+                    :, :, t : t + 1, :
+                ].to(torch.float32)
+                qk = (qi * kt).sum(-1, keepdim=True)
+                n += cg.to(torch.float32) * qk * vt
+                d += cg.to(torch.float32) * qk
+            out[:, :, i : i + 1, :] = (n / (d + 1e-8)).to(q.dtype)
         return out
 
 
 if __name__ == "__main__":
-    if not torch.cuda.is_available():
-        raise Exception("CUDA device required!")
-
     import argparse
 
-    parser = argparse.ArgumentParser(description="Configuration for Model Parameters")
+    parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--seq_len", type=int, default=128)
     parser.add_argument("--hidden_size", type=int, default=512)
     parser.add_argument("--num_heads", type=int, default=2)
-    parser.add_argument(
-        "--dtype",
-        type=str,
-        default="bfloat16",
-        choices=["float32", "float16", "bfloat16"],
-    )
+    parser.add_argument("--dtype", type=str, default="bfloat16")
     parser.add_argument("--device", type=str, default="cuda:0")
-    parser.add_argument("--alpha", type=float, default=1.0)
-    parser.add_argument("--m", type=int, default=4)
-    parser.add_argument("--window_size", type=int, default=64)
     parser.add_argument("--use_triton", action="store_true")
-
     args = parser.parse_args()
 
-    dtype_map = {
+    dt = {
         "float32": torch.float32,
         "float16": torch.float16,
         "bfloat16": torch.bfloat16,
-    }
-    _dtype = dtype_map[args.dtype]
-
-    print(f"Running Experiment: Triton={args.use_triton}, Dtype={args.dtype}")
-
-    model = (
-        LizardAttention(
-            d_model=args.hidden_size,
-            n_heads=args.num_heads,
-            window_size=args.window_size,
-            alpha=args.alpha,
-            m=args.m,
-        )
-        .to(args.device)
-        .to(_dtype)
-    )
-
-    d_head = args.hidden_size // args.num_heads
+    }[args.dtype]
+    model = LizardAttention(args.hidden_size, args.num_heads).to(args.device).to(dt)
+    dh = args.hidden_size // args.num_heads
     q = (
-        torch.randn(args.batch_size, args.num_heads, args.seq_len, d_head)
+        torch.randn(args.batch_size, args.num_heads, args.seq_len, dh)
         .to(args.device)
-        .to(_dtype)
+        .to(dt)
     )
-    k = (
-        torch.randn(args.batch_size, args.num_heads, args.seq_len, d_head)
-        .to(args.device)
-        .to(_dtype)
-    )
-    v = (
-        torch.randn(args.batch_size, args.num_heads, args.seq_len, d_head)
-        .to(args.device)
-        .to(_dtype)
-    )
+    k, v = torch.randn_like(q), torch.randn_like(q)
 
     with torch.no_grad():
-        output_torch = model(q, k, v, use_triton=False)
-        output_triton = model(q, k, v, use_triton=True)
-
-        diff = (output_torch - output_triton).abs().max()
-        print(f"Output shape: {output_triton.shape}")
-        print(f"Max difference between PyTorch and Triton: {diff.item():.6f}")
+        o_py, o_tr = model(q, k, v, use_triton=False), model(q, k, v, use_triton=True)
+        print(f"Max diff: {(o_py - o_tr).abs().max().item():.6f}")
