@@ -46,41 +46,52 @@ def awa_kernel(
 
     start = tl.maximum(0, i - W + 1)
     end = tl.minimum(L, i + W)
-    window_len = end - start
 
-    q_offset = b * stride_qb + h * stride_qh + i * stride_ql
     d_range = tl.arange(0, BLOCK_D)
     d_mask = d_range < D
-    q = tl.load(Q + q_offset + d_range * stride_qd, mask=d_mask, other=0.0)
+
+    q_ptr = Q + b * stride_qb + h * stride_qh + i * stride_ql + d_range * stride_qd
+    q = tl.load(q_ptr, mask=d_mask, other=0.0).to(tl.float32)
+
+    sqrt_d = tl.sqrt(D.to(tl.float32))
+    m_i = -float("inf")
+
+    for m_idx in range(M):
+        meta_ptr = Meta + h * stride_mh + m_idx * stride_mm + d_range * stride_md
+        meta = tl.load(meta_ptr, mask=d_mask, other=0.0).to(tl.float32)
+        score = tl.sum(q * meta) / sqrt_d
+        m_i = tl.maximum(m_i, score)
+
+    for t in range(start, end):
+        k_ptr = K + b * stride_kb + h * stride_kh + t * stride_kl + d_range * stride_kd
+        k = tl.load(k_ptr, mask=d_mask, other=0.0).to(tl.float32)
+        score = tl.sum(q * k) / sqrt_d
+        m_i = tl.maximum(m_i, score)
 
     num = tl.zeros([BLOCK_D], dtype=tl.float32)
-    denom = tl.zeros([1], dtype=tl.float32)
-    sqrt_d = tl.sqrt(D.to(tl.float32))
+    denom = 0.0
 
-    for m in range(M):
-        meta_offset = h * stride_mh + m * stride_mm
-        meta = tl.load(Meta + meta_offset + d_range * stride_md, mask=d_mask, other=0.0)
+    for m_idx in range(M):
+        meta_ptr = Meta + h * stride_mh + m_idx * stride_mm + d_range * stride_md
+        meta = tl.load(meta_ptr, mask=d_mask, other=0.0).to(tl.float32)
         score = tl.sum(q * meta) / sqrt_d
-        exp_score = tl.exp(score)
+        exp_score = tl.exp(score - m_i)
         denom += exp_score
 
-    for t in range(window_len):
-        pos = start + t
-        k_offset = b * stride_kb + h * stride_kh + pos * stride_kl
-        v_offset = b * stride_vb + h * stride_vh + pos * stride_vl
-
-        k = tl.load(K + k_offset + d_range * stride_kd, mask=d_mask, other=0.0)
-        v = tl.load(V + v_offset + d_range * stride_vd, mask=d_mask, other=0.0)
+    for t in range(start, end):
+        k_ptr = K + b * stride_kb + h * stride_kh + t * stride_kl + d_range * stride_kd
+        v_ptr = V + b * stride_vb + h * stride_vh + t * stride_vl + d_range * stride_vd
+        k = tl.load(k_ptr, mask=d_mask, other=0.0).to(tl.float32)
+        v = tl.load(v_ptr, mask=d_mask, other=0.0).to(tl.float32)
 
         score = tl.sum(q * k) / sqrt_d
-        exp_score = tl.exp(score)
-
+        exp_score = tl.exp(score - m_i)
         num += exp_score * v
         denom += exp_score
 
     out = num / (denom + 1e-8)
-    out_offset = b * stride_ob + h * stride_oh + i * stride_ol
-    tl.store(Out + out_offset + d_range * stride_od, out, mask=d_mask)
+    out_ptr = Out + b * stride_ob + h * stride_oh + i * stride_ol + d_range * stride_od
+    tl.store(out_ptr, out.to(Out.dtype.element_ty), mask=d_mask)
 
 
 @triton.jit
@@ -119,52 +130,54 @@ def gla_kernel(
     h = tl.program_id(1)
     i = tl.program_id(2)
 
-    q_offset = b * stride_qb + h * stride_qh + i * stride_ql
     d_range = tl.arange(0, BLOCK_D)
     d_mask = d_range < D
-    q = tl.load(Q + q_offset + d_range * stride_qd, mask=d_mask, other=0.0)
+    q_ptr = Q + b * stride_qb + h * stride_qh + i * stride_ql + d_range * stride_qd
+    q = tl.load(q_ptr, mask=d_mask, other=0.0).to(tl.float32)
 
     num = tl.zeros([BLOCK_D], dtype=tl.float32)
-    denom = tl.zeros([1], dtype=tl.float32)
+    denom = 0.0
 
     for t in range(L):
         cum_gamma = 1.0
         if t < i:
             for j in range(t + 1, i + 1):
-                g_offset = b * stride_gb + h * stride_gh + j * stride_gl
-                g = tl.load(Gamma + g_offset)
+                g = tl.load(Gamma + b * stride_gb + h * stride_gh + j * stride_gl).to(
+                    tl.float32
+                )
                 cum_gamma *= g
         elif t > i:
             for j in range(i + 1, t + 1):
-                g_offset = b * stride_gb + h * stride_gh + j * stride_gl
-                g = tl.load(Gamma + g_offset)
+                g = tl.load(Gamma + b * stride_gb + h * stride_gh + j * stride_gl).to(
+                    tl.float32
+                )
                 cum_gamma *= g
 
-        k_offset = b * stride_kb + h * stride_kh + t * stride_kl
-        v_offset = b * stride_vb + h * stride_vh + t * stride_vl
-
-        k = tl.load(K + k_offset + d_range * stride_kd, mask=d_mask, other=0.0)
-        v = tl.load(V + v_offset + d_range * stride_vd, mask=d_mask, other=0.0)
+        k = tl.load(
+            K + b * stride_kb + h * stride_kh + t * stride_kl + d_range * stride_kd,
+            mask=d_mask,
+        ).to(tl.float32)
+        v = tl.load(
+            V + b * stride_vb + h * stride_vh + t * stride_vl + d_range * stride_vd,
+            mask=d_mask,
+        ).to(tl.float32)
 
         qk = tl.sum(q * k)
-
         num += cum_gamma * qk * v
         denom += cum_gamma * qk
 
     out = num / (denom + 1e-8)
-    out_offset = b * stride_ob + h * stride_oh + i * stride_ol
-    tl.store(Out + out_offset + d_range * stride_od, out, mask=d_mask)
+    out_ptr = Out + b * stride_ob + h * stride_oh + i * stride_ol + d_range * stride_od
+    tl.store(out_ptr, out.to(Out.dtype.element_ty), mask=d_mask)
 
 
 class LizardAttention(nn.Module):
-    def __init__(self, d_model, n_heads, window_size=64, chunk_size=64, alpha=1, m=4):
+    def __init__(self, d_model, n_heads, window_size=64, alpha=1.0, m=4):
         super().__init__()
         self.d_model = d_model
         self.n_heads = n_heads
         self.d_head = d_model // n_heads
         self.window_size = window_size
-        self.chunk_size = chunk_size
-        self.alpha = alpha
         self.alpha = alpha
         self.m = m
         self.meta_tokens = nn.Parameter(torch.randn(1, n_heads, m, self.d_head))
@@ -173,15 +186,19 @@ class LizardAttention(nn.Module):
     def forward(self, q, k, v, x=None, alpha=None, use_triton=False):
         alpha = alpha if alpha is not None else self.alpha
         x = x if x is not None else q
-        gla_out = (
-            self.fwd_gla_triton(q, k, v, x) if use_triton else self.fwd_gla(q, k, v, x)
-        )
-        awa_out = self.fwd_awa_triton(q, k, v) if use_triton else self.fwd_awa(q, k, v)
+
+        if use_triton:
+            gla_out = self.fwd_gla_triton(q, k, v, x)
+            awa_out = self.fwd_awa_triton(q, k, v)
+        else:
+            gla_out = self.fwd_gla(q, k, v, x)
+            awa_out = self.fwd_awa(q, k, v)
+
         return gla_out + alpha * awa_out
 
     def fwd_awa_triton(self, q, k, v):
         B, H, L, D = q.shape
-        out = torch.zeros_like(q)
+        out = torch.empty_like(q)
         BLOCK_D = triton.next_power_of_2(D)
         grid = (B, H, L)
         awa_kernel[grid](
@@ -223,7 +240,7 @@ class LizardAttention(nn.Module):
     def fwd_gla_triton(self, q, k, v, x):
         B, H, L, D = q.shape
         gamma = torch.sigmoid((self.W_gamma * x).sum(dim=-1, keepdim=True)).squeeze(-1)
-        out = torch.zeros_like(q)
+        out = torch.empty_like(q)
         BLOCK_D = triton.next_power_of_2(D)
         grid = (B, H, L)
         gla_kernel[grid](
@@ -266,16 +283,23 @@ class LizardAttention(nn.Module):
         for i in range(L):
             start = max(0, i - self.window_size + 1)
             end = min(L, i + self.window_size)
-            q_i = q[:, :, i : i + 1, :]
-            k_win = k[:, :, start:end, :]
-            v_win = v[:, :, start:end, :]
+            q_i = q[:, :, i : i + 1, :].to(torch.float32)
+            k_win = k[:, :, start:end, :].to(torch.float32)
+            v_win = v[:, :, start:end, :].to(torch.float32)
+            m_win = meta_tokens.to(torch.float32)
+
             scores_k = torch.matmul(q_i, k_win.transpose(-2, -1)) / math.sqrt(D)
-            exp_k = torch.exp(scores_k)
-            scores_t = torch.matmul(q_i, meta_tokens.transpose(-2, -1)) / math.sqrt(D)
-            exp_t = torch.exp(scores_t)
+            scores_t = torch.matmul(q_i, m_win.transpose(-2, -1)) / math.sqrt(D)
+
+            concat_scores = torch.cat([scores_k, scores_t], dim=-1)
+            max_val = torch.max(concat_scores, dim=-1, keepdim=True)[0]
+
+            exp_k = torch.exp(scores_k - max_val)
+            exp_t = torch.exp(scores_t - max_val)
+
             denom = exp_t.sum(dim=-1, keepdim=True) + exp_k.sum(dim=-1, keepdim=True)
             num = torch.matmul(exp_k, v_win)
-            out[:, :, i : i + 1, :] = num / (denom + 1e-8)
+            out[:, :, i : i + 1, :] = (num / (denom + 1e-8)).to(q.dtype)
         return out
 
     def fwd_gla(self, q, k, v, x):
@@ -283,9 +307,9 @@ class LizardAttention(nn.Module):
         gamma = torch.sigmoid((self.W_gamma * x).sum(dim=-1, keepdim=True))
         out = torch.zeros_like(q)
         for i in range(L):
-            num = torch.zeros(B, H, 1, D, device=q.device, dtype=q.dtype)
-            denom = torch.zeros(B, H, 1, 1, device=q.device, dtype=q.dtype)
-            q_i = q[:, :, i : i + 1, :]
+            q_i = q[:, :, i : i + 1, :].to(torch.float32)
+            num = torch.zeros(B, H, 1, D, device=q.device)
+            denom = torch.zeros(B, H, 1, 1, device=q.device)
             for t in range(L):
                 if t < i:
                     cum_gamma = torch.prod(
@@ -296,16 +320,14 @@ class LizardAttention(nn.Module):
                         gamma[:, :, i + 1 : t + 1, :], dim=2, keepdim=True
                     )
                 else:
-                    cum_gamma = torch.ones(B, H, 1, 1, device=q.device, dtype=q.dtype)
-                k_t = k[:, :, t : t + 1, :]
-                v_t = v[:, :, t : t + 1, :]
-                kv_t = k_t.transpose(-2, -1) @ v_t
-                num += cum_gamma.squeeze(-1).unsqueeze(-1) * (q_i @ kv_t).squeeze(
-                    2
-                ).unsqueeze(2)
-                qk_t = q_i @ k_t.transpose(-2, -1)
-                denom += cum_gamma * qk_t
-            out[:, :, i : i + 1, :] = num / (denom + 1e-8)
+                    cum_gamma = torch.ones(B, H, 1, 1, device=q.device)
+
+                k_t = k[:, :, t : t + 1, :].to(torch.float32)
+                v_t = v[:, :, t : t + 1, :].to(torch.float32)
+                qk = (q_i * k_t).sum(dim=-1, keepdim=True)
+                num += cum_gamma.to(torch.float32) * qk * v_t
+                denom += cum_gamma.to(torch.float32) * qk
+            out[:, :, i : i + 1, :] = (num / (denom + 1e-8)).to(q.dtype)
         return out
 
 
@@ -316,52 +338,23 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Configuration for Model Parameters")
-    parser.add_argument(
-        "--batch_size", type=int, default=1, help="Batch size (default: 1)"
-    )
-    parser.add_argument(
-        "--seq_len", type=int, default=128, help="Sequence length (default: 128)"
-    )
-    parser.add_argument(
-        "--hidden_size", type=int, default=512, help="Hidden size (default: 512)"
-    )
-    parser.add_argument(
-        "--num_heads",
-        type=int,
-        default=2,
-        help="Number of attention heads (default: 2)",
-    )
+    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--seq_len", type=int, default=128)
+    parser.add_argument("--hidden_size", type=int, default=512)
+    parser.add_argument("--num_heads", type=int, default=2)
     parser.add_argument(
         "--dtype",
         type=str,
-        default="float16",
+        default="bfloat16",
         choices=["float32", "float16", "bfloat16"],
-        help="Data type (default: bfloat16)",
     )
-    parser.add_argument(
-        "--device", type=str, default="cuda:0", help="Device to use (default: 'cuda:0')"
-    )
-    parser.add_argument("--experiment_name", type=str, default="Manual_Run")
-    parser.add_argument(
-        "--alpha", type=float, default=1.0, help="awa attention ratio (default: 1.0)"
-    )
-    parser.add_argument(
-        "--m", type=int, default=4, help="Number of meta-tokens (default: 4)"
-    )
-    parser.add_argument(
-        "--window_size", type=int, default=64, help="Window size (default: 64)"
-    )
-    parser.add_argument("--use_triton", action="store_true", help="Use Triton kernels")
+    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--alpha", type=float, default=1.0)
+    parser.add_argument("--m", type=int, default=4)
+    parser.add_argument("--window_size", type=int, default=64)
+    parser.add_argument("--use_triton", action="store_true")
 
     args = parser.parse_args()
-
-    print(f"Batch Size: {args.batch_size}")
-    print(f"Sequence Length: {args.seq_len}")
-    print(f"Hidden Size: {args.hidden_size}")
-    print(f"Num Heads: {args.num_heads}")
-    print(f"Dtype: {args.dtype}")
-    print(f"Device: {args.device}")
-    print(f"Use Triton: {args.use_triton}")
 
     dtype_map = {
         "float32": torch.float32,
@@ -369,6 +362,8 @@ if __name__ == "__main__":
         "bfloat16": torch.bfloat16,
     }
     _dtype = dtype_map[args.dtype]
+
+    print(f"Running Experiment: Triton={args.use_triton}, Dtype={args.dtype}")
 
     model = (
         LizardAttention(
@@ -399,13 +394,10 @@ if __name__ == "__main__":
         .to(_dtype)
     )
 
-    output = model(q, k, v, use_triton=args.use_triton)
-    print(f"Output shape: {output.shape}")
+    with torch.no_grad():
+        output_torch = model(q, k, v, use_triton=False)
+        output_triton = model(q, k, v, use_triton=True)
 
-    if args.use_triton:
-        print("\nTesting Triton vs PyTorch implementations...")
-        with torch.no_grad():
-            output_torch = model(q, k, v, use_triton=False)
-            output_triton = model(q, k, v, use_triton=True)
-            diff = (output_torch - output_triton).abs().max()
-            print(f"Max difference: {diff.item():.6f}")
+        diff = (output_torch - output_triton).abs().max()
+        print(f"Output shape: {output_triton.shape}")
+        print(f"Max difference between PyTorch and Triton: {diff.item():.6f}")
