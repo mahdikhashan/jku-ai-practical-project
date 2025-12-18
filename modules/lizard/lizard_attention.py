@@ -51,7 +51,6 @@ def awa_kernel(
     )
     sqrt_d = tl.sqrt(D.to(tl.float32))
 
-    # 1. Find Max for stability
     m_i = -float("inf")
     for m_idx in range(M):
         meta = tl.load(
@@ -70,7 +69,6 @@ def awa_kernel(
         )
         m_i = tl.maximum(m_i, tl.sum(q * k) / sqrt_d)
 
-    # 2. Compute sums
     num = tl.zeros([BLOCK_D], dtype=tl.float32)
     den = 0.0
     for m_idx in range(M):
@@ -139,10 +137,6 @@ def gla_linear_kernel(
     d_range = tl.arange(0, BLOCK_D)
     d_mask = d_range < D
 
-    # Hidden State approach: S = sum(gamma * K^T V)
-    # Since we need bidirectional (t < i and t > i), we do two passes
-
-    # FORWARD PASS (t <= i)
     state_num = tl.zeros([BLOCK_D], dtype=tl.float32)
     state_den = 0.0
 
@@ -153,12 +147,6 @@ def gla_linear_kernel(
             other=0.0,
         )
         g = tl.load(Gamma + b * stride_gb + h * stride_gh + i * stride_gl)
-
-        # Decay existing state
-        state_num *= g
-        state_den *= g
-
-        # Add current k, v
         k = tl.load(
             K + b * stride_kb + h * stride_kh + i * stride_kl + d_range * stride_kd,
             mask=d_mask,
@@ -171,10 +159,9 @@ def gla_linear_kernel(
         )
 
         qk = tl.sum(q * k)
-        state_num += qk * v
-        state_den += qk
+        state_num = state_num * g + qk * v
+        state_den = state_den * g + qk
 
-        # Store intermediate result
         tl.store(
             Out + b * stride_ob + h * stride_oh + i * stride_ol + d_range * stride_od,
             state_num / (state_den + 1e-8),
@@ -195,11 +182,9 @@ class LizardAttention(nn.Module):
         alpha = alpha if alpha is not None else self.alpha
         x = x if x is not None else q
         if use_triton:
-            g_out = self.fwd_gla_triton(q, k, v, x)
-            a_out = self.fwd_awa_triton(q, k, v)
+            g_out, a_out = self.fwd_gla_triton(q, k, v, x), self.fwd_awa_triton(q, k, v)
         else:
-            g_out = self.fwd_gla(q, k, v, x)
-            a_out = self.fwd_awa(q, k, v)
+            g_out, a_out = self.fwd_gla(q, k, v, x), self.fwd_awa(q, k, v)
         return g_out + alpha * a_out
 
     def fwd_awa_triton(self, q, k, v):
@@ -271,21 +256,37 @@ class LizardAttention(nn.Module):
         B, H, L, D = q.shape
         gamma = torch.sigmoid((self.W_gamma * x).sum(-1, keepdim=True))
         out = torch.zeros_like(q)
-        # PyTorch Reference: Simplified Linear formulation to match Triton
         for h in range(H):
-            state_n, state_d = 0.0, 0.0
+            sn, sd = 0.0, 0.0
             for i in range(L):
                 g = gamma[:, h, i : i + 1, :]
-                state_n = (
-                    state_n * g
-                    + (q[:, h, i : i + 1, :] @ k[:, h, i : i + 1, :].transpose(-1, -2))
-                    @ v[:, h, i : i + 1, :]
+                qi, ki, vi = (
+                    q[:, h, i : i + 1, :],
+                    k[:, h, i : i + 1, :],
+                    v[:, h, i : i + 1, :],
                 )
-                state_d = state_d * g + (
-                    q[:, h, i : i + 1, :] @ k[:, h, i : i + 1, :].transpose(-1, -2)
-                )
-                out[:, h, i : i + 1, :] = state_n / (state_d + 1e-8)
+                qk = qi @ ki.transpose(-1, -2)
+                sn = sn * g + qk @ vi
+                sd = sd * g + qk
+                out[:, h, i : i + 1, :] = sn / (sd + 1e-8)
         return out
+
+
+def get_cuda_time(func, *args, **kwargs):
+    # Warmup
+    for _ in range(5):
+        func(*args, **kwargs)
+    torch.cuda.synchronize()
+
+    start_event = torch.cuda.Event(enable_timing=True)
+    end_event = torch.cuda.Event(enable_timing=True)
+
+    start_event.record()
+    func(*args, **kwargs)
+    end_event.record()
+
+    torch.cuda.synchronize()
+    return start_event.elapsed_time(end_event)
 
 
 if __name__ == "__main__":
@@ -302,6 +303,16 @@ if __name__ == "__main__":
     ]
 
     with torch.no_grad():
+        # Correctness
         o_py = model(q, k, v, use_triton=False)
         o_tr = model(q, k, v, use_triton=True)
-        print(f"Max diff (FP32): {(o_py - o_tr).abs().max().item():.6e}")
+        print(f"Max diff: {(o_py - o_tr).abs().max().item():.6e}")
+
+        # Timing
+        t_py = get_cuda_time(model, q, k, v, use_triton=False)
+        t_tr = get_cuda_time(model, q, k, v, use_triton=True)
+
+        print(f"\nCUDA Performance (L={args.seq_len}):")
+        print(f"PyTorch Time: {t_py:.3f} ms")
+        print(f"Triton Time:  {t_tr:.3f} ms")
+        print(f"Speedup:      {t_py/t_tr:.2f}x")
