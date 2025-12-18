@@ -160,6 +160,7 @@ def gla_kernel(
 
 class LizardAttention(nn.Module):
     def __init__(self, d_model, n_heads, window_size=64, chunk_size=64, alpha=1, m=4):
+        super().__init__()
         self.d_model = d_model
         self.n_heads = n_heads
         self.d_head = d_model // n_heads
