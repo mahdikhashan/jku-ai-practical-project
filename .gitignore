@@ -9,6 +9,7 @@ dump.rdb
 ./server
 server/
 
+infra/
 
 __pycache__
 infra/ssh_key

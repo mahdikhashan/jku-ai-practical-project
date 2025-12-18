@@ -1,8 +1,0 @@
-Device: NVIDIA TITAN V
-
---- Simple Test ---
-Max Diff: 0.000011
-Mean Diff: 0.000000
-✅ Correctness verified!
-4.89user 0.75system 0:06.20elapsed 91%CPU (0avgtext+0avgdata 903840maxresident)k
-2568inputs+3944outputs (0major+150395minor)pagefaults 0swaps

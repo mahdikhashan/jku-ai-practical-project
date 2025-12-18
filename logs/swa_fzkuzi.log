@@ -1,9 +1,0 @@
-Traceback (most recent call last):
-  File "/system/user/studentwork/khashan/jku-ai-practical-project/./modules/swa_fzkuji_benchmark.py", line 4, in <module>
-    from swa_fzkuji import SWAttention
-  File "/system/user/studentwork/khashan/jku-ai-practical-project/modules/swa_fzkuji.py", line 15, in <module>
-    from fla.layers.utils import pad_input, unpad_input
-ModuleNotFoundError: No module named 'fla.layers'
-Command exited with non-zero status 1
-1.95user 0.34system 0:03.33elapsed 68%CPU (0avgtext+0avgdata 434320maxresident)k
-0inputs+40outputs (0major+46941minor)pagefaults 0swaps
