@@ -14,14 +14,14 @@ class LizardModule(nn.Module):
     def forward(self, q, k, v, x, alpha=1):
         raise NotImplementedError("awa forward: not implemented!")
 
-    def awa_fwd(self, q, k, v):
+    def fwd_awa(self, q, k, v):
         raise NotImplementedError("awa forward: not implemented!")
 
-    def awa_fwd_triton_kernel(self, q, k, v):
+    def fwd_kernel_awa(self, q, k, v):
         raise NotImplementedError("not implemented!")
 
-    def gla_fwd(self, q, k, v, x):
+    def fwd_gla(self, q, k, v, x):
         raise NotImplementedError("not implemented!")
 
-    def gla_fwd_triton_kernel(self, q, k, v, g):
+    def fwd_kernel_gla(self, q, k, v):
         raise NotImplementedError("not implemented!")
