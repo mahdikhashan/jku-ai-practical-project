@@ -1,8 +1,6 @@
 import math
-
 import torch
 import torch.nn as nn
-
 import triton
 import triton.language as tl
 
@@ -52,17 +50,16 @@ def awa_kernel(
 
     q_offset = b * stride_qb + h * stride_qh + i * stride_ql
     d_range = tl.arange(0, BLOCK_D)
-    q = tl.load(Q + q_offset + d_range * stride_qd, mask=d_range < D, other=0.0)
+    d_mask = d_range < D
+    q = tl.load(Q + q_offset + d_range * stride_qd, mask=d_mask, other=0.0)
 
     num = tl.zeros([BLOCK_D], dtype=tl.float32)
-    denom = 0.0
+    denom = tl.zeros([1], dtype=tl.float32)
     sqrt_d = tl.sqrt(D.to(tl.float32))
 
     for m in range(M):
         meta_offset = h * stride_mh + m * stride_mm
-        meta = tl.load(
-            Meta + meta_offset + d_range * stride_md, mask=d_range < D, other=0.0
-        )
+        meta = tl.load(Meta + meta_offset + d_range * stride_md, mask=d_mask, other=0.0)
         score = tl.sum(q * meta) / sqrt_d
         exp_score = tl.exp(score)
         denom += exp_score
@@ -72,8 +69,8 @@ def awa_kernel(
         k_offset = b * stride_kb + h * stride_kh + pos * stride_kl
         v_offset = b * stride_vb + h * stride_vh + pos * stride_vl
 
-        k = tl.load(K + k_offset + d_range * stride_kd, mask=d_range < D, other=0.0)
-        v = tl.load(V + v_offset + d_range * stride_vd, mask=d_range < D, other=0.0)
+        k = tl.load(K + k_offset + d_range * stride_kd, mask=d_mask, other=0.0)
+        v = tl.load(V + v_offset + d_range * stride_vd, mask=d_mask, other=0.0)
 
         score = tl.sum(q * k) / sqrt_d
         exp_score = tl.exp(score)
@@ -83,7 +80,7 @@ def awa_kernel(
 
     out = num / (denom + 1e-8)
     out_offset = b * stride_ob + h * stride_oh + i * stride_ol
-    tl.store(Out + out_offset + d_range * stride_od, out, mask=d_range < D)
+    tl.store(Out + out_offset + d_range * stride_od, out, mask=d_mask)
 
 
 @triton.jit
@@ -124,10 +121,11 @@ def gla_kernel(
 
     q_offset = b * stride_qb + h * stride_qh + i * stride_ql
     d_range = tl.arange(0, BLOCK_D)
-    q = tl.load(Q + q_offset + d_range * stride_qd, mask=d_range < D, other=0.0)
+    d_mask = d_range < D
+    q = tl.load(Q + q_offset + d_range * stride_qd, mask=d_mask, other=0.0)
 
     num = tl.zeros([BLOCK_D], dtype=tl.float32)
-    denom = 0.0
+    denom = tl.zeros([1], dtype=tl.float32)
 
     for t in range(L):
         cum_gamma = 1.0
@@ -145,8 +143,8 @@ def gla_kernel(
         k_offset = b * stride_kb + h * stride_kh + t * stride_kl
         v_offset = b * stride_vb + h * stride_vh + t * stride_vl
 
-        k = tl.load(K + k_offset + d_range * stride_kd, mask=d_range < D, other=0.0)
-        v = tl.load(V + v_offset + d_range * stride_vd, mask=d_range < D, other=0.0)
+        k = tl.load(K + k_offset + d_range * stride_kd, mask=d_mask, other=0.0)
+        v = tl.load(V + v_offset + d_range * stride_vd, mask=d_mask, other=0.0)
 
         qk = tl.sum(q * k)
 
@@ -155,7 +153,7 @@ def gla_kernel(
 
     out = num / (denom + 1e-8)
     out_offset = b * stride_ob + h * stride_oh + i * stride_ol
-    tl.store(Out + out_offset + d_range * stride_od, out, mask=d_range < D)
+    tl.store(Out + out_offset + d_range * stride_od, out, mask=d_mask)
 
 
 class LizardAttention(nn.Module):
