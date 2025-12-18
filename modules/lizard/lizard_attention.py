@@ -1,10 +1,10 @@
 import math
+
 import torch
 import torch.nn as nn
+
 import triton
 import triton.language as tl
-
-from lizard import LizardModule
 
 
 @triton.jit
@@ -158,9 +158,14 @@ def gla_kernel(
     tl.store(Out + out_offset + d_range * stride_od, out, mask=d_range < D)
 
 
-class LizardAttention(LizardModule):
-    def __init__(self, d_model, n_heads, window_size=64, alpha=1.0, m=4):
-        super().__init__(d_model, n_heads, window_size)
+class LizardAttention(nn.Module):
+    def __init__(self, d_model, n_heads, window_size=64, chunk_size=64, alpha=1, m=4):
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.d_head = d_model // n_heads
+        self.window_size = window_size
+        self.chunk_size = chunk_size
+        self.alpha = alpha
         self.alpha = alpha
         self.m = m
         self.meta_tokens = nn.Parameter(torch.randn(1, n_heads, m, self.d_head))
