@@ -28,4 +28,4 @@ git config --global user.name "Mahdi Khashan"
 
 install_conda
 
-conda env create -f env.yaml
+conda env create -f environment.yaml
