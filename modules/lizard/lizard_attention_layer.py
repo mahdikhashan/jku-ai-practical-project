@@ -4,10 +4,10 @@ import torch  # type: ignore #
 import torch.nn as nn  # type: ignore
 import torch.nn.functional as F  # type: ignore
 
-from lizard import LizardFramework
+from lizard import LizardModule
 
 
-class LizardAttention(LizardFramework):
+class LizardAttention(LizardModule):
     def __init__(self, d_model, n_heads, window_size=64, alpha=1.0, m=4):
         self.d_model = d_model
         self.n_heads = n_heads
@@ -257,5 +257,5 @@ if __name__ == "__main__":
         .to(_dtype)
     )
 
-    out2 = model(q, k, v)
-    print(f"shape: {out2.shape}")
+    output = model(q, k, v)
+    print(f"shape: {output.shape}")
