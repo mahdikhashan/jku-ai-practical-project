@@ -3,7 +3,7 @@ import triton.language as tl
 
 
 @triton.jit
-def gla_fw_kernel(
+def gla_kernel(
     Q,
     K,
     V,
