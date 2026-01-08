@@ -13,8 +13,7 @@ class LizardAttentionBlockPyTorch(AbstractLizardAttentionBlock):
         self.alpha = alpha
         self.d_head = d_model // n_heads
 
-        w_gamma_init = torch.randn(1, n_heads, 1, self.d_head)
-        self.gla_module = GatedLinearAttention(d_model, n_heads, w_gamma_init)
+        self.gla_module = GatedLinearAttention(d_model, n_heads)
 
         self.awa_module = AnchorWindowAttention(
             embed_dim=self.d_head, window_radius=window_size, num_meta_tokens=m
