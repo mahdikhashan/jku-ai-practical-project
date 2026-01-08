@@ -35,7 +35,7 @@ def parallel_gla_kernel(
     q_ptrs = Q_ptr + (offs_m[:, None] * stride_ql + offs_d_qk[None, :] * stride_qd)
     q = tl.load(q_ptrs, mask=offs_m[:, None] < L, other=0.0)
 
-    acc = tl.zeros([BLOCK_M, D_V], dtype=tl.float32)
+    acc = tl.zeros([BLOCK_M, D_V], dtype=tl.float16)
     loop_end = (pid_m + 1) * BLOCK_M
 
     for start_n in range(0, loop_end, BLOCK_N):
@@ -53,9 +53,10 @@ def parallel_gla_kernel(
         qk = tl.where(mask, qk, 0.0)
         
         # todo(mahdi): fixme
-        qk = qk.to(tl.float32)
+        qk = qk.to(tl.float16)
 
-        acc += tl.dot(qk, v)
+        partial = tl.dot(qk, v)
+        acc += partial.to(tl.float16)
 
     out_ptrs = Out_ptr + (offs_m[:, None] * stride_ol + offs_d_v[None, :] * stride_od)
     tl.store(out_ptrs, acc.to(Out.dtype.element_ty), mask=offs_m[:, None] < L)
