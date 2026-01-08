@@ -1,12 +1,10 @@
 import torch  # type: ignore
 import torch.nn as nn  # type: ignore
-
-from modules.lizard import AbstractLizardAttentionBlock
-
 import triton
 
 from kernels.awa.triton.fwd_kernel import awa_kernel
-from kernels.gla.triton.fwd_kernel import gla_kernel
+from kernels.gla.triton.fwd_kernel import parallel_gla_kernel
+from modules.lizard import AbstractLizardAttentionBlock
 
 
 class LizardAttentionBlock(AbstractLizardAttentionBlock):
@@ -50,26 +48,27 @@ class LizardAttentionBlock(AbstractLizardAttentionBlock):
         return out
 
     def fwd_gla_triton(self, q, k, v):
-        B, H, L, D = q.shape
-        x = q
-        gamma = torch.sigmoid((self.W_gamma * x).sum(-1, keepdim=True)).squeeze(-1)
+        B, L, H, D_QK = q.shape
+        _, _, _, D_V = v.shape
 
-        out = torch.empty_like(q)
-        gla_kernel[(B, H)](
-            q,
-            k,
-            v,
-            gamma,
-            out,
-            *q.stride(),
-            *k.stride(),
-            *v.stride(),
-            *gamma.stride(),
-            *out.stride(),
-            B,
-            H,
-            L,
-            D,
-            BLOCK_D=triton.next_power_of_2(D),
+        output = torch.empty_like(v)
+
+        BLOCK_M = 64
+        BLOCK_N = 64
+
+        grid = (triton.cdiv(L, BLOCK_M), B * H)
+
+        parallel_gla_kernel[grid](
+            q, k, v, output,
+            q.stride(0), q.stride(1), q.stride(2), q.stride(3),
+            k.stride(0), k.stride(1), k.stride(2), k.stride(3),
+            v.stride(0), v.stride(1), v.stride(2), v.stride(3),
+            output.stride(0), output.stride(1), output.stride(2), output.stride(3),
+            B, L, H,
+            BLOCK_M=BLOCK_M,
+            BLOCK_N=BLOCK_N,
+            BLOCK_D_QK=D_QK,
+            BLOCK_D_V=D_V,
         )
-        return out
+
+        return output
