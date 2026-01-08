@@ -16,5 +16,3 @@ infra/ssh_key
 infra/ssh_key.pub
 infra/terraform.tfstate.backup
 infra/terraform.tfvars
-
-TOKEN
