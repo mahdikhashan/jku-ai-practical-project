@@ -4,16 +4,16 @@ import triton.language as tl
 
 @triton.jit
 def parallel_gla_kernel(
-        Q, K, V, Out,
-        stride_qb, stride_ql, stride_qh, stride_qd,
-        stride_kb, stride_kl, stride_kh, stride_kd,
-        stride_vb, stride_vl, stride_vh, stride_vd,
-        stride_ob, stride_ol, stride_oh, stride_od,
-        B, L, H,
-        BLOCK_M: tl.constexpr,
-        BLOCK_N: tl.constexpr,
-        D_QK: tl.constexpr,
-        D_V: tl.constexpr,
+    Q, K, V, Out,
+    stride_qb, stride_ql, stride_qh, stride_qd,
+    stride_kb, stride_kl, stride_kh, stride_kd,
+    stride_vb, stride_vl, stride_vh, stride_vd,
+    stride_ob, stride_ol, stride_oh, stride_od,
+    B, L, H,
+    BLOCK_M: tl.constexpr,
+    BLOCK_N: tl.constexpr,
+    D_QK: tl.constexpr,
+    D_V: tl.constexpr,
 ):
     pid_m = tl.program_id(0)
     pid_bh = tl.program_id(1)
