@@ -10,6 +10,7 @@ def parallel_gla_kernel(
     stride_vb, stride_vl, stride_vh, stride_vd,
     stride_ob, stride_ol, stride_oh, stride_od,
     B, L, H,
+    ALLOW_TF32: tl.constexpr,
     BLOCK_M: tl.constexpr,
     BLOCK_N: tl.constexpr,
     D_QK: tl.constexpr,
@@ -17,13 +18,12 @@ def parallel_gla_kernel(
 ):
     pid_m = tl.program_id(0)
     pid_bh = tl.program_id(1)
-
+    
     i_b = pid_bh // H
     i_h = pid_bh % H
 
     offs_m = pid_m * BLOCK_M + tl.arange(0, BLOCK_M)
     offs_n_base = tl.arange(0, BLOCK_N)
-
     offs_d_qk = tl.arange(0, D_QK)
     offs_d_v = tl.arange(0, D_V)
 
@@ -37,25 +37,24 @@ def parallel_gla_kernel(
 
     acc = tl.zeros([BLOCK_M, D_V], dtype=tl.float32)
     loop_end = (pid_m + 1) * BLOCK_M
-
+    
     for start_n in range(0, loop_end, BLOCK_N):
         offs_n = start_n + offs_n_base
-
+        
         k_ptrs = K_ptr + (offs_n[None, :] * stride_kl + offs_d_qk[:, None] * stride_kd)
         v_ptrs = V_ptr + (offs_n[:, None] * stride_vl + offs_d_v[None, :] * stride_vd)
 
         k = tl.load(k_ptrs, mask=offs_n[None, :] < L, other=0.0)
         v = tl.load(v_ptrs, mask=offs_n[:, None] < L, other=0.0)
 
-        qk = tl.dot(q, k)
-
+        qk = tl.dot(q, k, allow_tf32=ALLOW_TF32)
+        
         mask = offs_m[:, None] >= offs_n[None, :]
         qk = tl.where(mask, qk, 0.0)
-        
-        # todo(mahdi): fixme
-        qk = qk.to(tl.float32)
 
-        acc += tl.dot(qk, v)
+        # Upcast V to FP32
+        v_f32 = v.to(tl.float32)
+        acc += tl.dot(qk, v_f32, allow_tf32=ALLOW_TF32)
 
     out_ptrs = Out_ptr + (offs_m[:, None] * stride_ol + offs_d_v[None, :] * stride_od)
     tl.store(out_ptrs, acc.to(Out.dtype.element_ty), mask=offs_m[:, None] < L)
