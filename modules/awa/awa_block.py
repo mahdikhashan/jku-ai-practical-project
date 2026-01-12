@@ -13,8 +13,7 @@ class AnchorWindowAttention(nn.Module):
         if self.dtype is not None:
             self.anchor_proj.to(dtype=self.dtype)
 
-    def forward(self, q, k, v, dtype=None):
-        
+    def forward(self, q, k, v):
         q, k, v = q.to(dtype=self.dtype), k.to(dtype=self.dtype), v.to(dtype=self.dtype)
 
         batch_size, num_heads, seq_len, embed_dim = q.shape
