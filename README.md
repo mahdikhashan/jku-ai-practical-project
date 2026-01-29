@@ -7,6 +7,16 @@ Lizard Kernels
     - it setups git user with dedicated token
 - on each login, `conda activate jku-ai-practical-project` should be used to activate conda environment.
 
-#### Run Experiments
+#### Run Jupyter
 
-TODO
+```bash
+gcloud compute ssh whisper-l4-worker \
+  --zone asia-southeast1-a \
+  --project acoustic-alpha-308609 \
+  -- -L 8888:localhost:8888
+```
+
+```bash
+jupyter lab --no-browser --port=8888 --ip=127.0.0.1
+```
+
