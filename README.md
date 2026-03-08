@@ -12,7 +12,7 @@ Lizard Kernels
 ```bash
 gcloud compute ssh whisper-l4-worker \
   --zone asia-southeast1-a \
-  --project acoustic-alpha-308609 \
+  --project jku-practical-project \
   -- -L 8888:localhost:8888
 ```
 
