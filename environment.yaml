@@ -48,3 +48,4 @@ dependencies:
       - typing-extensions
       - tzdata
       - urllib3
+      - jupyterlab
