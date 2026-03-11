@@ -49,3 +49,4 @@ dependencies:
       - tzdata
       - urllib3
       - jupyterlab
+      - jupyterlab-git
