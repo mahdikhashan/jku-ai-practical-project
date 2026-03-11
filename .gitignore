@@ -18,3 +18,7 @@ infra/terraform.tfstate.backup
 infra/terraform.tfvars
 
 temp
+.ipynb_checkpoints/TOKEN-checkpoint
+.ipynb_checkpoints/environment-checkpoint.yaml
+jupyter.log
+notebooks/.ipynb_checkpoints/swa_musings-checkpoint.ipynb
