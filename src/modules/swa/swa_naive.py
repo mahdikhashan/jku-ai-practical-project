@@ -1,3 +1,7 @@
+import math
+import torch
+
+
 def swa_naive(q, k, v, window_sizes: tuple[int, int] = (15, 16)):
     """
     Naive implementation of sliding window attention.
