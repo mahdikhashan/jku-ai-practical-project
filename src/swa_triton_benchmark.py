@@ -43,11 +43,11 @@ import torch
 import triton
 
 # Reference implementations
-from swa_naive import swa_naive
-from swa_strided_pytorch import swa_strided as swa_strided_pt
+from swa_torch_naive import swa_naive
+from swa_torch_strided import swa_strided as swa_strided_pt
 
 # Triton kernels
-from swa_triton_tiled import swa_tiled_triton_fp32, swa_tiled_triton_fp16
+from swa_triton_custom_kernel import swa_tiled_triton_fp32, swa_tiled_triton_fp16
 
 # FlexAttention (optional)
 try:
