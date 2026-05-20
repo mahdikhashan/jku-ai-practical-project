@@ -33,6 +33,7 @@ import math
 import os
 import sys
 import time
+import traceback
 import warnings
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -42,11 +43,11 @@ import torch
 import triton
 
 # Reference implementations
-from swa_torch_naive import swa_naive
-from swa_torch_strided import swa_strided as swa_strided_pt
+from swa_naive import swa_naive
+from swa_strided_pytorch import swa_strided as swa_strided_pt
 
 # Triton kernels
-from swa_triton_custom_kernel import swa_tiled_triton_fp32, swa_tiled_triton_fp16
+from swa_triton_tiled import swa_tiled_triton_fp32, swa_tiled_triton_fp16
 
 # FlexAttention (optional)
 try:
@@ -138,6 +139,29 @@ def _max_abs_err(out: torch.Tensor, ref_fp32: torch.Tensor) -> float:
     return (out.float() - ref_fp32).abs().max().item()
 
 
+# Module-level error log -- one full traceback per (variant, dtype) the first
+# time it fails. Truncating these to 100 chars in the on-screen status was
+# hiding the actual cause; the on-screen tag stays short but the full text
+# goes to results/swa_bench_errors.log.
+_LOGGED_ERRORS: set[tuple[str, str]] = set()
+_ERROR_LOG_PATH = "results/swa_bench_errors.log"
+
+def _log_error(variant: str, dtype_name: str, exc: BaseException) -> str:
+    """Write full traceback once per (variant, dtype); return short tag for the row."""
+    key = (variant, dtype_name)
+    if key not in _LOGGED_ERRORS:
+        _LOGGED_ERRORS.add(key)
+        Path(_ERROR_LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
+        with open(_ERROR_LOG_PATH, "a") as f:
+            f.write(f"\n{'=' * 78}\n")
+            f.write(f"variant={variant}  dtype={dtype_name}\n")
+            f.write(f"{'=' * 78}\n")
+            f.write("".join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
+            f.write("\n")
+    # Short tag for the on-screen status column.
+    return f"error:{type(exc).__name__}"
+
+
 def bench_one(
     variant: str,
     fn: Callable,
@@ -159,19 +183,13 @@ def bench_one(
                            status=f"skipped:dtype_mismatch")
 
     try:
-        # Correctness
         out = fn(q, k, v, bwd, fwd)
         torch.cuda.synchronize()
         err = _max_abs_err(out, ref_fp32)
 
-        # Latency
         latency_ms = _measure(fn, q, k, v, bwd, fwd)
-
-        # Memory
-        peak_mib = _peak_memory(fn, q, k, v, bwd, fwd)
-
-        # Throughput
-        tflops = _flops(N, bwd, fwd, B, H, D) / (latency_ms * 1e-3) / 1e12
+        peak_mib   = _peak_memory(fn, q, k, v, bwd, fwd)
+        tflops     = _flops(N, bwd, fwd, B, H, D) / (latency_ms * 1e-3) / 1e12
 
         return BenchResult(**base,
                            latency_ms=latency_ms,
@@ -186,10 +204,10 @@ def bench_one(
                            status="oom")
     except Exception as e:
         torch.cuda.empty_cache()
-        msg = repr(e)[:100]
+        tag = _log_error(variant, dtype_name, e)
         return BenchResult(**base, latency_ms=float("nan"), tflops=float("nan"),
                            peak_mib=float("nan"), max_abs_err=float("nan"),
-                           status=f"error:{msg}")
+                           status=tag)
 
 
 # ===========================================================================
@@ -364,6 +382,9 @@ def main():
 
     write_csv(results, args.output)
     print(f"Wrote {args.output}")
+    if _LOGGED_ERRORS:
+        print(f"Wrote full tracebacks for failed variants to {_ERROR_LOG_PATH}")
+        print(f"   Failed: {sorted(_LOGGED_ERRORS)}")
 
 
 if __name__ == "__main__":

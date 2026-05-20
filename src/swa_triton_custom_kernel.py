@@ -62,7 +62,11 @@ def _configs_fp16():
     ]
 
 
-_AUTOTUNE_KEY = ["N_CTX", "BLOCK_DMODEL", "BWD_WINDOW", "FWD_WINDOW"]
+# Only non-constexpr args in the autotune key. Constexprs (BLOCK_DMODEL,
+# BWD_WINDOW, FWD_WINDOW) are already part of the JIT specialization cache,
+# so including them here is redundant -- and historically a source of
+# IndexError inside Triton's autotuner bookkeeping.
+_AUTOTUNE_KEY = ["N_CTX"]
 
 
 # ===========================================================================
@@ -257,12 +261,18 @@ def swa_tiled_triton_fp32(q, k, v, bwd_window, fwd_window):
 
     grid = lambda META: (triton.cdiv(N, META["BLOCK_M"]), B * H)
 
+    # All non-autotuned constexprs passed POSITIONALLY. Only BLOCK_M and
+    # BLOCK_N (filled by @triton.autotune) are kwargs.
     swa_tiled_kernel_fp32[grid](
         q, k, v, out,
-        *q.stride(), *k.stride(), *v.stride(), *out.stride(),
+        q.stride(0), q.stride(1), q.stride(2), q.stride(3),
+        k.stride(0), k.stride(1), k.stride(2), k.stride(3),
+        v.stride(0), v.stride(1), v.stride(2), v.stride(3),
+        out.stride(0), out.stride(1), out.stride(2), out.stride(3),
         H, N, sm_scale,
-        BWD_WINDOW=bwd_window,
-        FWD_WINDOW=fwd_window,
+        bwd_window,   # BWD_WINDOW   (constexpr)
+        fwd_window,   # FWD_WINDOW   (constexpr)
+        # BLOCK_M, BLOCK_N filled by autotuner
         BLOCK_DMODEL=BLOCK_D,
     )
     return out
@@ -284,10 +294,13 @@ def swa_tiled_triton_fp16(q, k, v, bwd_window, fwd_window):
 
     swa_tiled_kernel_fp16[grid](
         q, k, v, out,
-        *q.stride(), *k.stride(), *v.stride(), *out.stride(),
+        q.stride(0), q.stride(1), q.stride(2), q.stride(3),
+        k.stride(0), k.stride(1), k.stride(2), k.stride(3),
+        v.stride(0), v.stride(1), v.stride(2), v.stride(3),
+        out.stride(0), out.stride(1), out.stride(2), out.stride(3),
         H, N, sm_scale,
-        BWD_WINDOW=bwd_window,
-        FWD_WINDOW=fwd_window,
+        bwd_window,
+        fwd_window,
         BLOCK_DMODEL=BLOCK_D,
     )
     return out
