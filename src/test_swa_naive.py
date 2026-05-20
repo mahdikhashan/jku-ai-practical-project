@@ -1,7 +1,7 @@
 import math
 import torch
 import pytest
-from src.modules.swa.swa_naive import swa_naive
+from src.swa_torch_naive import swa_naive
 
 
 def make_qkv(L, D, batch=1, heads=1, seed=0):

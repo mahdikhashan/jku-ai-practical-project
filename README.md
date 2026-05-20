@@ -1,4 +1,4 @@
-Lizard Kernels 
+Sliding Window Attention Kernels 
 ---
 
 ### Setup
@@ -26,12 +26,4 @@ nohup jupyter lab --no-browser --port=8888 --ip=127.0.0.1 > jupyter.log 2>&1 &
 (jku-ai-practical-project) mahdikhashan@whisper-l4-worker:~$ jupyter server list
 Currently running servers:
 http://127.0.0.1:8888/?token=25fdaae1232d9bafd3879e8e7ce3eb12c6b95e18462c46c9 :: /home/mahdikhashan
-```
-
-### Run SWA Tests (local)
-
-- activate the local conda environment first: `conda activate jku-swa-test`
-
-```bash
-pytest src/modules/swa/test_swa_naive.py -v
 ```
