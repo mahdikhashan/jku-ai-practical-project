@@ -7,7 +7,7 @@ Sliding Window Attention Kernels
     - it setups git user with dedicated token
 - on each login, `conda activate jku-ai-practical-project` should be used to activate conda environment.
 
-### Run Jupyter
+### SSH to VM
 
 ```bash
 gcloud compute ssh whisper-l4-worker \
@@ -16,7 +16,7 @@ gcloud compute ssh whisper-l4-worker \
   -- -L 8888:localhost:8888
 ```
 
-##### Jupyter in background
+#### Jupyter in background
 
 ```bash
 nohup jupyter lab --no-browser --port=8888 --ip=127.0.0.1 > jupyter.log 2>&1 &
