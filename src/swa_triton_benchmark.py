@@ -10,7 +10,7 @@ import triton
 
 from swa_torch_naive import swa_naive
 from swa_torch_strided import swa_strided as swa_strided_pt
-from swa_triton_custom_kernel import swa_tiled_triton_fp32, swa_tiled_triton_fp16
+from swa_triton_custom_kernel import swa_strided_triton, swa_tiled_triton
 
 SEQ_LENS = [1024, 2048, 4096, 8192, 16384]
 WINDOWS = [(15, 16), (31, 32), (63, 64), (127, 128), (255, 256)]
@@ -49,16 +49,12 @@ def swa_flex(q, k, v, bwd, fwd):
 VARIANTS = {
     "naive_pt": lambda q, k, v, bwd, fwd: swa_naive(q, k, v, (bwd, fwd)),
     "strided_pt": lambda q, k, v, bwd, fwd: swa_strided_pt(q, k, v, (bwd, fwd)),
-    "triton_tiled_fp32": lambda q, k, v, bwd, fwd: swa_tiled_triton_fp32(q, k, v, bwd, fwd),
-    "triton_tiled_fp16": lambda q, k, v, bwd, fwd: swa_tiled_triton_fp16(q, k, v, bwd, fwd),
+    "triton_tiled": swa_tiled_triton,
+    "triton_strided": swa_strided_triton,
 }
 if HAS_FLEX:
     VARIANTS["flex"] = swa_flex
 
-DTYPE_RESTRICTION = {
-    "triton_tiled_fp32": torch.float32,
-    "triton_tiled_fp16": torch.float16,
-}
 QUADRATIC_VARIANTS = {"naive_pt"}
 LOGGED_ERRORS = set()
 
@@ -98,10 +94,6 @@ def bench_one(variant, fn, dtype, n, bwd, fwd, ref, ref_source, q, k, v):
            "ref_source": "self" if variant == ref_source else ref_source}
     empty = {"latency_ms": float("nan"), "tflops": float("nan"),
              "peak_mib": float("nan"), "max_abs_err": float("nan")}
-
-    required = DTYPE_RESTRICTION.get(variant)
-    if required is not None and required != dtype:
-        return {**row, **empty, "status": "skipped:dtype_mismatch"}
 
     try:
         out = fn(q, k, v, bwd, fwd)

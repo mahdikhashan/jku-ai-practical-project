@@ -1,315 +1,128 @@
-"""
-Sliding window attention in Triton -- tiled (FlashAttention-style) kernels.
-
-Two variants are provided, one per precision:
-  * swa_tiled_triton_fp32 -- single-precision throughout (storage + compute).
-  * swa_tiled_triton_fp16 -- half-precision storage, FP32 accumulators.
-
-Each query tile of BLOCK_M rows iterates over key/value tiles of BLOCK_N
-columns, visiting only those tiles that overlap the window
-[i - bwd, i + fwd]. The softmax is computed with the standard FlashAttention
-online algorithm (running max + denominator + rescale).
-
-Autotuned parameters:
-  - BLOCK_M, BLOCK_N : tile shape on the (query, key) axes.
-  - num_warps        : warps per program instance; trades parallelism for
-                       register pressure.
-  - num_stages       : software-pipelining depth on KV-tile loads; hides
-                       global-memory latency by issuing the next load while
-                       the current matmul is still in flight.
-"""
-
 import math
+
 import torch
 import triton
 import triton.language as tl
 
-
-# ===========================================================================
-# Autotune config spaces
-# ===========================================================================
-
-def _configs_fp32():
-    """FP32 has larger per-element footprint, so tiles cap at 128 x 64."""
-    return [
-        triton.Config({"BLOCK_M": 32,  "BLOCK_N": 32},  num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 32,  "BLOCK_N": 32},  num_warps=4, num_stages=3),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 32},  num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 32},  num_warps=4, num_stages=3),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 64},  num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 64},  num_warps=8, num_stages=2),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 64},  num_warps=4, num_stages=3),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 32},  num_warps=8, num_stages=2),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64},  num_warps=8, num_stages=2),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64},  num_warps=8, num_stages=3),
+TILED_CONFIGS = [
+    triton.Config({"BLOCK_M": m, "BLOCK_N": n}, num_warps=w, num_stages=s)
+    for m, n, w, s in [
+        (32, 32, 4, 2), (64, 32, 4, 3), (64, 64, 4, 2), (64, 64, 4, 3),
+        (64, 128, 4, 2), (128, 32, 4, 3), (128, 64, 8, 2), (128, 64, 8, 3),
+        (128, 128, 8, 2),
     ]
+]
+
+STRIDED_CONFIGS = [
+    triton.Config({"BLOCK_M": m, "BLOCK_W": w}, num_warps=nw)
+    for m, w, nw in [(8, 16, 4), (16, 8, 4), (16, 16, 4), (16, 16, 8), (32, 8, 8)]
+]
 
 
-def _configs_fp16():
-    """FP16 halves register footprint, allowing 128 x 128 and beyond."""
-    return [
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 32},  num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 64},  num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 64},  num_warps=4, num_stages=3),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 128}, num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 64,  "BLOCK_N": 128}, num_warps=8, num_stages=2),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 32},  num_warps=4, num_stages=3),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64},  num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64},  num_warps=8, num_stages=2),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64},  num_warps=8, num_stages=3),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 128}, num_warps=8, num_stages=2),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 128}, num_warps=8, num_stages=3),
-    ]
-
-
-# Only non-constexpr args in the autotune key. Constexprs (BLOCK_DMODEL,
-# BWD_WINDOW, FWD_WINDOW) are already part of the JIT specialization cache,
-# so including them here is redundant -- and historically a source of
-# IndexError inside Triton's autotuner bookkeeping.
-_AUTOTUNE_KEY = ["N_CTX"]
-
-
-# ===========================================================================
-# FP32 kernel
-# ===========================================================================
-
-@triton.autotune(configs=_configs_fp32(), key=_AUTOTUNE_KEY)
 @triton.jit
-def swa_tiled_kernel_fp32(
-    Q, K, V, Out,
-    stride_qb, stride_qh, stride_qm, stride_qk,
-    stride_kb, stride_kh, stride_kn, stride_kk,
-    stride_vb, stride_vh, stride_vn, stride_vk,
-    stride_ob, stride_oh, stride_om, stride_ok,
-    H, N_CTX, sm_scale,
-    BWD_WINDOW: tl.constexpr,
-    FWD_WINDOW: tl.constexpr,
-    BLOCK_M: tl.constexpr,
-    BLOCK_N: tl.constexpr,
-    BLOCK_DMODEL: tl.constexpr,
-):
-    # ----- Program identification ------------------------------------------
-    start_m = tl.program_id(0)
-    off_hz  = tl.program_id(1)
-    off_b   = off_hz // H
-    off_h   = off_hz %  H
-
-    q_offset = off_b * stride_qb + off_h * stride_qh
-    k_offset = off_b * stride_kb + off_h * stride_kh
-    v_offset = off_b * stride_vb + off_h * stride_vh
-    o_offset = off_b * stride_ob + off_h * stride_oh
-
-    offs_m = start_m * BLOCK_M + tl.arange(0, BLOCK_M)
-    offs_d = tl.arange(0, BLOCK_DMODEL)
-
-    # ----- Load Q tile (FP32) ----------------------------------------------
-    q_ptrs = Q + q_offset + offs_m[:, None] * stride_qm + offs_d[None, :] * stride_qk
-    q_mask = offs_m[:, None] < N_CTX
-    q = tl.load(q_ptrs, mask=q_mask, other=0.0)
-
-    # ----- KV-tile range that overlaps the window for this query tile ------
-    q_start = start_m * BLOCK_M
-    q_end   = q_start + BLOCK_M - 1
-    kv_lo   = tl.maximum(q_start - BWD_WINDOW, 0)
-    kv_hi   = tl.minimum(q_end   + FWD_WINDOW, N_CTX - 1)
-    n_start = (kv_lo // BLOCK_N) * BLOCK_N
-    n_end   = kv_hi + 1
-
-    # ----- Running softmax state -------------------------------------------
-    m_i = tl.full((BLOCK_M,), -float("inf"), dtype=tl.float32)
-    l_i = tl.zeros((BLOCK_M,), dtype=tl.float32)
-    acc = tl.zeros((BLOCK_M, BLOCK_DMODEL), dtype=tl.float32)
-
-    # ----- Iterate over relevant KV tiles ----------------------------------
-    for n_block_start in range(n_start, n_end, BLOCK_N):
-        offs_n = n_block_start + tl.arange(0, BLOCK_N)
-
-        diff      = offs_n[None, :] - offs_m[:, None]
-        in_window = (diff >= -BWD_WINDOW) & (diff <= FWD_WINDOW)
-        in_seq_n  = offs_n < N_CTX
-        valid     = in_window & in_seq_n[None, :]
-
-        k_ptrs = K + k_offset + offs_n[:, None] * stride_kn + offs_d[None, :] * stride_kk
-        v_ptrs = V + v_offset + offs_n[:, None] * stride_vn + offs_d[None, :] * stride_vk
-        kv_mask_n = in_seq_n[:, None]
-        k = tl.load(k_ptrs, mask=kv_mask_n, other=0.0)
-        v = tl.load(v_ptrs, mask=kv_mask_n, other=0.0)
-
-        qk = tl.dot(q, tl.trans(k))
-        qk = qk * sm_scale
-        qk = tl.where(valid, qk, -float("inf"))
-
-        m_ij    = tl.max(qk, axis=1)
-        m_new   = tl.maximum(m_i, m_ij)
-        m_safe  = tl.where(m_new == -float("inf"), 0.0, m_new)
-        alpha   = tl.exp(m_i - m_safe)
-        p       = tl.exp(qk - m_safe[:, None])
-        p       = tl.where(valid, p, 0.0)
-
-        l_i = l_i * alpha + tl.sum(p, axis=1)
-        acc = acc * alpha[:, None] + tl.dot(p, v)
-        m_i = m_new
-
-    # ----- Final normalization ---------------------------------------------
-    l_safe = tl.where(l_i == 0.0, 1.0, l_i)
-    acc    = acc / l_safe[:, None]
-
-    o_ptrs = Out + o_offset + offs_m[:, None] * stride_om + offs_d[None, :] * stride_ok
-    tl.store(o_ptrs, acc, mask=q_mask)
+def _online_softmax_step(m_i, l_i, s):
+    m_new = tl.maximum(m_i, tl.max(s, axis=1))
+    m_safe = tl.where(m_new == -float("inf"), 0.0, m_new)
+    alpha = tl.exp(m_i - m_safe)
+    p = tl.exp(s - m_safe[:, None])
+    l_i = l_i * alpha + tl.sum(p, axis=1)
+    return m_new, l_i, alpha, p
 
 
-# ===========================================================================
-# FP16 kernel
-# ===========================================================================
-
-@triton.autotune(configs=_configs_fp16(), key=_AUTOTUNE_KEY)
+@triton.autotune(configs=TILED_CONFIGS, key=["N", "BWD", "FWD"])
 @triton.jit
-def swa_tiled_kernel_fp16(
-    Q, K, V, Out,
-    stride_qb, stride_qh, stride_qm, stride_qk,
-    stride_kb, stride_kh, stride_kn, stride_kk,
-    stride_vb, stride_vh, stride_vn, stride_vk,
-    stride_ob, stride_oh, stride_om, stride_ok,
-    H, N_CTX, sm_scale,
-    BWD_WINDOW: tl.constexpr,
-    FWD_WINDOW: tl.constexpr,
-    BLOCK_M: tl.constexpr,
-    BLOCK_N: tl.constexpr,
-    BLOCK_DMODEL: tl.constexpr,
-):
-    start_m = tl.program_id(0)
-    off_hz  = tl.program_id(1)
-    off_b   = off_hz // H
-    off_h   = off_hz %  H
+def swa_tiled_kernel(Q, K, V, Out, N, sm_scale,
+                     BWD: tl.constexpr, FWD: tl.constexpr, D: tl.constexpr,
+                     BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr):
+    pid_m = tl.program_id(0)
+    base = tl.program_id(1) * N * D
+    offs_m = pid_m * BLOCK_M + tl.arange(0, BLOCK_M)
+    offs_d = tl.arange(0, D)
 
-    q_offset = off_b * stride_qb + off_h * stride_qh
-    k_offset = off_b * stride_kb + off_h * stride_kh
-    v_offset = off_b * stride_vb + off_h * stride_vh
-    o_offset = off_b * stride_ob + off_h * stride_oh
+    q = tl.load(Q + base + offs_m[:, None] * D + offs_d[None, :],
+                mask=offs_m[:, None] < N, other=0.0)
 
-    offs_m = start_m * BLOCK_M + tl.arange(0, BLOCK_M)
-    offs_d = tl.arange(0, BLOCK_DMODEL)
+    m_i = tl.full([BLOCK_M], -float("inf"), tl.float32)
+    l_i = tl.zeros([BLOCK_M], tl.float32)
+    acc = tl.zeros([BLOCK_M, D], tl.float32)
 
-    q_ptrs = Q + q_offset + offs_m[:, None] * stride_qm + offs_d[None, :] * stride_qk
-    q_mask = offs_m[:, None] < N_CTX
-    q = tl.load(q_ptrs, mask=q_mask, other=0.0)  # FP16
+    lo = tl.maximum(pid_m * BLOCK_M - BWD, 0) // BLOCK_N * BLOCK_N
+    hi = tl.minimum(pid_m * BLOCK_M + BLOCK_M - 1 + FWD, N - 1) + 1
+    for start_n in range(lo, hi, BLOCK_N):
+        offs_n = start_n + tl.arange(0, BLOCK_N)
+        diff = offs_n[None, :] - offs_m[:, None]
+        valid = (diff >= -BWD) & (diff <= FWD) & (offs_n[None, :] < N)
 
-    q_start = start_m * BLOCK_M
-    q_end   = q_start + BLOCK_M - 1
-    kv_lo   = tl.maximum(q_start - BWD_WINDOW, 0)
-    kv_hi   = tl.minimum(q_end   + FWD_WINDOW, N_CTX - 1)
-    n_start = (kv_lo // BLOCK_N) * BLOCK_N
-    n_end   = kv_hi + 1
+        kv = base + offs_n[:, None] * D + offs_d[None, :]
+        k = tl.load(K + kv, mask=offs_n[:, None] < N, other=0.0)
+        v = tl.load(V + kv, mask=offs_n[:, None] < N, other=0.0)
 
-    m_i = tl.full((BLOCK_M,), -float("inf"), dtype=tl.float32)
-    l_i = tl.zeros((BLOCK_M,), dtype=tl.float32)
-    acc = tl.zeros((BLOCK_M, BLOCK_DMODEL), dtype=tl.float32)
+        s = tl.dot(q, tl.trans(k), out_dtype=tl.float32) * sm_scale
+        s = tl.where(valid, s, -float("inf"))
+        m_i, l_i, alpha, p = _online_softmax_step(m_i, l_i, s)
+        acc = acc * alpha[:, None] + tl.dot(p.to(v.dtype), v, out_dtype=tl.float32)
 
-    for n_block_start in range(n_start, n_end, BLOCK_N):
-        offs_n = n_block_start + tl.arange(0, BLOCK_N)
-
-        diff      = offs_n[None, :] - offs_m[:, None]
-        in_window = (diff >= -BWD_WINDOW) & (diff <= FWD_WINDOW)
-        in_seq_n  = offs_n < N_CTX
-        valid     = in_window & in_seq_n[None, :]
-
-        k_ptrs = K + k_offset + offs_n[:, None] * stride_kn + offs_d[None, :] * stride_kk
-        v_ptrs = V + v_offset + offs_n[:, None] * stride_vn + offs_d[None, :] * stride_vk
-        kv_mask_n = in_seq_n[:, None]
-        k = tl.load(k_ptrs, mask=kv_mask_n, other=0.0)  # FP16
-        v = tl.load(v_ptrs, mask=kv_mask_n, other=0.0)  # FP16
-
-        # FP16 x FP16 with FP32 accumulator on tensor cores.
-        qk = tl.dot(q, tl.trans(k), out_dtype=tl.float32)
-        qk = qk * sm_scale
-        qk = tl.where(valid, qk, -float("inf"))
-
-        m_ij    = tl.max(qk, axis=1)
-        m_new   = tl.maximum(m_i, m_ij)
-        m_safe  = tl.where(m_new == -float("inf"), 0.0, m_new)
-        alpha   = tl.exp(m_i - m_safe)
-        p       = tl.exp(qk - m_safe[:, None])
-        p       = tl.where(valid, p, 0.0)
-
-        l_i = l_i * alpha + tl.sum(p, axis=1)
-        # Cast p to FP16 so PV matmul also runs on tensor cores; acc stays FP32.
-        acc = acc * alpha[:, None] + tl.dot(p.to(tl.float16), v, out_dtype=tl.float32)
-        m_i = m_new
-
-    l_safe = tl.where(l_i == 0.0, 1.0, l_i)
-    acc    = acc / l_safe[:, None]
-
-    o_ptrs = Out + o_offset + offs_m[:, None] * stride_om + offs_d[None, :] * stride_ok
-    tl.store(o_ptrs, acc.to(Out.dtype.element_ty), mask=q_mask)
+    acc = acc / tl.where(l_i == 0.0, 1.0, l_i)[:, None]
+    tl.store(Out + base + offs_m[:, None] * D + offs_d[None, :],
+             acc.to(Out.dtype.element_ty), mask=offs_m[:, None] < N)
 
 
-# ===========================================================================
-# Wrappers
-# ===========================================================================
+@triton.autotune(configs=STRIDED_CONFIGS, key=["N", "BWD", "W"])
+@triton.jit
+def swa_strided_kernel(Q, K, V, Out, N, sm_scale,
+                       BWD: tl.constexpr, W: tl.constexpr, D: tl.constexpr,
+                       BLOCK_M: tl.constexpr, BLOCK_W: tl.constexpr):
+    base = tl.program_id(1) * N * D
+    offs_m = tl.program_id(0) * BLOCK_M + tl.arange(0, BLOCK_M)
+    offs_d = tl.arange(0, D)
 
-def swa_tiled_triton_fp32(q, k, v, bwd_window, fwd_window):
-    """FP32 sliding window attention. Q, K, V: [B, H, N, D] CUDA tensors."""
-    assert q.dtype == k.dtype == v.dtype == torch.float32, \
-        f"swa_tiled_triton_fp32 requires FP32 inputs; got {q.dtype}"
-    assert q.shape == k.shape == v.shape
-    assert q.is_cuda and k.is_cuda and v.is_cuda
+    q = tl.load(Q + base + offs_m[:, None] * D + offs_d[None, :],
+                mask=offs_m[:, None] < N, other=0.0).to(tl.float32)
 
+    m_i = tl.full([BLOCK_M], -float("inf"), tl.float32)
+    l_i = tl.zeros([BLOCK_M], tl.float32)
+    acc = tl.zeros([BLOCK_M, D], tl.float32)
+
+    for w0 in range(0, W, BLOCK_W):
+        offs_w = w0 + tl.arange(0, BLOCK_W)
+        pos = offs_m[:, None] - BWD + offs_w[None, :]
+        valid = (offs_w[None, :] < W) & (pos >= 0) & (pos < N)
+
+        kv = base + pos[:, :, None] * D + offs_d[None, None, :]
+        k = tl.load(K + kv, mask=valid[:, :, None], other=0.0).to(tl.float32)
+        v = tl.load(V + kv, mask=valid[:, :, None], other=0.0).to(tl.float32)
+
+        s = tl.sum(q[:, None, :] * k, axis=2) * sm_scale
+        s = tl.where(valid, s, -float("inf"))
+        m_i, l_i, alpha, p = _online_softmax_step(m_i, l_i, s)
+        acc = acc * alpha[:, None] + tl.sum(p[:, :, None] * v, axis=1)
+
+    acc = acc / tl.where(l_i == 0.0, 1.0, l_i)[:, None]
+    tl.store(Out + base + offs_m[:, None] * D + offs_d[None, :],
+             acc.to(Out.dtype.element_ty), mask=offs_m[:, None] < N)
+
+
+def _prepare(q, k, v):
+    assert q.shape == k.shape == v.shape and q.dtype == k.dtype == v.dtype
+    assert q.dtype in (torch.float32, torch.float16)
+    D = q.shape[-1]
+    assert D >= 16 and D & (D - 1) == 0, "head dim must be a power of two >= 16"
+    return q.contiguous(), k.contiguous(), v.contiguous()
+
+
+def swa_tiled_triton(q, k, v, bwd, fwd):
+    q, k, v = _prepare(q, k, v)
     B, H, N, D = q.shape
-    out      = torch.empty_like(q)
-    sm_scale = 1.0 / math.sqrt(D)
-    BLOCK_D  = triton.next_power_of_2(D)
-
-    grid = lambda META: (triton.cdiv(N, META["BLOCK_M"]), B * H)
-
-    # All non-autotuned constexprs passed POSITIONALLY. Only BLOCK_M and
-    # BLOCK_N (filled by @triton.autotune) are kwargs.
-    swa_tiled_kernel_fp32[grid](
-        q, k, v, out,
-        q.stride(0), q.stride(1), q.stride(2), q.stride(3),
-        k.stride(0), k.stride(1), k.stride(2), k.stride(3),
-        v.stride(0), v.stride(1), v.stride(2), v.stride(3),
-        out.stride(0), out.stride(1), out.stride(2), out.stride(3),
-        H, N, sm_scale,
-        bwd_window,   # BWD_WINDOW   (constexpr)
-        fwd_window,   # FWD_WINDOW   (constexpr)
-        # BLOCK_M, BLOCK_N filled by autotuner
-        BLOCK_DMODEL=BLOCK_D,
-    )
+    out = torch.empty_like(q)
+    grid = lambda meta: (triton.cdiv(N, meta["BLOCK_M"]), B * H)
+    swa_tiled_kernel[grid](q, k, v, out, N, 1.0 / math.sqrt(D), BWD=bwd, FWD=fwd, D=D)
     return out
 
 
-def swa_tiled_triton_fp16(q, k, v, bwd_window, fwd_window):
-    """FP16 sliding window attention with FP32 accumulators."""
-    assert q.dtype == k.dtype == v.dtype == torch.float16, \
-        f"swa_tiled_triton_fp16 requires FP16 inputs; got {q.dtype}"
-    assert q.shape == k.shape == v.shape
-    assert q.is_cuda and k.is_cuda and v.is_cuda
-
+def swa_strided_triton(q, k, v, bwd, fwd):
+    q, k, v = _prepare(q, k, v)
     B, H, N, D = q.shape
-    out      = torch.empty_like(q)
-    sm_scale = 1.0 / math.sqrt(D)
-    BLOCK_D  = triton.next_power_of_2(D)
-
-    grid = lambda META: (triton.cdiv(N, META["BLOCK_M"]), B * H)
-
-    swa_tiled_kernel_fp16[grid](
-        q, k, v, out,
-        q.stride(0), q.stride(1), q.stride(2), q.stride(3),
-        k.stride(0), k.stride(1), k.stride(2), k.stride(3),
-        v.stride(0), v.stride(1), v.stride(2), v.stride(3),
-        out.stride(0), out.stride(1), out.stride(2), out.stride(3),
-        H, N, sm_scale,
-        bwd_window,
-        fwd_window,
-        BLOCK_DMODEL=BLOCK_D,
-    )
+    out = torch.empty_like(q)
+    grid = lambda meta: (triton.cdiv(N, meta["BLOCK_M"]), B * H)
+    swa_strided_kernel[grid](q, k, v, out, N, 1.0 / math.sqrt(D), BWD=bwd, W=bwd + fwd + 1, D=D)
     return out
-
-
-def swa_tiled_triton(q, k, v, bwd_window, fwd_window):
-    """Dispatch by dtype."""
-    if q.dtype == torch.float32:
-        return swa_tiled_triton_fp32(q, k, v, bwd_window, fwd_window)
-    if q.dtype == torch.float16:
-        return swa_tiled_triton_fp16(q, k, v, bwd_window, fwd_window)
-    raise ValueError(f"Unsupported dtype {q.dtype}; expected FP32 or FP16.")
