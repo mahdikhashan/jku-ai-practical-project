@@ -18,7 +18,10 @@ B, H, D = 1, 8, 64
 NAIVE_BUDGET_GIB = 18.0
 OUTPUT = Path("results/swa_bench_flex.csv")
 
+torch._dynamo.config.recompile_limit = 128
+
 flex_attention_compiled = torch.compile(flex_attention, dynamic=False)
+create_block_mask_compiled = torch.compile(create_block_mask, dynamic=False)
 
 
 @lru_cache(maxsize=None)
@@ -26,8 +29,8 @@ def block_mask_for(n, bwd, fwd):
     def mask_mod(b, h, qi, ki):
         return (qi - ki <= bwd) & (ki - qi <= fwd)
 
-    return create_block_mask(
-        mask_mod, B=None, H=None, Q_LEN=n, KV_LEN=n, device="cuda", _compile=True,
+    return create_block_mask_compiled(
+        mask_mod, B=None, H=None, Q_LEN=n, KV_LEN=n, device="cuda",
     )
 
 
