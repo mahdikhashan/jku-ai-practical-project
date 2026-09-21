@@ -1,6 +1,7 @@
 import csv
 import sys
 import traceback
+from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from swa_torch_strided import swa_strided as swa_strided_pt
 SEQ_LENS = [1024, 2048, 4096, 8192, 16384]
 WINDOWS = [(15, 16), (31, 32), (63, 64), (127, 128), (255, 256)]
 DTYPES = [torch.float32, torch.float16]
+FP32_PRECISIONS = ["highest", "high"]
 B, H, D = 1, 8, 64
 NAIVE_BUDGET_GIB = 18.0
 OUTPUT = Path("results/swa_bench_flex.csv")
@@ -37,6 +39,16 @@ def block_mask_for(n, bwd, fwd):
 def swa_flex(q, k, v, bwd, fwd):
     mask = block_mask_for(q.shape[2], bwd, fwd)
     return flex_attention_compiled(q, k, v, block_mask=mask)
+
+
+@contextmanager
+def fp32_precision(precision):
+    prev = torch.get_float32_matmul_precision()
+    torch.set_float32_matmul_precision(precision)
+    try:
+        yield
+    finally:
+        torch.set_float32_matmul_precision(prev)
 
 
 def naive_fits_budget(n):
@@ -68,13 +80,14 @@ def build_reference(q32, k32, v32, bwd, fwd):
         return None, "none"
 
 
-def measure(q, k, v, bwd, fwd, ref):
+def measure(q, k, v, bwd, fwd, ref, precision):
     try:
-        out = swa_flex(q, k, v, bwd, fwd)
-        torch.cuda.synchronize()
-        err = float("nan") if ref is None else (out.float() - ref).abs().max().item()
-        lat = triton.testing.do_bench(lambda: swa_flex(q, k, v, bwd, fwd), warmup=5, rep=25)
-        mem = peak_mem_mib(swa_flex, q, k, v, bwd, fwd)
+        with fp32_precision(precision):
+            out = swa_flex(q, k, v, bwd, fwd)
+            torch.cuda.synchronize()
+            err = float("nan") if ref is None else (out.float() - ref).abs().max().item()
+            lat = triton.testing.do_bench(lambda: swa_flex(q, k, v, bwd, fwd), warmup=5, rep=25)
+            mem = peak_mem_mib(swa_flex, q, k, v, bwd, fwd)
         return {"latency_ms": lat, "peak_mib": mem, "max_abs_err": err, "status": "ok"}
     except torch.cuda.OutOfMemoryError:
         torch.cuda.empty_cache()
@@ -100,18 +113,22 @@ def run_sweep():
             for dtype in DTYPES:
                 q, k, v = (q32, k32, v32) if dtype == torch.float32 else (
                     q32.to(dtype), k32.to(dtype), v32.to(dtype))
+                precisions = FP32_PRECISIONS if dtype == torch.float32 else ["n/a"]
 
-                row = {"variant": "flex", "dtype": str(dtype).rsplit(".", 1)[-1],
-                       "N": n, "bwd": bwd, "fwd": fwd, "B": B, "H": H, "D": D,
-                       "ref_source": ref_src}
-                res = measure(q, k, v, bwd, fwd, ref)
-                w = 1 + bwd + fwd
-                res["tflops"] = ((4 * n * w * D * H * B) / (res["latency_ms"] * 1e-3) / 1e12
-                                  if res["status"] == "ok" else float("nan"))
-                row.update(res)
-                rows.append(row)
-                print(row, flush=True)
-                torch.cuda.empty_cache()
+                for precision in precisions:
+                    row = {"variant": "flex", "dtype": str(dtype).rsplit(".", 1)[-1],
+                           "precision": precision,
+                           "N": n, "bwd": bwd, "fwd": fwd, "B": B, "H": H, "D": D,
+                           "ref_source": ref_src}
+                    res = measure(q, k, v, bwd, fwd, ref,
+                                  "highest" if precision == "n/a" else precision)
+                    w = 1 + bwd + fwd
+                    res["tflops"] = ((4 * n * w * D * H * B) / (res["latency_ms"] * 1e-3) / 1e12
+                                      if res["status"] == "ok" else float("nan"))
+                    row.update(res)
+                    rows.append(row)
+                    print(row, flush=True)
+                    torch.cuda.empty_cache()
 
             del q32, k32, v32, ref
             torch.cuda.empty_cache()
