@@ -17,13 +17,19 @@ WINDOWS = [(15, 16), (31, 32), (63, 64), (127, 128), (255, 256)]
 DTYPES = [torch.float32, torch.float16]
 B, H, D = 1, 8, 64
 NAIVE_BUDGET_GIB = 18.0
+WARMUP_MS, REP_MS = 25, 100
 OUTPUT = Path("results/swa_bench.csv")
 ERROR_LOG = Path("results/swa_bench_errors.log")
+
+torch.set_float32_matmul_precision("highest")
+torch._dynamo.config.recompile_limit = 128
+
+naive_compiled = torch.compile(swa_naive, dynamic=False)
+strided_compiled = torch.compile(swa_strided_pt, dynamic=False)
 
 try:
     from torch.nn.attention.flex_attention import create_block_mask, flex_attention
 
-    torch._dynamo.config.recompile_limit = 128
     flex_attention_compiled = torch.compile(flex_attention, dynamic=False)
     create_block_mask_compiled = torch.compile(create_block_mask, dynamic=False)
     HAS_FLEX = True
@@ -46,17 +52,34 @@ def swa_flex(q, k, v, bwd, fwd):
     return flex_attention_compiled(q, k, v, block_mask=mask)
 
 
+def with_precision(fn, precision):
+    def wrapped(*args):
+        prev = torch.get_float32_matmul_precision()
+        torch.set_float32_matmul_precision(precision)
+        try:
+            return fn(*args)
+        finally:
+            torch.set_float32_matmul_precision(prev)
+    return wrapped
+
+
 VARIANTS = {
     "naive_pt": lambda q, k, v, bwd, fwd: swa_naive(q, k, v, (bwd, fwd)),
+    "naive_pt_compiled": lambda q, k, v, bwd, fwd: naive_compiled(q, k, v, (bwd, fwd)),
     "strided_pt": lambda q, k, v, bwd, fwd: swa_strided_pt(q, k, v, (bwd, fwd)),
+    "strided_pt_compiled": lambda q, k, v, bwd, fwd: strided_compiled(q, k, v, (bwd, fwd)),
     "triton_tiled": swa_tiled_triton,
     "triton_strided": swa_strided_triton,
 }
 if HAS_FLEX:
     VARIANTS["flex"] = swa_flex
+    VARIANTS["flex_tf32"] = with_precision(swa_flex, "high")
 
-QUADRATIC_VARIANTS = {"naive_pt"}
+QUADRATIC_VARIANTS = {"naive_pt", "naive_pt_compiled"}
+FP32_ONLY_VARIANTS = {"flex_tf32"}
 LOGGED_ERRORS = set()
+EMPTY = {"latency_ms": float("nan"), "latency_p20": float("nan"), "latency_p80": float("nan"),
+         "tflops": float("nan"), "peak_mib": float("nan"), "max_abs_err": float("nan")}
 
 
 def naive_gib(n):
@@ -87,29 +110,24 @@ def log_error(variant, dtype_name, exc):
     return f"error:{type(exc).__name__}"
 
 
-def bench_one(variant, fn, dtype, n, bwd, fwd, ref, ref_source, q, k, v):
-    dtype_name = str(dtype).rsplit(".", 1)[-1]
-    row = {"variant": variant, "dtype": dtype_name, "N": n, "bwd": bwd, "fwd": fwd,
-           "B": B, "H": H, "D": D,
-           "ref_source": "self" if variant == ref_source else ref_source}
-    empty = {"latency_ms": float("nan"), "tflops": float("nan"),
-             "peak_mib": float("nan"), "max_abs_err": float("nan")}
-
+def bench_one(variant, fn, n, bwd, fwd, ref, row, q, k, v):
     try:
         out = fn(q, k, v, bwd, fwd)
         torch.cuda.synchronize()
         err = float("nan") if ref is None else (out.float() - ref).abs().max().item()
-        lat = triton.testing.do_bench(lambda: fn(q, k, v, bwd, fwd), warmup=5, rep=25)
+        med, p20, p80 = triton.testing.do_bench(
+            lambda: fn(q, k, v, bwd, fwd), warmup=WARMUP_MS, rep=REP_MS,
+            quantiles=[0.5, 0.2, 0.8])
         mem = peak_mem_mib(fn, q, k, v, bwd, fwd)
-        tflops_val = flops(n, bwd, fwd) / (lat * 1e-3) / 1e12
-        return {**row, "latency_ms": lat, "tflops": tflops_val, "peak_mib": mem,
-                "max_abs_err": err, "status": "ok"}
+        return {**row, "latency_ms": med, "latency_p20": p20, "latency_p80": p80,
+                "tflops": flops(n, bwd, fwd) / (med * 1e-3) / 1e12,
+                "peak_mib": mem, "max_abs_err": err, "status": "ok"}
     except torch.cuda.OutOfMemoryError:
         torch.cuda.empty_cache()
-        return {**row, **empty, "status": "oom"}
+        return {**row, **EMPTY, "status": "oom"}
     except Exception as e:
         torch.cuda.empty_cache()
-        return {**row, **empty, "status": log_error(variant, dtype_name, e)}
+        return {**row, **EMPTY, "status": log_error(variant, row["dtype"], e)}
 
 
 def build_reference(q32, k32, v32, bwd, fwd, naive_fits):
@@ -147,15 +165,16 @@ def run_sweep():
                 dtype_name = str(dtype).rsplit(".", 1)[-1]
 
                 for variant, fn in VARIANTS.items():
+                    if variant in FP32_ONLY_VARIANTS and dtype != torch.float32:
+                        continue
+                    row = {"variant": variant, "dtype": dtype_name, "N": n,
+                           "bwd": bwd, "fwd": fwd, "B": B, "H": H, "D": D,
+                           "ref_source": "self" if variant == ref_source else ref_source}
                     if variant in QUADRATIC_VARIANTS and not naive_fits:
-                        row = {"variant": variant, "dtype": dtype_name, "N": n,
-                               "bwd": bwd, "fwd": fwd, "B": B, "H": H, "D": D,
-                               "ref_source": ref_source, "latency_ms": float("nan"),
-                               "tflops": float("nan"), "peak_mib": float("nan"),
-                               "max_abs_err": float("nan"),
+                        row = {**row, **EMPTY,
                                "status": f"skipped:budget({naive_gib(n):.1f}GiB)"}
                     else:
-                        row = bench_one(variant, fn, dtype, n, bwd, fwd, ref, ref_source, q, k, v)
+                        row = bench_one(variant, fn, n, bwd, fwd, ref, row, q, k, v)
                     rows.append(row)
                     print(row, flush=True)
                     torch.cuda.empty_cache()
