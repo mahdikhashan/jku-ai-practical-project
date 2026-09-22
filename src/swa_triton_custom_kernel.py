@@ -14,8 +14,8 @@ TILED_CONFIGS = [
 ]
 
 STRIDED_CONFIGS = [
-    triton.Config({"BLOCK_M": m, "BLOCK_W": w}, num_warps=nw)
-    for m, w, nw in [(8, 16, 4), (16, 8, 4), (16, 16, 4), (16, 16, 8), (32, 8, 8)]
+    triton.Config({"BLOCK_M": m}, num_warps=nw)
+    for m, nw in [(32, 4), (64, 4), (128, 4), (128, 8)]
 ]
 
 
@@ -71,7 +71,7 @@ def swa_tiled_kernel(Q, K, V, Out, N, sm_scale,
 @triton.jit
 def swa_strided_kernel(Q, K, V, Out, N, sm_scale,
                        BWD: tl.constexpr, W: tl.constexpr, D: tl.constexpr,
-                       BLOCK_M: tl.constexpr, BLOCK_W: tl.constexpr):
+                       BLOCK_M: tl.constexpr):
     base = tl.program_id(1) * N * D
     offs_m = tl.program_id(0) * BLOCK_M + tl.arange(0, BLOCK_M)
     offs_d = tl.arange(0, D)
@@ -83,19 +83,18 @@ def swa_strided_kernel(Q, K, V, Out, N, sm_scale,
     l_i = tl.zeros([BLOCK_M], tl.float32)
     acc = tl.zeros([BLOCK_M, D], tl.float32)
 
-    for w0 in range(0, W, BLOCK_W):
-        offs_w = w0 + tl.arange(0, BLOCK_W)
-        pos = offs_m[:, None] - BWD + offs_w[None, :]
-        valid = (offs_w[None, :] < W) & (pos >= 0) & (pos < N)
+    for w in range(W):
+        pos = offs_m - BWD + w
+        valid = (pos >= 0) & (pos < N)
 
-        kv = base + pos[:, :, None] * D + offs_d[None, None, :]
-        k = tl.load(K + kv, mask=valid[:, :, None], other=0.0).to(tl.float32)
-        v = tl.load(V + kv, mask=valid[:, :, None], other=0.0).to(tl.float32)
+        kv = base + pos[:, None] * D + offs_d[None, :]
+        k = tl.load(K + kv, mask=valid[:, None], other=0.0).to(tl.float32)
+        v = tl.load(V + kv, mask=valid[:, None], other=0.0).to(tl.float32)
 
-        s = tl.sum(q[:, None, :] * k, axis=2) * sm_scale
+        s = tl.sum(q * k, axis=1) * sm_scale
         s = tl.where(valid, s, -float("inf"))
-        m_i, l_i, alpha, p = _online_softmax_step(m_i, l_i, s)
-        acc = acc * alpha[:, None] + tl.sum(p[:, :, None] * v, axis=1)
+        m_i, l_i, alpha, p = _online_softmax_step(m_i, l_i, s[:, None])
+        acc = acc * alpha[:, None] + p * v
 
     acc = acc / tl.where(l_i == 0.0, 1.0, l_i)[:, None]
     tl.store(Out + base + offs_m[:, None] * D + offs_d[None, :],
